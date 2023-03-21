@@ -8,10 +8,13 @@
   "parserOptions": {
     "ecmaVersion": "latest"
   },
-  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "extends": [
+    "airbnb-base",
+    "prettier"
+  ],
   "rules": {
     "indent": "error",
     "no-console": "off",
-    "no-plusplus":"off"
+    "no-plusplus": "off"
   }
 }
