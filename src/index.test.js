@@ -10,7 +10,11 @@ describe("ship test", () => {
   });
 
   test("can increase the number of hits", () => {
-    expect(mainObjects.Ship(4, 0).hit()).toBe(1);
+    const testShip = mainObjects.Ship(4, 0);
+
+    testShip.hit();
+
+    expect(testShip.currentHits()).toBe(1);
   });
 });
 
@@ -26,11 +30,34 @@ describe("hit-sunk test", () => {
 
 describe("gameboard test", () => {
   test("can create a 10x10 game board", () => {
-    expect(mainObjects.Gameboard(10).newBoard().length).toBe(100);
+    expect(mainObjects.Gameboard().newBoard(10).length).toBe(100);
   });
 
   test("the game board has X both and Y coordinates correct", () => {
-    expect(mainObjects.Gameboard(10).newBoard()[10]).toEqual([1, 0]);
-    expect(mainObjects.Gameboard(10).newBoard()[22]).toEqual([2, 2]);
+    expect(mainObjects.Gameboard().newBoard(10)[10]).toEqual([1, 0]);
+    expect(mainObjects.Gameboard().newBoard(10)[22]).toEqual([2, 2]);
+  });
+
+  describe("receiveAttack tests", () => {
+    const testShips = mainObjects.Gameboard().deployShips([3, 3]);
+
+    const testShips2 = mainObjects.Gameboard().deployShips([
+      [3, 3],
+      [3, 4],
+    ]);
+
+    // run receiveAttack
+    mainObjects.Gameboard().receiveAttack([3, 3], testShips);
+
+    mainObjects.Gameboard().receiveAttack([3, 4], testShips2)
+
+    test("can make a 1x1 ship receive an attack", () => {
+      expect(testShips.carrier.currentHits()).toBe(1);
+    });
+
+    test("can make a 2x1 ship receive an attack", () => {
+      // current fail
+      expect(testShips2.carrier.currentHits()).toBe(1);
+    });
   });
 });
