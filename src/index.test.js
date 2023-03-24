@@ -41,23 +41,21 @@ describe("gameboard test", () => {
   describe("receiveAttack tests", () => {
     const testShips = mainObjects.Gameboard().deployShips([3, 3]);
 
-    const testShips2 = mainObjects.Gameboard().deployShips([
-      [3, 3],
-      [3, 4],
-    ]);
+    const testShips2 = mainObjects.Gameboard().deployShips([[3, 3], [3, 4], [3, 5]]);
 
     // run receiveAttack
     mainObjects.Gameboard().receiveAttack([3, 3], testShips);
 
     mainObjects.Gameboard().receiveAttack([3, 4], testShips2)
 
-    test("can make a 1x1 ship receive an attack", () => {
+    mainObjects.Gameboard().receiveAttack([3, 5], testShips2)
+
+    test("can make a 1-space ship receive an attack", () => {
       expect(testShips.carrier.currentHits()).toBe(1);
     });
 
-    test("can make a 2x1 ship receive an attack", () => {
-      // current fail
-      expect(testShips2.carrier.currentHits()).toBe(1);
+    test("can make a 3-spaces ship receive an attack", () => {
+      expect(testShips2.carrier.currentHits()).toBe(2);
     });
   });
 });

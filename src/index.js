@@ -50,15 +50,15 @@ const mainObjects = (() => {
     ) => {
 
       const coordinates = {
-        carrier: [carrierCords],
-        battleShip: [battleShipCords],
-        battleShip1: [battleShip1Cords],
-        cruiser: [cruiserCords],
-        cruiser1: [cruiser1Cords],
-        cruiser2: [cruiser2Cords],
-        destroyer: [destroyerCords],
-        destroyer2: [destroyer2Cords],
-        destroyer3: [destroyer3Cords],
+        carrier: carrierCords,
+        battleShip: battleShipCords,
+        battleShip1: battleShip1Cords,
+        cruiser: cruiserCords,
+        cruiser1: cruiser1Cords,
+        cruiser2: cruiser2Cords,
+        destroyer: destroyerCords,
+        destroyer2: destroyer2Cords,
+        destroyer3: destroyer3Cords,
       };
 
       const carrier = Ship(4, 0);
@@ -99,10 +99,28 @@ const mainObjects = (() => {
     const checkedCoordinates = [];
 
     const receiveAttack = (targetCords, playerShips) => {
+
       checkedCoordinates.push(targetCords);
 
-      Object.entries(playerShips.coordinates).forEach(([key, value]) => {
-        if (JSON.stringify(value) === JSON.stringify([targetCords])) {
+      const isTargetInArray = (arr, target) => {
+
+        if (JSON.stringify(arr) === JSON.stringify(target)) return true
+
+        if (arr === undefined) return false
+
+        for (let i = 0; i < arr.length; i++) {
+
+          const element = arr[i];
+
+          if (JSON.stringify(element) === JSON.stringify(target)) return true
+
+        }
+
+      }
+
+      Object.entries(playerShips.coordinates).forEach(([key, shipCords]) => {
+
+        if ((isTargetInArray(shipCords, targetCords))) {
           // if the target cords matches a ship cords.
           if (key === "carrier") playerShips.carrier.hit();
           if (key === "battleShip") playerShips.battleShip.hit();
@@ -116,6 +134,8 @@ const mainObjects = (() => {
           if (key === "destroyer3") playerShips.destroyer3.hit();
         }
       });
+
+      return checkedCoordinates
     };
 
     return { newBoard, receiveAttack, deployShips };
