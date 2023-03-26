@@ -48,7 +48,6 @@ const mainObjects = (() => {
       destroyer2Cords,
       destroyer3Cords
     ) => {
-
       const coordinates = {
         carrier: carrierCords,
         battleShip: battleShipCords,
@@ -96,31 +95,32 @@ const mainObjects = (() => {
       };
     };
 
-    const checkedCoordinates = [];
+    const missedAttacks = [];
+
+    const successAttacks = [];
 
     const receiveAttack = (targetCords, playerShips) => {
-
-      checkedCoordinates.push(targetCords);
-
       const isTargetInArray = (arr, target) => {
+        let contains = false;
 
-        if (JSON.stringify(arr) === JSON.stringify(target)) return true
+        if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
 
-        if (arr === undefined) return false
+        if (arr === undefined) return contains;
 
         for (let i = 0; i < arr.length; i++) {
-
           const element = arr[i];
 
-          if (JSON.stringify(element) === JSON.stringify(target)) return true
-
+          if (JSON.stringify(element) === JSON.stringify(target))
+            contains = true;
         }
 
-      }
+        return contains;
+      };
 
       Object.entries(playerShips.coordinates).forEach(([key, shipCords]) => {
+        if (isTargetInArray(shipCords, targetCords)) {
+          successAttacks.push(targetCords);
 
-        if ((isTargetInArray(shipCords, targetCords))) {
           // if the target cords matches a ship cords.
           if (key === "carrier") playerShips.carrier.hit();
           if (key === "battleShip") playerShips.battleShip.hit();
@@ -135,10 +135,11 @@ const mainObjects = (() => {
         }
       });
 
-      return checkedCoordinates
+      if (!isTargetInArray(successAttacks, targetCords))
+        missedAttacks.push(targetCords); // if the target cords are not inside successAttacks, it is a missed attack.
     };
 
-    return { newBoard, receiveAttack, deployShips };
+    return { newBoard, receiveAttack, deployShips, missedAttacks };
   };
 
   return { Ship, Gameboard };

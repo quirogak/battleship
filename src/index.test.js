@@ -39,16 +39,24 @@ describe("gameboard test", () => {
   });
 
   describe("receiveAttack tests", () => {
-    const testShips = mainObjects.Gameboard().deployShips([3, 3]);
+    const testGameboard = mainObjects.Gameboard();
 
-    const testShips2 = mainObjects.Gameboard().deployShips([[3, 3], [3, 4], [3, 5]]);
+    const testGameboard1 = mainObjects.Gameboard();
+
+    const testShips = testGameboard.deployShips([2, 1]);
+
+    const testShips2 = testGameboard1.deployShips([
+      [3, 3],
+      [3, 4],
+      [3, 5],
+    ]);
 
     // run receiveAttack
-    mainObjects.Gameboard().receiveAttack([3, 3], testShips);
+    testGameboard.receiveAttack([2, 1], testShips);
 
-    mainObjects.Gameboard().receiveAttack([3, 4], testShips2)
+    testGameboard1.receiveAttack([3, 4], testShips2);
 
-    mainObjects.Gameboard().receiveAttack([3, 5], testShips2)
+    testGameboard1.receiveAttack([3, 5], testShips2);
 
     test("can make a 1-space ship receive an attack", () => {
       expect(testShips.carrier.currentHits()).toBe(1);
@@ -56,6 +64,12 @@ describe("gameboard test", () => {
 
     test("can make a 3-spaces ship receive an attack", () => {
       expect(testShips2.carrier.currentHits()).toBe(2);
+    });
+
+    testGameboard.receiveAttack([4, 8], testShips); // missed attack
+
+    test("can record missed attacks", () => {
+      expect(testGameboard.missedAttacks).toStrictEqual([[4, 8]]);
     });
   });
 });
