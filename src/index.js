@@ -117,23 +117,38 @@ const mainObjects = (() => {
         return contains;
       };
 
-      Object.entries(playerShips.coordinates).forEach(([key, shipCords]) => {
+      const currentShips = Object.entries(playerShips.coordinates)
+
+      for (let i = 0; i < currentShips.length; i++) {
+
+        let success = false
+
+        const shipCords = currentShips[i][1]
+
+        const shipName = currentShips[i][0]
+
         if (isTargetInArray(shipCords, targetCords)) {
+
+          success = true
+
           successAttacks.push(targetCords);
 
           // if the target cords matches a ship cords.
-          if (key === "carrier") playerShips.carrier.hit();
-          if (key === "battleShip") playerShips.battleShip.hit();
-          if (key === "battleShip1") playerShips.battleShip1.hit();
-          if (key === "cruiser") playerShips.cruiser.hit();
-          if (key === "cruiser1") playerShips.cruiser1.hit();
-          if (key === "cruiser2") playerShips.cruiser2.hit();
-          if (key === "destroyer") playerShips.destroyer.hit();
-          if (key === "destroyer1") playerShips.destroyer1.hit();
-          if (key === "destroyer2") playerShips.destroyer2.hit();
-          if (key === "destroyer3") playerShips.destroyer3.hit();
+          if (shipName === "carrier") playerShips.carrier.hit();
+          if (shipName === "battleShip") playerShips.battleShip.hit();
+          if (shipName === "battleShip1") playerShips.battleShip1.hit();
+          if (shipName === "cruiser") playerShips.cruiser.hit();
+          if (shipName === "cruiser1") playerShips.cruiser1.hit();
+          if (shipName === "cruiser2") playerShips.cruiser2.hit();
+          if (shipName === "destroyer") playerShips.destroyer.hit();
+          if (shipName === "destroyer1") playerShips.destroyer1.hit();
+          if (shipName === "destroyer2") playerShips.destroyer2.hit();
+          if (shipName === "destroyer3") playerShips.destroyer3.hit();
+
         }
-      });
+
+        if (success === true) break;
+      }
 
       if (!isTargetInArray(successAttacks, targetCords))
         missedAttacks.push(targetCords); // if the target cords are not inside successAttacks, it is a missed attack.
