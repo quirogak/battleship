@@ -28,48 +28,94 @@ describe("hit-sunk test", () => {
   });
 });
 
-describe("gameboard test", () => {
-  test("can create a 10x10 game board", () => {
-    expect(mainObjects.Gameboard().newBoard(10).length).toBe(100);
+describe("receiveAttack tests", () => {
+  const testGameboard = mainObjects.Gameboard();
+
+  const testGameboard1 = mainObjects.Gameboard();
+
+  const testShips = testGameboard.deployShips([2, 1]);
+
+  const testShips1 = testGameboard1.deployShips([
+    [3, 3],
+    [3, 4],
+    [3, 5],
+  ]);
+
+  // run receiveAttack
+  testGameboard.receiveAttack([2, 1], testShips);
+
+  testGameboard1.receiveAttack([3, 4], testShips1);
+
+  testGameboard1.receiveAttack([3, 5], testShips1);
+
+  test("can make a 1-space ship receive an attack", () => {
+    expect(testShips.carrier.currentHits()).toBe(1);
   });
 
-  test("the game board has X both and Y coordinates correct", () => {
-    expect(mainObjects.Gameboard().newBoard(10)[10]).toEqual([1, 0]);
-    expect(mainObjects.Gameboard().newBoard(10)[22]).toEqual([2, 2]);
+  test("can make a 3-spaces ship receive an attack", () => {
+    expect(testShips1.carrier.currentHits()).toBe(2);
   });
 
-  describe("receiveAttack tests", () => {
-    const testGameboard = mainObjects.Gameboard();
+  testGameboard.receiveAttack([4, 8], testShips); // missed attack
 
-    const testGameboard1 = mainObjects.Gameboard();
-
-    const testShips = testGameboard.deployShips([2, 1]);
-
-    const testShips2 = testGameboard1.deployShips([
-      [3, 3],
-      [3, 4],
-      [3, 5],
-    ]);
-
-    // run receiveAttack
-    testGameboard.receiveAttack([2, 1], testShips);
-
-    testGameboard1.receiveAttack([3, 4], testShips2);
-
-    testGameboard1.receiveAttack([3, 5], testShips2);
-
-    test("can make a 1-space ship receive an attack", () => {
-      expect(testShips.carrier.currentHits()).toBe(1);
-    });
-
-    test("can make a 3-spaces ship receive an attack", () => {
-      expect(testShips2.carrier.currentHits()).toBe(2);
-    });
-
-    testGameboard.receiveAttack([4, 8], testShips); // missed attack
-
-    test("can record missed attacks", () => {
-      expect(testGameboard.missedAttacks).toStrictEqual([[4, 8]]);
-    });
+  test("can record missed attacks", () => {
+    expect(testGameboard.missedAttacks).toStrictEqual([[4, 8]]);
   });
+});
+
+describe("checkSunk tests", () => {
+  const testGameboard = mainObjects.Gameboard();
+  const testShips = testGameboard.deployShips([
+    [7, 2],
+    [7, 3],
+    [7, 4],
+    [7, 5],
+  ]);
+
+  testGameboard.receiveAttack([7, 2], testShips);
+
+  testGameboard.receiveAttack([7, 3], testShips);
+
+  testGameboard.receiveAttack([7, 4], testShips);
+
+  testGameboard.receiveAttack([7, 5], testShips);
+
+  test("can check if a one boat fleet is sunk", () => {
+    expect(testGameboard.checkSunk(testShips)).toBe(true);
+  });
+
+  const testShips2 = testGameboard.deployShips();
+
+  testShips2.coordinates.destroyer = [3, 4]
+
+  testShips2.destroyer.currentCords = [3, 4]
+
+  testShips2.coordinates.destroyer1 = [4, 3]
+
+  testShips2.destroyer1.currentCords = [4, 3]
+
+  testGameboard.receiveAttack([3, 4], testShips2)
+
+  testGameboard.receiveAttack([4, 3], testShips2)
+
+  test("can check if a multiple boat fleet is sunk", () => {
+    expect(testGameboard.checkSunk(testShips2)).toBe(true);
+  });
+
+  const testShips3 = testGameboard.deployShips();
+
+  testShips3.coordinates.destroyer = [3, 4]
+
+  testShips3.destroyer.currentCords = [3, 4]
+
+  testShips3.coordinates.destroyer1 = [4, 3]
+
+  testShips3.destroyer1.currentCords = [4, 3]
+
+  testGameboard.receiveAttack([3, 4], testShips3) // we only sunk one destroyer
+
+  test("can check if a multiple boat fleet is NOT sunk", () => {
+    expect(testGameboard.checkSunk(testShips3)).toBe(false);
+  });
+
 });
