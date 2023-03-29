@@ -1,8 +1,7 @@
 const mainObjects = (() => {
   const Ship = (lengthNumber, hitsNumber, coords) => {
 
-    // eslint-disable-next-line prefer-const
-    let currentCords = coords;
+    const currentCords = coords;
 
     const checkSunk = (length, hits) => {
       if (length === hits) return true;
@@ -162,10 +161,51 @@ const mainObjects = (() => {
       return areAllSunk(playerShips);
     };
 
-    return { receiveAttack, deployShips, missedAttacks, checkSunk };
+    return { receiveAttack, deployShips, missedAttacks, successAttacks, checkSunk };
   };
 
   return { Ship, Gameboard };
 })();
 
-export { mainObjects };
+const playerLogic = (() => {
+
+  const Player = (name, shipsCords) => {
+
+    const playerName = name
+
+    const playerBoard = mainObjects.Gameboard()
+
+    const playerShips = () => playerBoard.deployShips(shipsCords)
+
+    const receiveAttack = (coordinates) => playerBoard.receiveAttack(coordinates, playerShips())
+
+    return { playerName, playerBoard, receiveAttack, playerShips }
+
+  }
+
+  const cpuPlayer = (humanPlayer) => {
+
+    const rivalPlayer = humanPlayer
+
+    const cpuBoard = mainObjects.Gameboard()
+
+    const attackPlayer = () => {
+
+      const randomInt = (max) => Math.floor(Math.random() * max)
+
+      rivalPlayer.receiveAttack([randomInt(9), randomInt(9)])
+
+    }
+
+    return { attackPlayer }
+
+
+  }
+
+  return { Player, cpuPlayer }
+
+})();
+
+
+
+export { mainObjects, playerLogic };

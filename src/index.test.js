@@ -1,4 +1,4 @@
-import { mainObjects } from "./index";
+import { mainObjects, playerLogic } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -117,5 +117,24 @@ describe("checkSunk tests", () => {
   test("can check if a multiple boat fleet is NOT sunk", () => {
     expect(testGameboard.checkSunk(testShips3)).toBe(false);
   });
+
+});
+
+describe("cpuPlayer tests", () => {
+
+  test("can make a random attack in a player's board", () => {
+
+    const humanPlayer = playerLogic.Player("example")
+
+    const humanBoard = humanPlayer.playerBoard
+
+    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer)
+
+    cpuPlayer.attackPlayer()
+
+    // because there is no player ships coordinates defined on this example, the cpu attack will always be a missedAttack.
+    expect(humanBoard.missedAttacks[0]).not.toBe(undefined);
+  });
+
 
 });
