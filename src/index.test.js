@@ -86,17 +86,17 @@ describe("checkSunk tests", () => {
 
   const testShips2 = testGameboard.deployShips();
 
-  testShips2.coordinates.destroyer = [3, 4]
+  testShips2.coordinates.destroyer = [3, 4];
 
-  testShips2.destroyer.currentCords = [3, 4]
+  testShips2.destroyer.currentCords = [3, 4];
 
-  testShips2.coordinates.destroyer1 = [4, 3]
+  testShips2.coordinates.destroyer1 = [4, 3];
 
-  testShips2.destroyer1.currentCords = [4, 3]
+  testShips2.destroyer1.currentCords = [4, 3];
 
-  testGameboard.receiveAttack([3, 4], testShips2)
+  testGameboard.receiveAttack([3, 4], testShips2);
 
-  testGameboard.receiveAttack([4, 3], testShips2)
+  testGameboard.receiveAttack([4, 3], testShips2);
 
   test("can check if a multiple boat fleet is sunk", () => {
     expect(testGameboard.checkSunk(testShips2)).toBe(true);
@@ -104,37 +104,47 @@ describe("checkSunk tests", () => {
 
   const testShips3 = testGameboard.deployShips();
 
-  testShips3.coordinates.destroyer = [3, 4]
+  testShips3.coordinates.destroyer = [3, 4];
 
-  testShips3.destroyer.currentCords = [3, 4]
+  testShips3.destroyer.currentCords = [3, 4];
 
-  testShips3.coordinates.destroyer1 = [4, 3]
+  testShips3.coordinates.destroyer1 = [4, 3];
 
-  testShips3.destroyer1.currentCords = [4, 3]
+  testShips3.destroyer1.currentCords = [4, 3];
 
-  testGameboard.receiveAttack([3, 4], testShips3) // we only sunk one destroyer
+  testGameboard.receiveAttack([3, 4], testShips3); // we only sunk one destroyer
 
   test("can check if a multiple boat fleet is NOT sunk", () => {
     expect(testGameboard.checkSunk(testShips3)).toBe(false);
   });
-
 });
 
 describe("cpuPlayer tests", () => {
-
   test("can make a random attack in a player's board", () => {
+    const humanPlayer = playerLogic.Player("example");
 
-    const humanPlayer = playerLogic.Player("example")
+    const humanBoard = humanPlayer.playerBoard;
 
-    const humanBoard = humanPlayer.playerBoard
+    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer);
 
-    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer)
-
-    cpuPlayer.attackPlayer()
+    cpuPlayer.attackPlayer();
 
     // because there is no player ships coordinates defined on this example, the cpu attack will always be a missedAttack.
     expect(humanBoard.missedAttacks[0]).not.toBe(undefined);
   });
 
+  test("can't shoot the same coordinate", () => {
+    const humanPlayer = playerLogic.Player("example");
 
+    const humanBoard = humanPlayer.playerBoard;
+
+    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer);
+
+    cpuPlayer.attackPlayer([5, 3]);
+
+    cpuPlayer.attackPlayer([5, 3]);
+
+    // if the cpu can attack the same coordinate twice, the second array element of the human's missedAttacks should be [5, 3] too
+    expect(humanBoard.missedAttacks[1]).not.toBe([5, 3]);
+  });
 });

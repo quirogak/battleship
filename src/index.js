@@ -1,6 +1,21 @@
+const isTargetInArray = (arr, target) => {
+  let contains = false;
+
+  if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
+
+  if (arr === undefined) return contains;
+
+  for (let i = 0; i < arr.length; i++) {
+    const element = arr[i];
+
+    if (JSON.stringify(element) === JSON.stringify(target)) contains = true;
+  }
+
+  return contains;
+};
+
 const mainObjects = (() => {
   const Ship = (lengthNumber, hitsNumber, coords) => {
-
     const currentCords = coords;
 
     const checkSunk = (length, hits) => {
@@ -87,23 +102,6 @@ const mainObjects = (() => {
     const successAttacks = [];
 
     const receiveAttack = (targetCords, playerShips) => {
-      const isTargetInArray = (arr, target) => {
-        let contains = false;
-
-        if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
-
-        if (arr === undefined) return contains;
-
-        for (let i = 0; i < arr.length; i++) {
-          const element = arr[i];
-
-          if (JSON.stringify(element) === JSON.stringify(target))
-            contains = true;
-        }
-
-        return contains;
-      };
-
       const currentShips = Object.entries(playerShips.coordinates);
 
       for (let i = 0; i < currentShips.length; i++) {
@@ -142,70 +140,91 @@ const mainObjects = (() => {
       const areAllSunk = (ships) => {
         // either we didn't defined the cords of a ship (undefined), or it is actually sunk, we take that as true.
         if (
-          (ships.carrier.currentCords === undefined || ships.carrier.isSunk()) &&
-          (ships.battleShip.currentCords === undefined || ships.battleShip.isSunk()) &&
-          (ships.battleShip1.currentCords === undefined || ships.battleShip1.isSunk()) &&
-          (ships.cruiser.currentCords === undefined || ships.cruiser.isSunk()) &&
-          (ships.cruiser1.currentCords === undefined || ships.cruiser1.isSunk()) &&
-          (ships.cruiser2.currentCords === undefined || ships.cruiser2.isSunk()) &&
-          (ships.destroyer.currentCords === undefined || ships.destroyer.isSunk()) &&
-          (ships.destroyer1.currentCords === undefined || ships.destroyer1.isSunk()) &&
-          (ships.destroyer2.currentCords === undefined || ships.destroyer2.isSunk()) &&
-          (ships.destroyer3.currentCords === undefined || ships.destroyer3.isSunk())
+          (ships.carrier.currentCords === undefined ||
+            ships.carrier.isSunk()) &&
+          (ships.battleShip.currentCords === undefined ||
+            ships.battleShip.isSunk()) &&
+          (ships.battleShip1.currentCords === undefined ||
+            ships.battleShip1.isSunk()) &&
+          (ships.cruiser.currentCords === undefined ||
+            ships.cruiser.isSunk()) &&
+          (ships.cruiser1.currentCords === undefined ||
+            ships.cruiser1.isSunk()) &&
+          (ships.cruiser2.currentCords === undefined ||
+            ships.cruiser2.isSunk()) &&
+          (ships.destroyer.currentCords === undefined ||
+            ships.destroyer.isSunk()) &&
+          (ships.destroyer1.currentCords === undefined ||
+            ships.destroyer1.isSunk()) &&
+          (ships.destroyer2.currentCords === undefined ||
+            ships.destroyer2.isSunk()) &&
+          (ships.destroyer3.currentCords === undefined ||
+            ships.destroyer3.isSunk())
         )
           return true;
 
-        return false
+        return false;
       };
 
       return areAllSunk(playerShips);
     };
 
-    return { receiveAttack, deployShips, missedAttacks, successAttacks, checkSunk };
+    return {
+      receiveAttack,
+      deployShips,
+      missedAttacks,
+      successAttacks,
+      checkSunk,
+    };
   };
 
   return { Ship, Gameboard };
 })();
 
 const playerLogic = (() => {
-
   const Player = (name, shipsCords) => {
+    const playerName = name;
 
-    const playerName = name
+    const playerBoard = mainObjects.Gameboard();
 
-    const playerBoard = mainObjects.Gameboard()
+    const playerShips = () => playerBoard.deployShips(shipsCords);
 
-    const playerShips = () => playerBoard.deployShips(shipsCords)
+    const receiveAttack = (coordinates) =>
+      playerBoard.receiveAttack(coordinates, playerShips());
 
-    const receiveAttack = (coordinates) => playerBoard.receiveAttack(coordinates, playerShips())
-
-    return { playerName, playerBoard, receiveAttack, playerShips }
-
-  }
+    return { playerName, playerBoard, receiveAttack, playerShips };
+  };
 
   const cpuPlayer = (humanPlayer) => {
+    const rivalPlayer = humanPlayer;
 
-    const rivalPlayer = humanPlayer
+    const cpuBoard = mainObjects.Gameboard();
 
-    const cpuBoard = mainObjects.Gameboard()
+    const usedCoords = [];
 
-    const attackPlayer = () => {
+    const attackPlayer = (coords) => {
+      const randomInt = (max) => Math.floor(Math.random() * max);
 
-      const randomInt = (max) => Math.floor(Math.random() * max)
+      const randomCoords = [randomInt(9), randomInt(9)];
 
-      rivalPlayer.receiveAttack([randomInt(9), randomInt(9)])
+      // call the function again and generate new random coords if the attack has already be done in that coordinate.
+      if (isTargetInArray(usedCoords, coords)) return attackPlayer();
 
-    }
+      if (isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
 
-    return { attackPlayer }
+      if (coords !== undefined) {
+        // if we set manual coords for testing or another purposes.
+        usedCoords.push(coords);
+        return rivalPlayer.receiveAttack(coords);
+      }
 
+      return rivalPlayer.receiveAttack(randomCoords);
+    };
 
-  }
+    return { attackPlayer, cpuBoard };
+  };
 
-  return { Player, cpuPlayer }
-
+  return { Player, cpuPlayer };
 })();
-
-
 
 export { mainObjects, playerLogic };
