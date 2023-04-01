@@ -187,7 +187,10 @@ const playerLogic = (() => {
 
     const playerBoard = mainObjects.Gameboard();
 
-    const playerShips = () => playerBoard.deployShips(shipsCords);
+    const playerShips = () => {
+      if (shipsCords === undefined) return playerBoard.deployShips(shipsCords);
+      return playerBoard.deployShips(...shipsCords); // spread operator to pass each array of coordinates separately, so every boat will receive it's coordinates.
+    };
 
     const receiveAttack = (coordinates) =>
       playerBoard.receiveAttack(coordinates, playerShips());
@@ -195,10 +198,18 @@ const playerLogic = (() => {
     return { playerName, playerBoard, receiveAttack, playerShips };
   };
 
-  const cpuPlayer = (humanPlayer) => {
+  const cpuPlayer = (humanPlayer, shipsCords) => {
     const rivalPlayer = humanPlayer;
 
     const cpuBoard = mainObjects.Gameboard();
+
+    const cpuShips = () => {
+      if (shipsCords === undefined) return cpuBoard.deployShips(shipsCords);
+      return cpuBoard.deployShips(...shipsCords);
+    };
+
+    const receiveAttack = (coordinates) =>
+      cpuBoard.receiveAttack(coordinates, cpuShips());
 
     const usedCoords = [];
 
@@ -213,7 +224,7 @@ const playerLogic = (() => {
       if (isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
 
       if (coords !== undefined) {
-        // if we set manual coords for testing or another purposes.
+        // if we set manual empty coords for testing or another purposes.
         usedCoords.push(coords);
         return rivalPlayer.receiveAttack(coords);
       }
@@ -221,10 +232,30 @@ const playerLogic = (() => {
       return rivalPlayer.receiveAttack(randomCoords);
     };
 
-    return { attackPlayer, cpuBoard };
+    return { attackPlayer, cpuBoard, cpuShips, receiveAttack };
   };
 
   return { Player, cpuPlayer };
 })();
 
-export { mainObjects, playerLogic };
+const Game = (() => {
+  const newGame = (playerName, playerCoords, cpuCoords) => {
+    const Player = playerLogic.Player(playerName, playerCoords);
+
+    const cpuPlayer = playerLogic.cpuPlayer(Player, cpuCoords);
+
+    return { Player, cpuPlayer };
+  };
+
+  return { newGame };
+})();
+
+const DOMLogic = (() => {
+  const startGame = () => {
+    const defineCoords = () => { };
+  };
+
+  return { startGame };
+})();
+
+export { mainObjects, playerLogic, Game, DOMLogic };

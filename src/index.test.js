@@ -1,4 +1,4 @@
-import { mainObjects, playerLogic } from "./index";
+import { mainObjects, playerLogic, Game } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -85,7 +85,7 @@ describe("checkSunk tests", () => {
   });
 
   const testShips2 = testGameboard.deployShips();
-
+  // here we manually set the coordinates after we deploy the ships, to make sure we can do that.
   testShips2.coordinates.destroyer = [3, 4];
 
   testShips2.destroyer.currentCords = [3, 4];
@@ -102,15 +102,7 @@ describe("checkSunk tests", () => {
     expect(testGameboard.checkSunk(testShips2)).toBe(true);
   });
 
-  const testShips3 = testGameboard.deployShips();
-
-  testShips3.coordinates.destroyer = [3, 4];
-
-  testShips3.destroyer.currentCords = [3, 4];
-
-  testShips3.coordinates.destroyer1 = [4, 3];
-
-  testShips3.destroyer1.currentCords = [4, 3];
+  const testShips3 = testGameboard.deployShips([3, 4], [4, 3]);
 
   testGameboard.receiveAttack([3, 4], testShips3); // we only sunk one destroyer
 
@@ -146,5 +138,46 @@ describe("cpuPlayer tests", () => {
 
     // if the cpu can attack the same coordinate twice, the second array element of the human's missedAttacks should be [5, 3] too
     expect(humanBoard.missedAttacks[1]).not.toBe([5, 3]);
+  });
+});
+
+describe("Game tests", () => {
+  const ExampleCoords = [
+    [[0, 1], [0, 2], [0, 3], [0, 4],],
+    [[2, 1], [3, 1], [4, 1],],
+    [[0, 6], [0, 7], [0, 8],],
+    [[3, 3], [3, 4],],
+    [[6, 3], [6, 2],],
+    [[6, 8], [6, 9],],
+    [7, 2],
+    [9, 2],
+    [9, 9],
+    [8, 7],
+  ];
+
+  const gameExample = Game.newGame("example", ExampleCoords, ExampleCoords);
+
+  test("The ships coordinates are in place for each ship", () => {
+    expect(
+      gameExample.Player.playerShips().destroyer3.currentCords
+    ).toStrictEqual([8, 7]);
+    expect(
+      gameExample.Player.playerShips().destroyer.currentCords
+    ).toStrictEqual([7, 2]);
+    expect(gameExample.Player.playerShips().carrier.currentCords).toStrictEqual(
+      [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
+      ]
+    );
+    expect(
+      gameExample.cpuPlayer.cpuShips().battleShip.currentCords
+    ).toStrictEqual([
+      [2, 1],
+      [3, 1],
+      [4, 1],
+    ]);
   });
 });
