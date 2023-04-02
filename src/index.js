@@ -251,11 +251,39 @@ const Game = (() => {
 })();
 
 const DOMLogic = (() => {
-  const startGame = () => {
-    const defineCoords = () => { };
+  const displayGrid = (grid1, grid2) => {
+    const createGrid = (size) => {
+      const recursive = (yPos) => {
+        if (yPos === size) return;
+
+        for (let i = 0; i < size; i++) {
+          const gridElement = document.createElement("div");
+          gridElement.className = `${yPos},${i}`;
+
+          const gridElement2 = document.createElement("div");
+          gridElement2.className = `${yPos},${i}`;
+
+          if (grid1 !== undefined) grid1.appendChild(gridElement);
+          if (grid2 !== undefined) grid2.appendChild(gridElement2);
+        }
+
+        recursive(yPos + 1);
+      };
+      recursive(0);
+    };
+
+    createGrid(10);
   };
 
-  return { startGame };
+  const startGame = () => {
+    const gridContainer1 = document.querySelector(".grid-1");
+
+    const gridContainer2 = document.querySelector(".grid-2");
+
+    displayGrid(gridContainer1, gridContainer2);
+  };
+
+  return { startGame, displayGrid };
 })();
 
 export { mainObjects, playerLogic, Game, DOMLogic };

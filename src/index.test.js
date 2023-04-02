@@ -1,4 +1,8 @@
-import { mainObjects, playerLogic, Game } from "./index";
+/**
+ * @jest-environment jsdom
+ */
+
+import { mainObjects, playerLogic, Game, DOMLogic } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -141,19 +145,32 @@ describe("cpuPlayer tests", () => {
   });
 });
 
+const ExampleCoords = [
+  [
+    [0, 1], [0, 2], [0, 3], [0, 4],
+  ],
+  [
+    [2, 1], [3, 1], [4, 1],
+  ],
+  [
+    [0, 6], [0, 7], [0, 8],
+  ],
+  [
+    [3, 3], [3, 4],
+  ],
+  [
+    [6, 3], [6, 2],
+  ],
+  [
+    [6, 8], [6, 9],
+  ],
+  [7, 2],
+  [9, 2],
+  [9, 9],
+  [8, 7],
+];
+
 describe("Game tests", () => {
-  const ExampleCoords = [
-    [[0, 1], [0, 2], [0, 3], [0, 4],],
-    [[2, 1], [3, 1], [4, 1],],
-    [[0, 6], [0, 7], [0, 8],],
-    [[3, 3], [3, 4],],
-    [[6, 3], [6, 2],],
-    [[6, 8], [6, 9],],
-    [7, 2],
-    [9, 2],
-    [9, 9],
-    [8, 7],
-  ];
 
   const gameExample = Game.newGame("example", ExampleCoords, ExampleCoords);
 
@@ -179,5 +196,28 @@ describe("Game tests", () => {
       [3, 1],
       [4, 1],
     ]);
+  });
+});
+
+
+
+describe("DOMLogic tests", () => {
+  const mockGrid1 = document.createElement("div");
+
+  DOMLogic.displayGrid(mockGrid1);
+
+  test("the grid DOM elements have their coordinates as classes.", () => {
+    expect([mockGrid1.childNodes[1].className]).toStrictEqual(["0,1"]);
+    expect([mockGrid1.childNodes[2].className]).toStrictEqual(["0,2"]);
+    expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
+  });
+
+
+
+  const gameExample = Game.newGame("example", ExampleCoords, ExampleCoords);
+
+  // click DOM  grid element.
+  test("can click a specific coordinate in the cpu board and run receiveAttack", () => {
+    expect(gameExample.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
   });
 });
