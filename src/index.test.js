@@ -176,12 +176,12 @@ describe("Game tests", () => {
 
   test("The ships coordinates are in place for each ship", () => {
     expect(
-      gameExample.Player.playerShips().destroyer3.currentCords
+      gameExample.Player.playerShips.destroyer3.currentCords
     ).toStrictEqual([8, 7]);
     expect(
-      gameExample.Player.playerShips().destroyer.currentCords
+      gameExample.Player.playerShips.destroyer.currentCords
     ).toStrictEqual([7, 2]);
-    expect(gameExample.Player.playerShips().carrier.currentCords).toStrictEqual(
+    expect(gameExample.Player.playerShips.carrier.currentCords).toStrictEqual(
       [
         [0, 1],
         [0, 2],
@@ -190,7 +190,7 @@ describe("Game tests", () => {
       ]
     );
     expect(
-      gameExample.cpuPlayer.cpuShips().battleShip.currentCords
+      gameExample.cpuPlayer.cpuShips.battleShip.currentCords
     ).toStrictEqual([
       [2, 1],
       [3, 1],
@@ -199,12 +199,15 @@ describe("Game tests", () => {
   });
 });
 
-
-
 describe("DOMLogic tests", () => {
+
   const mockGrid1 = document.createElement("div");
+  const mockGrid2 = document.createElement("div");
+  mockGrid1.classList.add("grid-1")
+  mockGrid2.classList.add("grid-2")
 
   DOMLogic.displayGrid(mockGrid1);
+  DOMLogic.displayGrid(mockGrid2)
 
   test("the grid DOM elements have their coordinates as classes.", () => {
     expect([mockGrid1.childNodes[1].className]).toStrictEqual(["0,1"]);
@@ -212,12 +215,11 @@ describe("DOMLogic tests", () => {
     expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
   });
 
+  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2)
 
+  mockGrid2.childNodes[0].click() // click [0, 0] coordinate.
 
-  const gameExample = Game.newGame("example", ExampleCoords, ExampleCoords);
-
-  // click DOM  grid element.
   test("can click a specific coordinate in the cpu board and run receiveAttack", () => {
-    expect(gameExample.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
+    expect(newGame.currentGame.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
   });
 });

@@ -187,15 +187,12 @@ const playerLogic = (() => {
 
     const playerBoard = mainObjects.Gameboard();
 
-    const playerShips = () => {
-      if (shipsCords === undefined) return playerBoard.deployShips(shipsCords);
-      return playerBoard.deployShips(...shipsCords); // spread operator to pass each array of coordinates separately, so every boat will receive it's coordinates.
-    };
+    const playerShips = playerBoard.deployShips(...shipsCords)
 
-    const receiveAttack = (coordinates) =>
-      playerBoard.receiveAttack(coordinates, playerShips());
 
-    return { playerName, playerBoard, receiveAttack, playerShips };
+    const receiveAttack = (coordinates) => playerBoard.receiveAttack(coordinates, playerShips);
+
+    return { playerName, playerBoard, playerShips, receiveAttack };
   };
 
   const cpuPlayer = (humanPlayer, shipsCords) => {
@@ -203,13 +200,9 @@ const playerLogic = (() => {
 
     const cpuBoard = mainObjects.Gameboard();
 
-    const cpuShips = () => {
-      if (shipsCords === undefined) return cpuBoard.deployShips(shipsCords);
-      return cpuBoard.deployShips(...shipsCords);
-    };
+    const cpuShips = cpuBoard.deployShips(...shipsCords)
 
-    const receiveAttack = (coordinates) =>
-      cpuBoard.receiveAttack(coordinates, cpuShips());
+    const receiveAttack = (coordinates) => cpuBoard.receiveAttack(coordinates, cpuShips)
 
     const usedCoords = [];
 
@@ -275,15 +268,80 @@ const DOMLogic = (() => {
     createGrid(10);
   };
 
-  const startGame = () => {
-    const gridContainer1 = document.querySelector(".grid-1");
+  const UILogic = (nodes1, nodes2, gameInfo) => {
 
-    const gridContainer2 = document.querySelector(".grid-2");
+    const nodes1Coords = gameInfo.Player.playerShips.coordinates
 
+    const nodes2Coords = gameInfo.cpuPlayer.cpuShips.coordinates
+
+    const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord);
+
+    const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
+
+    const detectAttacks = (e) => {
+      const parentClass = e.target.parentElement.className;
+
+      const nodeClass = e.target.className;
+
+      const classToArray = (classCoord) => {
+        const arrayCoord = [];
+
+        const x = classCoord.slice(0, 1);
+
+        const y = classCoord.slice(2, 3);
+
+        arrayCoord.push(Number(x));
+        arrayCoord.push(Number(y));
+
+        return arrayCoord;
+      };
+
+
+      const nodeCoord = classToArray(nodeClass);
+
+      if (parentClass === "grid-1") {
+
+        if (isTargetInArray(Object.values(nodes1Coords), nodeCoord))
+          attackPlayer(nodeCoord);
+
+      }
+
+      if (parentClass === "grid-2") {
+        if (isTargetInArray(Object.values(nodes2Coords), nodeCoord))
+          attackCpu(nodeCoord);
+      }
+    };
+
+    for (let i = 0; i < nodes1.length; i++) {
+      nodes1[i].addEventListener("click", (e) => {
+        detectAttacks(e);
+      });
+      nodes2[i].addEventListener("click", (e) => {
+        detectAttacks(e);
+      });
+    }
+
+  };
+
+  const startGame = (gridContainer1, gridContainer2) => {
+    const currentGame = Game.newGame("example", [[0, 0]], [[0, 0]]);
     displayGrid(gridContainer1, gridContainer2);
+    UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
+
+    return { currentGame }
   };
 
   return { startGame, displayGrid };
 })();
 
 export { mainObjects, playerLogic, Game, DOMLogic };
+
+const gridContainer1 =
+  document.querySelector(".grid-1") || document.createElement("div"); // these or are because jest throws error caused by not being able to detect DOM elements from the html file.
+
+const gridContainer2 =
+  document.querySelector(".grid-2") || document.createElement("div");
+
+DOMLogic.startGame(gridContainer1, gridContainer2);
+
+
