@@ -117,11 +117,11 @@ describe("checkSunk tests", () => {
 
 describe("cpuPlayer tests", () => {
   test("can make a random attack in a player's board", () => {
-    const humanPlayer = playerLogic.Player("example");
+    const humanPlayer = playerLogic.Player("example", []);
 
     const humanBoard = humanPlayer.playerBoard;
 
-    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer);
+    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer, []);
 
     cpuPlayer.attackPlayer();
 
@@ -130,11 +130,11 @@ describe("cpuPlayer tests", () => {
   });
 
   test("can't shoot the same coordinate", () => {
-    const humanPlayer = playerLogic.Player("example");
+    const humanPlayer = playerLogic.Player("example", []);
 
     const humanBoard = humanPlayer.playerBoard;
 
-    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer);
+    const cpuPlayer = playerLogic.cpuPlayer(humanPlayer, []);
 
     cpuPlayer.attackPlayer([5, 3]);
 
@@ -215,11 +215,17 @@ describe("DOMLogic tests", () => {
     expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
   });
 
-  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2)
+  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[0, 2], [0, 1]], [[0, 0]]) // note that mockGrid1 has a two coordinates boat.
 
   mockGrid2.childNodes[0].click() // click [0, 0] coordinate.
 
   test("can click a specific coordinate in the cpu board and run receiveAttack", () => {
     expect(newGame.currentGame.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
+  });
+
+  mockGrid1.childNodes[1].click() // click [0, 1] coordinate.
+
+  test("can click a specific coordinate in the cpu board and run receiveAttack, but the ship have multiple coordinates.", () => {
+    expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(1);
   });
 });

@@ -1,11 +1,15 @@
 const isTargetInArray = (arr, target) => {
+
   let contains = false;
 
   if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
 
   if (arr === undefined) return contains;
 
+  if (target === undefined) return contains
+
   for (let i = 0; i < arr.length; i++) {
+
     const element = arr[i];
 
     if (JSON.stringify(element) === JSON.stringify(target)) contains = true;
@@ -111,6 +115,7 @@ const mainObjects = (() => {
 
         const shipName = currentShips[i][0];
 
+
         if (isTargetInArray(shipCords, targetCords)) {
           success = true;
 
@@ -188,7 +193,6 @@ const playerLogic = (() => {
     const playerBoard = mainObjects.Gameboard();
 
     const playerShips = playerBoard.deployShips(...shipsCords)
-
 
     const receiveAttack = (coordinates) => playerBoard.receiveAttack(coordinates, playerShips);
 
@@ -323,8 +327,8 @@ const DOMLogic = (() => {
 
   };
 
-  const startGame = (gridContainer1, gridContainer2) => {
-    const currentGame = Game.newGame("example", [[0, 0]], [[0, 0]]);
+  const startGame = (gridContainer1, gridContainer2, playerCoords, cpuCoords) => {
+    const currentGame = Game.newGame("example", playerCoords, cpuCoords);
     displayGrid(gridContainer1, gridContainer2);
     UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
 
@@ -336,12 +340,6 @@ const DOMLogic = (() => {
 
 export { mainObjects, playerLogic, Game, DOMLogic };
 
-const gridContainer1 =
-  document.querySelector(".grid-1") || document.createElement("div"); // these or are because jest throws error caused by not being able to detect DOM elements from the html file.
 
-const gridContainer2 =
-  document.querySelector(".grid-2") || document.createElement("div");
-
-DOMLogic.startGame(gridContainer1, gridContainer2);
 
 
