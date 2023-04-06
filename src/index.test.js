@@ -147,22 +147,32 @@ describe("cpuPlayer tests", () => {
 
 const ExampleCoords = [
   [
-    [0, 1], [0, 2], [0, 3], [0, 4],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
   ],
   [
-    [2, 1], [3, 1], [4, 1],
+    [2, 1],
+    [3, 1],
+    [4, 1],
   ],
   [
-    [0, 6], [0, 7], [0, 8],
+    [0, 6],
+    [0, 7],
+    [0, 8],
   ],
   [
-    [3, 3], [3, 4],
+    [3, 3],
+    [3, 4],
   ],
   [
-    [6, 3], [6, 2],
+    [6, 3],
+    [6, 2],
   ],
   [
-    [6, 8], [6, 9],
+    [6, 8],
+    [6, 9],
   ],
   [7, 2],
   [9, 2],
@@ -171,24 +181,20 @@ const ExampleCoords = [
 ];
 
 describe("Game tests", () => {
-
   const gameExample = Game.newGame("example", ExampleCoords, ExampleCoords);
 
   test("The ships coordinates are in place for each ship", () => {
     expect(
       gameExample.Player.playerShips.destroyer3.currentCords
     ).toStrictEqual([8, 7]);
-    expect(
-      gameExample.Player.playerShips.destroyer.currentCords
-    ).toStrictEqual([7, 2]);
-    expect(gameExample.Player.playerShips.carrier.currentCords).toStrictEqual(
-      [
-        [0, 1],
-        [0, 2],
-        [0, 3],
-        [0, 4],
-      ]
-    );
+    expect(gameExample.Player.playerShips.destroyer.currentCords).toStrictEqual([7, 2]);
+    expect(gameExample.Player.playerShips.carrier.currentCords).toStrictEqual([
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [0, 4],
+    ]);
+
     expect(
       gameExample.cpuPlayer.cpuShips.battleShip.currentCords
     ).toStrictEqual([
@@ -200,14 +206,13 @@ describe("Game tests", () => {
 });
 
 describe("DOMLogic tests", () => {
-
   const mockGrid1 = document.createElement("div");
   const mockGrid2 = document.createElement("div");
-  mockGrid1.classList.add("grid-1")
-  mockGrid2.classList.add("grid-2")
+  mockGrid1.classList.add("grid-1");
+  mockGrid2.classList.add("grid-2");
 
   DOMLogic.displayGrid(mockGrid1);
-  DOMLogic.displayGrid(mockGrid2)
+  DOMLogic.displayGrid(mockGrid2);
 
   test("the grid DOM elements have their coordinates as classes.", () => {
     expect([mockGrid1.childNodes[1].className]).toStrictEqual(["0,1"]);
@@ -215,15 +220,15 @@ describe("DOMLogic tests", () => {
     expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
   });
 
-  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[0, 2], [0, 1]], [[0, 0]]) // note that mockGrid1 has a two coordinates boat.
+  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[[0, 2], [0, 1]]], [[0, 0]]); // note that mockGrid1 has a two coordinates boat.
 
-  mockGrid2.childNodes[0].click() // click [0, 0] coordinate.
+  mockGrid2.childNodes[0].click(); // click [0, 0] coordinate.
 
   test("can click a specific coordinate in the cpu board and run receiveAttack", () => {
     expect(newGame.currentGame.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
   });
 
-  mockGrid1.childNodes[1].click() // click [0, 1] coordinate.
+  mockGrid1.childNodes[1].click(); // click [0, 1] coordinate.
 
   test("can click a specific coordinate in the cpu board and run receiveAttack, but the ship have multiple coordinates.", () => {
     expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(1);

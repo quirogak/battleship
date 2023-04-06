@@ -1,15 +1,13 @@
 const isTargetInArray = (arr, target) => {
-
   let contains = false;
 
   if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
 
   if (arr === undefined) return contains;
 
-  if (target === undefined) return contains
+  if (target === undefined) return contains;
 
   for (let i = 0; i < arr.length; i++) {
-
     const element = arr[i];
 
     if (JSON.stringify(element) === JSON.stringify(target)) contains = true;
@@ -115,7 +113,6 @@ const mainObjects = (() => {
 
         const shipName = currentShips[i][0];
 
-
         if (isTargetInArray(shipCords, targetCords)) {
           success = true;
 
@@ -192,9 +189,10 @@ const playerLogic = (() => {
 
     const playerBoard = mainObjects.Gameboard();
 
-    const playerShips = playerBoard.deployShips(...shipsCords)
+    const playerShips = playerBoard.deployShips(...shipsCords);
 
-    const receiveAttack = (coordinates) => playerBoard.receiveAttack(coordinates, playerShips);
+    const receiveAttack = (coordinates) =>
+      playerBoard.receiveAttack(coordinates, playerShips);
 
     return { playerName, playerBoard, playerShips, receiveAttack };
   };
@@ -204,9 +202,10 @@ const playerLogic = (() => {
 
     const cpuBoard = mainObjects.Gameboard();
 
-    const cpuShips = cpuBoard.deployShips(...shipsCords)
+    const cpuShips = cpuBoard.deployShips(...shipsCords);
 
-    const receiveAttack = (coordinates) => cpuBoard.receiveAttack(coordinates, cpuShips)
+    const receiveAttack = (coordinates) =>
+      cpuBoard.receiveAttack(coordinates, cpuShips);
 
     const usedCoords = [];
 
@@ -273,14 +272,33 @@ const DOMLogic = (() => {
   };
 
   const UILogic = (nodes1, nodes2, gameInfo) => {
+    const player1Coords = gameInfo.Player.playerShips.coordinates;
 
-    const nodes1Coords = gameInfo.Player.playerShips.coordinates
-
-    const nodes2Coords = gameInfo.cpuPlayer.cpuShips.coordinates
+    const player2Coords = gameInfo.cpuPlayer.cpuShips.coordinates;
 
     const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord);
 
     const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
+
+    const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
+      // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
+      if (isTargetInArray(Object.values(shipCoords), nodeCoord))
+        // when the nodeCoord is inside of a one-coordinate ship, this conditional is used.
+        attackFunction(nodeCoord);
+      else {
+        // when the nodeCoord is inside of a multiple-coordinate ship.
+
+        for (let i = 0; i < shipCoords.length; i++) {
+          // loop through the coords array of each ship, until the nodeCoord is found.
+
+          const currentCoords = shipCoords[i];
+          if (isTargetInArray(currentCoords, nodeCoord)) {
+            attackFunction(nodeCoord);
+            break; // stop looping through the ships coords to optimize time complexity.
+          }
+        }
+      }
+    };
 
     const detectAttacks = (e) => {
       const parentClass = e.target.parentElement.className;
@@ -300,19 +318,24 @@ const DOMLogic = (() => {
         return arrayCoord;
       };
 
-
       const nodeCoord = classToArray(nodeClass);
 
       if (parentClass === "grid-1") {
+        // if the clicked coordinate is inside of grid-1, we know that it is an attack to player1.
 
-        if (isTargetInArray(Object.values(nodes1Coords), nodeCoord))
-          attackPlayer(nodeCoord);
+        const cleanCoords = Object.values(player1Coords).filter(
+          (coords) => coords !== undefined
+        ); // filter undefined coords.
 
+        attackOnClick(cleanCoords, nodeCoord, attackPlayer);
       }
 
       if (parentClass === "grid-2") {
-        if (isTargetInArray(Object.values(nodes2Coords), nodeCoord))
-          attackCpu(nodeCoord);
+        const cleanCoords = Object.values(player2Coords).filter(
+          (coords) => coords !== undefined
+        );
+
+        attackOnClick(cleanCoords, nodeCoord, attackCpu);
       }
     };
 
@@ -324,22 +347,22 @@ const DOMLogic = (() => {
         detectAttacks(e);
       });
     }
-
   };
 
-  const startGame = (gridContainer1, gridContainer2, playerCoords, cpuCoords) => {
+  const startGame = (
+    gridContainer1,
+    gridContainer2,
+    playerCoords,
+    cpuCoords
+  ) => {
     const currentGame = Game.newGame("example", playerCoords, cpuCoords);
     displayGrid(gridContainer1, gridContainer2);
     UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
 
-    return { currentGame }
+    return { currentGame };
   };
 
   return { startGame, displayGrid };
 })();
 
 export { mainObjects, playerLogic, Game, DOMLogic };
-
-
-
-
