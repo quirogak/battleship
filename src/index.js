@@ -259,8 +259,8 @@ const DOMLogic = (() => {
           const gridElement2 = document.createElement("div");
           gridElement2.className = `${yPos},${i}`;
 
-          if (grid1 !== undefined) grid1.appendChild(gridElement);
-          if (grid2 !== undefined) grid2.appendChild(gridElement2);
+          if (grid1 !== undefined && grid1 !== null) grid1.appendChild(gridElement);
+          if (grid2 !== undefined && grid2 !== null) grid2.appendChild(gridElement2);
         }
 
         recursive(yPos + 1);
@@ -356,13 +356,44 @@ const DOMLogic = (() => {
     cpuCoords
   ) => {
     const currentGame = Game.newGame("example", playerCoords, cpuCoords);
-    displayGrid(gridContainer1, gridContainer2);
-    UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
+
+    if ((gridContainer1 !== undefined && gridContainer1 !== null) && (gridContainer2 !== undefined && gridContainer2 !== null)) {
+      displayGrid(gridContainer1, gridContainer2);
+      UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
+    }
 
     return { currentGame };
   };
 
-  return { startGame, displayGrid };
+  const setupGame = () => {
+
+    const ExampleCoords = [
+      [[0, 1], [0, 2], [0, 3], [0, 4],],
+      [[2, 1], [3, 1], [4, 1],],
+      [[0, 6], [0, 7], [0, 8],],
+      [[3, 3], [3, 4],],
+      [[6, 3], [6, 2],],
+      [[6, 8], [6, 9],],
+      [7, 2],
+      [9, 2],
+      [9, 9],
+      [8, 7],
+    ];
+
+    const gridContainer1 = document.querySelector(".grid-1")
+
+    const gridContainer2 = document.querySelector(".grid-2")
+
+    // receive coords, grid containers and start the game.
+
+    DOMLogic.startGame(gridContainer1, gridContainer2, ExampleCoords, ExampleCoords)
+
+  }
+
+  return { startGame, displayGrid, setupGame };
 })();
+
+
+DOMLogic.setupGame()
 
 export { mainObjects, playerLogic, Game, DOMLogic };
