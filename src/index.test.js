@@ -146,34 +146,12 @@ describe("cpuPlayer tests", () => {
 });
 
 const ExampleCoords = [
-  [
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [0, 4],
-  ],
-  [
-    [2, 1],
-    [3, 1],
-    [4, 1],
-  ],
-  [
-    [0, 6],
-    [0, 7],
-    [0, 8],
-  ],
-  [
-    [3, 3],
-    [3, 4],
-  ],
-  [
-    [6, 3],
-    [6, 2],
-  ],
-  [
-    [6, 8],
-    [6, 9],
-  ],
+  [[0, 1], [0, 2], [0, 3], [0, 4],],
+  [[2, 1], [3, 1], [4, 1],],
+  [[0, 6], [0, 7], [0, 8],],
+  [[3, 3], [3, 4],],
+  [[6, 3], [6, 2],],
+  [[6, 8], [6, 9],],
   [7, 2],
   [9, 2],
   [9, 9],
@@ -233,4 +211,10 @@ describe("DOMLogic tests", () => {
   test("can click a specific coordinate in the cpu board and run receiveAttack, but the ship have multiple coordinates.", () => {
     expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(1);
   });
-});
+
+
+  mockGrid2.childNodes[35].click()
+  test("when a coordinate is clicked, and it is a missed attack, the square of that coordinate should change in color.", () => {
+    expect(mockGrid2.childNodes[35].style.color).toBe("red");
+  });
+});   
