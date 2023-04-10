@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { mainObjects, playerLogic, Game, DOMLogic } from "./index";
+import { mainObjects, playerLogic, Game, DOMLogic, GameLoop } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -217,11 +217,12 @@ describe("DOMLogic tests", () => {
     expect(mockGrid2.childNodes[35].textContent).toBe("•");
   });
 
-  mockGrid2.childNodes[21].click() // 2,1 coordinate has a ship.
+  mockGrid2.childNodes[2].click() // 0,1 coordinate has a ship
   test("when a coordinate is clicked, and it is a successful attack, there should be a visual indicator.", () => {
-    expect(mockGrid2.childNodes[1].textContent).toBe("X");
+    expect(mockGrid2.childNodes[0].textContent).toBe("X");
   });
 });
 
 
+describe("GameLoop tests", () => { });
 

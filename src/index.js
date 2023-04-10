@@ -302,6 +302,16 @@ const DOMLogic = (() => {
       return wasSuccessful
     };
 
+    const visualIndicators = (e, wasSuccessful) => {
+
+      const currentNode = e.target
+      if (wasSuccessful === false) currentNode.textContent = "•"
+      else {
+        currentNode.textContent = "X"
+      }
+
+    }
+
     const detectAttacks = (e) => {
       const parentClass = e.target.parentElement.className;
 
@@ -342,23 +352,23 @@ const DOMLogic = (() => {
     for (let i = 0; i < nodes1.length; i++) {
       nodes1[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
-          const currentNode = e.target
-          currentNode.textContent = "•"
+          visualIndicators(e, false)
+        }
+        else {
+          visualIndicators(e, true)
         }
 
       });
       nodes2[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
-          const currentNode = e.target
-          currentNode.textContent = "•"
+          visualIndicators(e, false)
+        }
+        else {
+          visualIndicators(e, true)
         }
       });
     }
   };
-
-  const visualIndicators = (e, currentBoard) => {
-
-  }
 
   const startGame = (
     gridContainer1,
@@ -385,7 +395,7 @@ const DOMLogic = (() => {
       [[3, 3], [3, 4],],
       [[6, 3], [6, 2],],
       [[6, 8], [6, 9],],
-      [7, 2],
+      [7, 5],
       [9, 2],
       [9, 9],
       [8, 7],
@@ -404,6 +414,11 @@ const DOMLogic = (() => {
   return { startGame, displayGrid, setupGame };
 })();
 
+const GameLoop = (() => {
+
+
+})();
+
 DOMLogic.setupGame()
 
-export { mainObjects, playerLogic, Game, DOMLogic };
+export { mainObjects, playerLogic, Game, DOMLogic, GameLoop };
