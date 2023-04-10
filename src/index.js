@@ -282,22 +282,24 @@ const DOMLogic = (() => {
 
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
-      if (isTargetInArray(Object.values(shipCoords), nodeCoord))
+      let wasSuccessful = false
+      if (isTargetInArray(Object.values(shipCoords), nodeCoord)) {
         // when the nodeCoord is inside of a one-coordinate ship, this conditional is used.
         attackFunction(nodeCoord);
-      else {
-        // when the nodeCoord is inside of a multiple-coordinate ship.
-
-        for (let i = 0; i < shipCoords.length; i++) {
-          // loop through the coords array of each ship, until the nodeCoord is found.
-
-          const currentCoords = shipCoords[i];
-          if (isTargetInArray(currentCoords, nodeCoord)) {
-            attackFunction(nodeCoord);
-            break; // stop looping through the ships coords to optimize time complexity.
-          }
+        wasSuccessful = true
+        return wasSuccessful
+      }
+      // when the nodeCoord is inside of a multiple-coordinate ship.
+      for (let i = 0; i < shipCoords.length; i++) {
+        // loop through the coords array of each ship, until the nodeCoord is found.
+        const currentCoords = shipCoords[i];
+        if (isTargetInArray(currentCoords, nodeCoord)) {
+          attackFunction(nodeCoord);
+          wasSuccessful = true
+          break; // stop looping through the ships coords to optimize time complexity.
         }
       }
+      return wasSuccessful
     };
 
     const detectAttacks = (e) => {
@@ -326,28 +328,37 @@ const DOMLogic = (() => {
         const cleanCoords = Object.values(player1Coords).filter(
           (coords) => coords !== undefined
         ); // filter undefined coords.
-
-        attackOnClick(cleanCoords, nodeCoord, attackPlayer);
+        return attackOnClick(cleanCoords, nodeCoord, attackPlayer);
       }
 
       if (parentClass === "grid-2") {
         const cleanCoords = Object.values(player2Coords).filter(
           (coords) => coords !== undefined
         );
-
-        attackOnClick(cleanCoords, nodeCoord, attackCpu);
+        return attackOnClick(cleanCoords, nodeCoord, attackCpu);
       }
     };
 
     for (let i = 0; i < nodes1.length; i++) {
       nodes1[i].addEventListener("click", (e) => {
-        detectAttacks(e);
+        if (detectAttacks(e) === false) {
+          const currentNode = e.target
+          currentNode.textContent = "•"
+        }
+
       });
       nodes2[i].addEventListener("click", (e) => {
-        detectAttacks(e);
+        if (detectAttacks(e) === false) {
+          const currentNode = e.target
+          currentNode.textContent = "•"
+        }
       });
     }
   };
+
+  const visualIndicators = (e, currentBoard) => {
+
+  }
 
   const startGame = (
     gridContainer1,
@@ -392,7 +403,6 @@ const DOMLogic = (() => {
 
   return { startGame, displayGrid, setupGame };
 })();
-
 
 DOMLogic.setupGame()
 

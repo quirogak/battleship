@@ -212,9 +212,16 @@ describe("DOMLogic tests", () => {
     expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(1);
   });
 
-
-  mockGrid2.childNodes[35].click()
-  test("when a coordinate is clicked, and it is a missed attack, the square of that coordinate should change in color.", () => {
-    expect(mockGrid2.childNodes[35].style.color).toBe("red");
+  mockGrid2.childNodes[35].click() // 3,5 coordinate doesn't has a ship.
+  test("when a coordinate is clicked, and it is a missed attack, there should be a visual indicator.", () => {
+    expect(mockGrid2.childNodes[35].textContent).toBe("•");
   });
-});   
+
+  mockGrid2.childNodes[21].click() // 2,1 coordinate has a ship.
+  test("when a coordinate is clicked, and it is a successful attack, there should be a visual indicator.", () => {
+    expect(mockGrid2.childNodes[1].textContent).toBe("X");
+  });
+});
+
+
+
