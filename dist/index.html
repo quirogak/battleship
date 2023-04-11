@@ -1,21 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Battleship</title>
-    <script src="main.js" defer></script>
-    <link rel="stylesheet" href="style.css" />
-  </head>
 
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battleship</title>
+  <script src="main.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
   <header>
     <h1>Battleship</h1>
   </header>
-  <section class="grids-container">
-    <div class="grid-1"></div>
-    <div class="grid-2"></div>
-  </section>
+  <main class="grids-container">
+    <form class="form-container">
+      <ul>
+        <li>
+          <label for="name">Player 1 Name
+            <input type="name" id="name" name="user_name">
+          </label>
+        </li>
+        <li class="button">
+          <button class="start-button" type="button">Start Game</button>
+        </li>
+      </ul>
+    </form>
+  </main>
+  <footer>
+    <a href="https://github.com/quirogak">@quirogak</a>
+  </footer>
+</body>
 
-  <body></body>
 </html>
