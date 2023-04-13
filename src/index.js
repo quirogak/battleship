@@ -259,8 +259,10 @@ const DOMLogic = (() => {
           const gridElement2 = document.createElement("div");
           gridElement2.className = `${yPos},${i}`;
 
-          if (grid1 !== undefined && grid1 !== null) grid1.appendChild(gridElement);
-          if (grid2 !== undefined && grid2 !== null) grid2.appendChild(gridElement2);
+          if (grid1 !== undefined && grid1 !== null)
+            grid1.appendChild(gridElement);
+          if (grid2 !== undefined && grid2 !== null)
+            grid2.appendChild(gridElement2);
         }
 
         recursive(yPos + 1);
@@ -282,12 +284,12 @@ const DOMLogic = (() => {
 
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
-      let wasSuccessful = false
+      let wasSuccessful = false;
       if (isTargetInArray(Object.values(shipCoords), nodeCoord)) {
         // when the nodeCoord is inside of a one-coordinate ship, this conditional is used.
         attackFunction(nodeCoord);
-        wasSuccessful = true
-        return wasSuccessful
+        wasSuccessful = true;
+        return wasSuccessful;
       }
       // when the nodeCoord is inside of a multiple-coordinate ship.
       for (let i = 0; i < shipCoords.length; i++) {
@@ -295,11 +297,11 @@ const DOMLogic = (() => {
         const currentCoords = shipCoords[i];
         if (isTargetInArray(currentCoords, nodeCoord)) {
           attackFunction(nodeCoord);
-          wasSuccessful = true
+          wasSuccessful = true;
           break; // stop looping through the ships coords to optimize time complexity.
         }
       }
-      return wasSuccessful
+      return wasSuccessful;
     };
 
     const classToArray = (classCoord) => {
@@ -316,20 +318,17 @@ const DOMLogic = (() => {
     };
 
     const visualIndicators = (e, wasSuccessful) => {
-
-      const currentNode = e.target
-      if (wasSuccessful === false) currentNode.textContent = "•"
+      const currentNode = e.target;
+      if (wasSuccessful === false) currentNode.textContent = "•";
       else {
-        currentNode.textContent = "X"
+        currentNode.textContent = "X";
       }
-
-    }
+    };
 
     const detectAttacks = (e) => {
       const parentClass = e.target.parentElement.className;
 
       const nodeClass = e.target.className;
-
 
       const nodeCoord = classToArray(nodeClass);
 
@@ -353,19 +352,16 @@ const DOMLogic = (() => {
     for (let i = 0; i < nodes1.length; i++) {
       nodes1[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
-          visualIndicators(e, false)
+          visualIndicators(e, false);
+        } else {
+          visualIndicators(e, true);
         }
-        else {
-          visualIndicators(e, true)
-        }
-
       });
       nodes2[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
-          visualIndicators(e, false)
-        }
-        else {
-          visualIndicators(e, true)
+          visualIndicators(e, false);
+        } else {
+          visualIndicators(e, true);
         }
       });
     }
@@ -379,60 +375,61 @@ const DOMLogic = (() => {
   ) => {
     const currentGame = Game.newGame("example", playerCoords, cpuCoords);
 
-    if ((gridContainer1 !== undefined && gridContainer1 !== null) && (gridContainer2 !== undefined && gridContainer2 !== null)) {
-      displayGrid(gridContainer1, gridContainer2)
-      UILogic(gridContainer1.childNodes, gridContainer2.childNodes, currentGame);
+    if (
+      gridContainer1 !== undefined &&
+      gridContainer1 !== null &&
+      gridContainer2 !== undefined &&
+      gridContainer2 !== null
+    ) {
+      displayGrid(gridContainer1, gridContainer2);
+      UILogic(
+        gridContainer1.childNodes,
+        gridContainer2.childNodes,
+        currentGame
+      );
     }
 
     return { currentGame };
   };
 
-
-
   return { startGame, displayGrid };
 })();
 
 const GameLoop = (() => {
-
   const setupGame = () => {
-
-    const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`
+    const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
 
     const changeCoordColor = (className, gridNumber) => {
+      const currentCoord =
+        document.getElementsByClassName(className)[gridNumber - 1];
 
-      const currentCoord = document.getElementsByClassName(className)[gridNumber - 1]
-
-      if (currentCoord !== undefined) currentCoord.style.border = "2px solid green"
-
-    }
+      if (currentCoord !== undefined)
+        currentCoord.style.border = "1px solid green";
+    };
 
     const flatCoords = (coordsArr) => {
-
-      const oneDimensionCoords = []
+      const oneDimensionCoords = [];
 
       for (let i = 0; i < coordsArr.length; i++) {
         const coords = coordsArr[i];
 
-        if (typeof (coords[0]) === "object") oneDimensionCoords.push(...coords) // if the ships have more than one coordinate.
-
-        else oneDimensionCoords.push(coords)
-
+        if (typeof coords[0] === "object")
+          oneDimensionCoords.push(
+            ...coords
+          ); // if the ships have more than one coordinate.
+        else oneDimensionCoords.push(coords);
       }
 
-      return oneDimensionCoords
-    }
+      return oneDimensionCoords;
+    };
 
     const showShips = (currentCoords, gridNumber) => {
-
-      const coords = flatCoords(currentCoords)
+      const coords = flatCoords(currentCoords);
 
       for (let i = 0; i < coords.length; i++) {
-
-        changeCoordColor(coordToClass(coords[i]), gridNumber)
-
+        changeCoordColor(coordToClass(coords[i]), gridNumber);
       }
-
-    }
+    };
 
     const ExampleCoords = [
       [[0, 1], [0, 2], [0, 3], [0, 4],],
@@ -447,37 +444,46 @@ const GameLoop = (() => {
       [8, 7],
     ];
 
-    const playerGrid = document.getElementsByClassName("grid-1")[0]
+    // dinamically generate the grids.
 
-    DOMLogic.displayGrid(playerGrid)
-    showShips(ExampleCoords, 1)
-    const gridsContainer = document.getElementsByClassName("grids-container")[0]
+    const genPlayerGrid = () => {
+      const playerGrid = document.getElementsByClassName("grid-1")[0];
+      DOMLogic.displayGrid(playerGrid);
+      showShips(ExampleCoords, 1);
 
-    // dinamically generate the cpu grid.
+      return playerGrid;
+    };
+
+    genPlayerGrid();
 
     const genCpuGrid = () => {
-      const grid2 = document.createElement("div")
-      grid2.className = "grid-2"
-      gridsContainer.appendChild(grid2)
+      const gridsContainer =
+        document.getElementsByClassName("grids-container")[0];
+      const grid2 = document.createElement("div");
+      grid2.className = "grid-2";
+      gridsContainer.appendChild(grid2);
 
-      return grid2
-    }
+      return grid2;
+    };
 
     // receive coords, grid containers and start the game.
 
-    const startButton = document.getElementsByClassName("start-button")[0]
+    const startButton = document.getElementsByClassName("start-button")[0];
 
-    if (startButton !== undefined) startButton.addEventListener("click", () => { DOMLogic.startGame(playerGrid, genCpuGrid(), ExampleCoords, ExampleCoords) })
+    if (startButton !== undefined)
+      startButton.addEventListener("click", () => {
+        DOMLogic.startGame(
+          genPlayerGrid(),
+          genCpuGrid(),
+          ExampleCoords,
+          ExampleCoords
+        );
+      });
+  };
 
-  }
-
-  return { setupGame }
-
-
+  return { setupGame };
 })();
 
-GameLoop.setupGame()
-
-
+GameLoop.setupGame();
 
 export { mainObjects, playerLogic, Game, DOMLogic, GameLoop };
