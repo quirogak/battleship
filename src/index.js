@@ -381,7 +381,6 @@ const DOMLogic = (() => {
       gridContainer2 !== undefined &&
       gridContainer2 !== null
     ) {
-      displayGrid(gridContainer1, gridContainer2);
       UILogic(
         gridContainer1.childNodes,
         gridContainer2.childNodes,
@@ -465,6 +464,7 @@ const DOMLogic = (() => {
       grid2.className = "grid-2";
       if (gridsContainer !== undefined)
         gridsContainer.appendChild(grid2);
+      DOMLogic.displayGrid(null, grid2)
 
       return grid2;
     };
