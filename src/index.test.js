@@ -224,5 +224,22 @@ describe("DOMLogic tests", () => {
 });
 
 
-describe("GameLoop tests", () => { });
+describe("GameLoop tests", () => {
+
+  document.body.innerHTML =
+    '<div class = "grid-1">' +
+    '</div>';
+
+  const mockGrid1 = document.getElementsByClassName("grid-1")[0]
+
+  GameLoop.setupGame()
+
+  const coordStyle = window.getComputedStyle(mockGrid1.childNodes[1])
+
+  test("before initializing the game, the player can check it's occupied coordinates visually indicated.", () => {
+    expect(coordStyle.getPropertyValue("border-color")).toBe("green");
+  });
+
+
+});
 
