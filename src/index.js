@@ -392,11 +392,7 @@ const DOMLogic = (() => {
     return { currentGame };
   };
 
-  return { startGame, displayGrid };
-})();
-
-const GameLoop = (() => {
-  const setupGame = () => {
+  const genDOMElements = () => {
     const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
 
     const changeCoordColor = (className, gridNumber) => {
@@ -446,29 +442,34 @@ const GameLoop = (() => {
 
     // dinamically generate the grids.
 
-    const genPlayerGrid = () => {
-      const playerGrid = document.getElementsByClassName("grid-1")[0];
-      DOMLogic.displayGrid(playerGrid);
-      showShips(ExampleCoords, 1);
+    const gridsContainer =
+      document.getElementsByClassName("grids-container")[0];
 
-      return playerGrid;
+    const startButton =
+      document.getElementsByClassName("start-button")[0];
+
+
+    const genPlayerGrid = () => {
+      const grid1 = document.createElement("div");
+      grid1.className = "grid-1";
+      if (gridsContainer !== undefined)
+        gridsContainer.insertBefore(grid1, startButton);
+      DOMLogic.displayGrid(grid1)
+      showShips(ExampleCoords, 1)
+
+      return grid1;
     };
 
-    genPlayerGrid();
-
     const genCpuGrid = () => {
-      const gridsContainer =
-        document.getElementsByClassName("grids-container")[0];
       const grid2 = document.createElement("div");
       grid2.className = "grid-2";
-      gridsContainer.appendChild(grid2);
+      if (gridsContainer !== undefined)
+        gridsContainer.appendChild(grid2);
 
       return grid2;
     };
 
     // receive coords, grid containers and start the game.
-
-    const startButton = document.getElementsByClassName("start-button")[0];
 
     if (startButton !== undefined)
       startButton.addEventListener("click", () => {
@@ -479,11 +480,26 @@ const GameLoop = (() => {
           ExampleCoords
         );
       });
+
+    return { genPlayerGrid, genCpuGrid }
+
   };
 
-  return { setupGame };
+  return { startGame, displayGrid, genDOMElements };
 })();
 
-GameLoop.setupGame();
+const GameLoop = (() => {
+
+  const singlePlayer = () => {
+
+    DOMLogic.genDOMElements().genPlayerGrid()
+
+  }
+
+  return { singlePlayer };
+
+})();
+
+GameLoop.singlePlayer();
 
 export { mainObjects, playerLogic, Game, DOMLogic, GameLoop };
