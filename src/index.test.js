@@ -227,17 +227,29 @@ describe("DOMLogic tests", () => {
 describe("GameLoop tests", () => {
 
   document.body.innerHTML =
-    '<div class = "grid-1">' +
+    '<div class ="generic-container">' +
+    '<div class ="grids-container">' +
+    '<button class ="start-button">' +
+    '</button>' +
+    '</div>' +
     '</div>';
 
-  const mockGrid1 = document.getElementsByClassName("grid-1")[0]
+  GameLoop.singlePlayer()
 
-  GameLoop.setupGame()
+  const mockGrid1 = document.getElementsByClassName("grid-1")[0]
+  const startButton = document.getElementsByClassName("start-button")[0]
 
   const coordStyle = window.getComputedStyle(mockGrid1.childNodes[1])
 
   test("before initializing the game, the player can check it's occupied coordinates visually indicated.", () => {
     expect(coordStyle.getPropertyValue("border-color")).toBe("green");
+  });
+
+  startButton.click()
+
+  test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
+    expect(mockGrid1.childNodes[120]).toBe(undefined) // if the previous grid isn't deleted, the grid container will have 200 grid elements.
+    expect(startButton).toBe(undefined);
   });
 
 
