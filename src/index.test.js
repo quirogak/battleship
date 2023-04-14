@@ -248,7 +248,8 @@ describe("GameLoop tests", () => {
   startButton.click()
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
-    expect(mockGrid1.childNodes[120]).toBe(undefined) // if the previous grid isn't deleted, the grid container will have 200 grid elements.
+    const repeatedGrid = document.getElementsByClassName("grid-1")[1] // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
+    expect(repeatedGrid).toBe(undefined)
     expect(startButton).toBe(undefined);
   });
 
