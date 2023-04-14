@@ -454,16 +454,23 @@ const DOMLogic = (() => {
       if (gridsContainer !== undefined)
         gridsContainer.insertBefore(grid1, startButton);
       DOMLogic.displayGrid(grid1)
+
       showShips(ExampleCoords, 1)
 
       return grid1;
     };
 
     const genCpuGrid = () => {
+      const gridsContainer2 = document.createElement("section")
+      gridsContainer2.className = "grids-container"
+
+      const main = document.querySelector("main")
+      main.appendChild(gridsContainer2)
+
       const grid2 = document.createElement("div");
       grid2.className = "grid-2";
-      if (gridsContainer !== undefined)
-        gridsContainer.appendChild(grid2);
+
+      gridsContainer2.appendChild(grid2);
       DOMLogic.displayGrid(null, grid2)
 
       return grid2;
