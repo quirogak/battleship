@@ -227,17 +227,18 @@ describe("DOMLogic tests", () => {
 describe("GameLoop tests", () => {
 
   document.body.innerHTML =
-    '<div class ="generic-container">' +
+    '<main>' +
     '<div class ="grids-container">' +
     '<button class ="start-button">' +
     '</button>' +
     '</div>' +
-    '</div>';
+    '</main>';
+
+  const startButton = document.getElementsByClassName("start-button")[0]
 
   GameLoop.singlePlayer()
 
   const mockGrid1 = document.getElementsByClassName("grid-1")[0]
-  const startButton = document.getElementsByClassName("start-button")[0]
 
   const coordStyle = window.getComputedStyle(mockGrid1.childNodes[1])
 
@@ -245,14 +246,15 @@ describe("GameLoop tests", () => {
     expect(coordStyle.getPropertyValue("border-color")).toBe("green");
   });
 
+  // when we click start button, it should remove repeatedGrid and itself from the DOM.
+
   startButton.click()
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
     const repeatedGrid = document.getElementsByClassName("grid-1")[1] // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
     expect(repeatedGrid).toBe(undefined)
-    expect(startButton).toBe(undefined);
+    expect(startButton.parentNode).toBe(null);
   });
-
 
 });
 

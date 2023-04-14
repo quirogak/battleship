@@ -467,6 +467,10 @@ const DOMLogic = (() => {
       const main = document.querySelector("main")
       main.appendChild(gridsContainer2)
 
+      const name = document.createElement("h3")
+      name.textContent = "Cpu Grid"
+      gridsContainer2.appendChild(name)
+
       const grid2 = document.createElement("div");
       grid2.className = "grid-2";
 
@@ -476,20 +480,28 @@ const DOMLogic = (() => {
       return grid2;
     };
 
+    const deleteElements = () => {
+      const grid1 = document.getElementsByClassName("grid-1")[0]
+      grid1.remove()
+      startButton.remove()
+    }
+
     // receive coords, grid containers and start the game.
 
+    const start = () => {
+      DOMLogic.startGame(
+        genPlayerGrid(),
+        genCpuGrid(),
+        ExampleCoords,
+        ExampleCoords
+      );
+      deleteElements()
+    }
+
     if (startButton !== undefined)
-      startButton.addEventListener("click", () => {
-        DOMLogic.startGame(
-          genPlayerGrid(),
-          genCpuGrid(),
-          ExampleCoords,
-          ExampleCoords
-        );
-      });
+      startButton.addEventListener("click", start)
 
     return { genPlayerGrid, genCpuGrid }
-
   };
 
   return { startGame, displayGrid, genDOMElements };
@@ -500,7 +512,6 @@ const GameLoop = (() => {
   const singlePlayer = () => {
 
     DOMLogic.genDOMElements().genPlayerGrid()
-
   }
 
   return { singlePlayer };
