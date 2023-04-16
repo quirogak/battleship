@@ -426,18 +426,7 @@ const DOMLogic = (() => {
       }
     };
 
-    const ExampleCoords = [
-      [[0, 1], [0, 2], [0, 3], [0, 4],],
-      [[2, 1], [3, 1], [4, 1],],
-      [[0, 6], [0, 7], [0, 8],],
-      [[3, 3], [3, 4],],
-      [[6, 3], [6, 2],],
-      [[6, 8], [6, 9],],
-      [7, 5],
-      [9, 2],
-      [9, 9],
-      [8, 7],
-    ];
+
 
     // dinamically generate the grids.
 
@@ -447,15 +436,21 @@ const DOMLogic = (() => {
     const startButton =
       document.getElementsByClassName("start-button")[0];
 
+    const deleteElements = () => {
+      const grid1 = document.getElementsByClassName("grid-1")[0]
+      grid1.remove()
+      startButton.remove()
+    }
 
-    const genPlayerGrid = () => {
+
+    const genPlayerGrid = (coords) => {
       const grid1 = document.createElement("div");
       grid1.className = "grid-1";
       if (gridsContainer !== undefined)
         gridsContainer.insertBefore(grid1, startButton);
       DOMLogic.displayGrid(grid1)
 
-      showShips(ExampleCoords, 1)
+      showShips(coords, 1)
 
       return grid1;
     };
@@ -480,28 +475,8 @@ const DOMLogic = (() => {
       return grid2;
     };
 
-    const deleteElements = () => {
-      const grid1 = document.getElementsByClassName("grid-1")[0]
-      grid1.remove()
-      startButton.remove()
-    }
 
-    // receive coords, grid containers and start the game.
-
-    const start = () => {
-      DOMLogic.startGame(
-        genPlayerGrid(),
-        genCpuGrid(),
-        ExampleCoords,
-        ExampleCoords
-      );
-      deleteElements()
-    }
-
-    if (startButton !== undefined)
-      startButton.addEventListener("click", start)
-
-    return { genPlayerGrid, genCpuGrid }
+    return { genPlayerGrid, genCpuGrid, deleteElements }
   };
 
   return { startGame, displayGrid, genDOMElements };
@@ -511,9 +486,42 @@ const GameLoop = (() => {
 
   const singlePlayer = () => {
 
-    DOMLogic.genDOMElements().genPlayerGrid()
-  }
+    const ExampleCoords = [
+      [[0, 1], [0, 2], [0, 3], [0, 4],],
+      [[2, 1], [3, 1], [4, 1],],
+      [[0, 6], [0, 7], [0, 8],],
+      [[3, 3], [3, 4],],
+      [[6, 3], [6, 2],],
+      [[6, 8], [6, 9],],
+      [7, 5],
+      [9, 2],
+      [9, 9],
+      [8, 7],
+    ];
 
+    const genDOM = DOMLogic.genDOMElements()
+
+    genDOM.genPlayerGrid(ExampleCoords)
+
+    const startButton =
+      document.getElementsByClassName("start-button")[0];
+
+
+    const startGameLoop = () => {
+
+      // receive coords, grid containers and start the game.
+      const newGame = DOMLogic.startGame(
+        genDOM.genPlayerGrid(ExampleCoords),
+        genDOM.genCpuGrid(),
+        ExampleCoords,
+        ExampleCoords
+      );
+      genDOM.deleteElements()
+    }
+
+    if (startButton !== undefined)
+      startButton.addEventListener("click", startGameLoop)
+  }
   return { singlePlayer };
 
 })();
