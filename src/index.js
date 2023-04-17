@@ -287,7 +287,7 @@ const DOMLogic = (() => {
         // when the nodeCoord is inside of a one-coordinate ship, this conditional is used.
         attackFunction(nodeCoord);
         wasSuccessful = true;
-        return wasSuccessful;
+        return true
       }
       // when the nodeCoord is inside of a multiple-coordinate ship.
       for (let i = 0; i < shipCoords.length; i++) {
@@ -301,6 +301,14 @@ const DOMLogic = (() => {
       }
       return wasSuccessful;
     };
+
+    // note, the attackOnClick function will always call the attackFunction on a successful attack.
+    // that's why we will need the next function.
+
+    const missedAttackOnClick = (nodeCoord, attackFunction) => {
+      attackFunction(nodeCoord)
+      return false
+    }
 
     const classToArray = (classCoord) => {
       const arrayCoord = [];
@@ -336,14 +344,16 @@ const DOMLogic = (() => {
         const cleanCoords = Object.values(player1Coords).filter(
           (coords) => coords !== undefined
         ); // filter undefined coords.
-        return attackOnClick(cleanCoords, nodeCoord, attackPlayer);
+        if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) return true
+        return missedAttackOnClick(nodeCoord, attackPlayer)
       }
 
       if (parentClass === "grid-2") {
         const cleanCoords = Object.values(player2Coords).filter(
           (coords) => coords !== undefined
         );
-        return attackOnClick(cleanCoords, nodeCoord, attackCpu);
+        if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) return true
+        return missedAttackOnClick(nodeCoord, attackCpu)
       }
     };
 
@@ -386,7 +396,7 @@ const DOMLogic = (() => {
       );
     }
 
-    return { currentGame };
+    return { currentGame, gridContainer1, gridContainer2 };
   };
 
   const genDOMElements = () => {
@@ -501,7 +511,6 @@ const GameLoop = (() => {
     const startButton =
       document.getElementsByClassName("start-button")[0];
 
-
     const startGameLoop = () => {
       // receive coords, grid containers and start the game.
       const newGame = DOMLogic.startGame(
@@ -510,11 +519,9 @@ const GameLoop = (() => {
         ExampleCoords,
         ExampleCoords
       );
+
       genDOM.deleteElements()
 
-      const playerObj = newGame.currentGame.Player
-
-      const cpuObj = newGame.currentGame.cpuPlayer
 
     }
 
