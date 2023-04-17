@@ -99,12 +99,13 @@ const mainObjects = (() => {
       };
     };
 
-    const missedAttacks = [];
+    const receivedAttacks = [];
 
     const successAttacks = [];
 
     const receiveAttack = (targetCords, playerShips) => {
       const currentShips = Object.entries(playerShips.coordinates);
+      receivedAttacks.push(targetCords)
 
       for (let i = 0; i < currentShips.length; i++) {
         let success = false;
@@ -133,9 +134,6 @@ const mainObjects = (() => {
 
         if (success === true) break;
       }
-
-      if (!isTargetInArray(successAttacks, targetCords))
-        missedAttacks.push(targetCords); // if the target cords are not inside successAttacks, it is a missed attack.
     };
 
     const checkSunk = (playerShips) => {
@@ -174,7 +172,7 @@ const mainObjects = (() => {
     return {
       receiveAttack,
       deployShips,
-      missedAttacks,
+      receivedAttacks,
       successAttacks,
       checkSunk,
     };
@@ -414,7 +412,6 @@ const DOMLogic = (() => {
           ); // if the ships have more than one coordinate.
         else oneDimensionCoords.push(coords);
       }
-
       return oneDimensionCoords;
     };
 
@@ -425,8 +422,6 @@ const DOMLogic = (() => {
         changeCoordColor(coordToClass(coords[i]), gridNumber);
       }
     };
-
-
 
     // dinamically generate the grids.
 
@@ -508,7 +503,6 @@ const GameLoop = (() => {
 
 
     const startGameLoop = () => {
-
       // receive coords, grid containers and start the game.
       const newGame = DOMLogic.startGame(
         genDOM.genPlayerGrid(ExampleCoords),
@@ -517,6 +511,11 @@ const GameLoop = (() => {
         ExampleCoords
       );
       genDOM.deleteElements()
+
+      const playerObj = newGame.currentGame.Player
+
+      const cpuObj = newGame.currentGame.cpuPlayer
+
     }
 
     if (startButton !== undefined)
@@ -528,4 +527,4 @@ const GameLoop = (() => {
 
 GameLoop.singlePlayer();
 
-export { mainObjects, playerLogic, Game, DOMLogic, GameLoop };
+export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray };
