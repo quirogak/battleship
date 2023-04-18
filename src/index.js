@@ -208,6 +208,7 @@ const playerLogic = (() => {
     const usedCoords = [];
 
     const attackPlayer = (coords) => {
+
       const randomInt = (max) => Math.floor(Math.random() * max);
 
       const randomCoords = [randomInt(9), randomInt(9)];
@@ -217,7 +218,7 @@ const playerLogic = (() => {
 
       if (isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
 
-      if (coords !== undefined) {
+      if (coords === undefined) {
         // if we set manual empty coords for testing or another purposes.
         usedCoords.push(coords);
         return rivalPlayer.receiveAttack(coords);
@@ -489,6 +490,21 @@ const DOMLogic = (() => {
 
 const GameLoop = (() => {
 
+  const gameTurns = (player2, player1Coords, player1) => {
+
+    let player2AttacksCount = 0
+
+    const turnsLogic = () => {
+
+      if (player2.cpuBoard.receivedAttacks.length === player2AttacksCount + 1) {
+        player2AttacksCount++
+        player2.attackPlayer(player1Coords)
+      }
+
+    }
+    return { turnsLogic }
+  }
+
   const singlePlayer = () => {
 
     const ExampleCoords = [
@@ -522,11 +538,25 @@ const GameLoop = (() => {
 
       genDOM.deleteElements()
 
+      const turnLoop = () => {
+
+        const playerObj = newGame.currentGame.Player
+        const cpuObj = newGame.currentGame.cpuPlayer
+        const currentTurn = gameTurns(cpuObj, ExampleCoords, playerObj)
+        const cpuGrid = newGame.gridContainer2
+
+        for (let i = 0; i < cpuGrid.childNodes.length; i++) {
+          const node = cpuGrid.childNodes[i];
+          node.addEventListener("click", currentTurn.turnsLogic)
+        }
+      }
+
+      turnLoop()
 
     }
-
     if (startButton !== undefined)
       startButton.addEventListener("click", startGameLoop)
+
   }
   return { singlePlayer };
 
