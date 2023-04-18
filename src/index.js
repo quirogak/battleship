@@ -490,7 +490,7 @@ const DOMLogic = (() => {
 
 const GameLoop = (() => {
 
-  const gameTurns = (player2, player1Coords, player1) => {
+  const gameTurns = (player2, player1Coords) => {
 
     let player2AttacksCount = 0
 
@@ -505,63 +505,67 @@ const GameLoop = (() => {
     return { turnsLogic }
   }
 
+  const ExampleCoords = [
+    [[0, 1], [0, 2], [0, 3], [0, 4],],
+    [[2, 1], [3, 1], [4, 1],],
+    [[0, 6], [0, 7], [0, 8],],
+    [[3, 3], [3, 4],],
+    [[6, 3], [6, 2],],
+    [[6, 8], [6, 9],],
+    [7, 5],
+    [9, 2],
+    [9, 9],
+    [8, 7],
+  ];
+
+  const genDOM = DOMLogic.genDOMElements()
+
+  genDOM.genPlayerGrid(ExampleCoords)
+
   const singlePlayer = () => {
 
-    const ExampleCoords = [
-      [[0, 1], [0, 2], [0, 3], [0, 4],],
-      [[2, 1], [3, 1], [4, 1],],
-      [[0, 6], [0, 7], [0, 8],],
-      [[3, 3], [3, 4],],
-      [[6, 3], [6, 2],],
-      [[6, 8], [6, 9],],
-      [7, 5],
-      [9, 2],
-      [9, 9],
-      [8, 7],
-    ];
+    genDOM.deleteElements()
 
-    const genDOM = DOMLogic.genDOMElements()
+    const newGame = DOMLogic.startGame(
+      genDOM.genPlayerGrid(ExampleCoords),
+      genDOM.genCpuGrid(),
+      ExampleCoords,
+      ExampleCoords
+    );
 
-    genDOM.genPlayerGrid(ExampleCoords)
-
-    const startButton =
-      document.getElementsByClassName("start-button")[0];
+    const playerObj = newGame.currentGame.Player
+    const cpuObj = newGame.currentGame.cpuPlayer
+    const currentTurn = gameTurns(cpuObj, ExampleCoords, playerObj)
+    const cpuGrid = newGame.gridContainer2
 
     const startGameLoop = () => {
       // receive coords, grid containers and start the game.
-      const newGame = DOMLogic.startGame(
-        genDOM.genPlayerGrid(ExampleCoords),
-        genDOM.genCpuGrid(),
-        ExampleCoords,
-        ExampleCoords
-      );
 
-      genDOM.deleteElements()
+      const turnLoop = (player, player2, gameTurn, player2Grid) => {
 
-      const turnLoop = () => {
-
-        const playerObj = newGame.currentGame.Player
-        const cpuObj = newGame.currentGame.cpuPlayer
-        const currentTurn = gameTurns(cpuObj, ExampleCoords, playerObj)
-        const cpuGrid = newGame.gridContainer2
-
-        for (let i = 0; i < cpuGrid.childNodes.length; i++) {
-          const node = cpuGrid.childNodes[i];
-          node.addEventListener("click", currentTurn.turnsLogic)
+        for (let i = 0; i < player2Grid.childNodes.length; i++) {
+          const node = player2Grid.childNodes[i];
+          node.addEventListener("click", gameTurn.turnsLogic)
         }
       }
 
-      turnLoop()
+      turnLoop(playerObj, cpuObj, currentTurn, cpuGrid)
 
     }
-    if (startButton !== undefined)
-      startButton.addEventListener("click", startGameLoop)
+
+    return { startGameLoop }
 
   }
+
+  const startButton =
+    document.getElementsByClassName("start-button")[0];
+
+  if (startButton !== undefined)
+    startButton.addEventListener("click", singlePlayer)
+
   return { singlePlayer };
 
 })();
 
-GameLoop.singlePlayer();
 
 export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray };
