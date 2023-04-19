@@ -434,76 +434,54 @@ const DOMLogic = (() => {
       }
     };
 
-    // dinamically generate the grids.
-
-    const gridsContainer =
-      document.getElementsByClassName("grids-container")[0];
-
-    const startButton =
-      document.getElementsByClassName("start-button")[0];
-
     const deleteElements = () => {
-      const grid1 = document.getElementsByClassName("grid-1")[0]
-      grid1.remove()
-      startButton.remove()
+      const gridsContainer = document.getElementsByClassName("grids-container")[0]
+      if (gridsContainer !== undefined) gridsContainer.remove()
     }
 
+    const genGrid = (playerIndex, coords) => {
 
-    const genPlayerGrid = (coords) => {
-      const grid1 = document.createElement("div");
-      grid1.className = "grid-1";
-      if (gridsContainer !== undefined)
-        gridsContainer.insertBefore(grid1, startButton);
-      DOMLogic.displayGrid(grid1)
-
-      showShips(coords, 1)
-
-      return grid1;
-    };
-
-    const genCpuGrid = () => {
-      const gridsContainer2 = document.createElement("section")
-      gridsContainer2.className = "grids-container"
+      const gridsContainer = document.createElement("section")
+      gridsContainer.className = "grids-container"
 
       const main = document.querySelector("main")
-      main.appendChild(gridsContainer2)
+      main.appendChild(gridsContainer)
 
       const name = document.createElement("h3")
-      name.textContent = "Cpu Grid"
-      gridsContainer2.appendChild(name)
+      name.textContent = `Player's${playerIndex}Grid`
+      gridsContainer.appendChild(name)
 
-      const grid2 = document.createElement("div");
-      grid2.className = "grid-2";
+      const grid = document.createElement("div");
+      grid.className = `grid-${playerIndex}`;
+      gridsContainer.appendChild(grid);
 
-      gridsContainer2.appendChild(grid2);
-      DOMLogic.displayGrid(null, grid2)
+      if (playerIndex === 1)
+        DOMLogic.displayGrid(grid, null)
 
-      return grid2;
+      else {
+        DOMLogic.displayGrid(null, grid)
+      }
+
+      if (coords !== undefined) {
+        const startButton = document.createElement("button")
+        startButton.className = "start-button"
+        gridsContainer.appendChild(startButton)
+        startButton.textContent = "Start Game"
+
+        showShips(coords, playerIndex)
+      }
+
+      return grid;
     };
 
 
-    return { genPlayerGrid, genCpuGrid, deleteElements }
+    return { genGrid, deleteElements }
   };
 
   return { startGame, displayGrid, genDOMElements };
 })();
 
 const GameLoop = (() => {
-
-  const gameTurns = (player2, player1Coords) => {
-
-    let player2AttacksCount = 0
-
-    const turnsLogic = () => {
-
-      if (player2.cpuBoard.receivedAttacks.length === player2AttacksCount + 1) {
-        player2AttacksCount++
-        player2.attackPlayer(player1Coords)
-      }
-
-    }
-    return { turnsLogic }
-  }
 
   const ExampleCoords = [
     [[0, 1], [0, 2], [0, 3], [0, 4],],
@@ -520,52 +498,46 @@ const GameLoop = (() => {
 
   const genDOM = DOMLogic.genDOMElements()
 
-  genDOM.genPlayerGrid(ExampleCoords)
-
   const singlePlayer = () => {
 
-    genDOM.deleteElements()
-
     const newGame = DOMLogic.startGame(
-      genDOM.genPlayerGrid(ExampleCoords),
-      genDOM.genCpuGrid(),
+      genDOM.genGrid(1),
+      genDOM.genGrid(2),
       ExampleCoords,
       ExampleCoords
     );
+
+    genDOM.deleteElements()
 
     const playerObj = newGame.currentGame.Player
     const cpuObj = newGame.currentGame.cpuPlayer
     const currentTurn = gameTurns(cpuObj, ExampleCoords, playerObj)
     const cpuGrid = newGame.gridContainer2
 
-    const startGameLoop = () => {
-      // receive coords, grid containers and start the game.
+    // receive coords, grid containers and start the game.
 
-      const turnLoop = (player, player2, gameTurn, player2Grid) => {
 
-        for (let i = 0; i < player2Grid.childNodes.length; i++) {
-          const node = player2Grid.childNodes[i];
-          node.addEventListener("click", gameTurn.turnsLogic)
-        }
-      }
-
-      turnLoop(playerObj, cpuObj, currentTurn, cpuGrid)
-
-    }
-
-    return { startGameLoop }
+    return { playerObj, cpuObj }
 
   }
 
-  const startButton =
-    document.getElementsByClassName("start-button")[0];
+  const setupDOM = () => {
 
-  if (startButton !== undefined)
-    startButton.addEventListener("click", singlePlayer)
+    genDOM.genGrid(1, ExampleCoords)
 
-  return { singlePlayer };
+    const startButton =
+      document.getElementsByClassName("start-button")[0];
+
+    if (startButton !== undefined)
+      startButton.addEventListener("click", singlePlayer)
+
+  }
+
+  return { singlePlayer, setupDOM };
 
 })();
+
+GameLoop.setupDOM()
 
 
 export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray };
