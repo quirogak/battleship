@@ -3,9 +3,9 @@ const isTargetInArray = (arr, target) => {
 
   if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
 
-  if (arr === undefined) return contains;
+  if (!arr) return contains;
 
-  if (target === undefined) return contains;
+  if (!target) return contains;
 
   for (let i = 0; i < arr.length; i++) {
     const element = arr[i];
@@ -140,25 +140,25 @@ const mainObjects = (() => {
       const areAllSunk = (ships) => {
         // either we didn't defined the cords of a ship (undefined), or it is actually sunk, we take that as true.
         if (
-          (ships.carrier.currentCords === undefined ||
+          (!ships.carrier.currentCords ||
             ships.carrier.isSunk()) &&
-          (ships.battleShip.currentCords === undefined ||
+          (!ships.battleShip.currentCords ||
             ships.battleShip.isSunk()) &&
-          (ships.battleShip1.currentCords === undefined ||
+          (!ships.battleShip1.currentCords ||
             ships.battleShip1.isSunk()) &&
-          (ships.cruiser.currentCords === undefined ||
+          (!ships.cruiser.currentCords ||
             ships.cruiser.isSunk()) &&
-          (ships.cruiser1.currentCords === undefined ||
+          (!ships.cruiser1.currentCords ||
             ships.cruiser1.isSunk()) &&
-          (ships.cruiser2.currentCords === undefined ||
+          (!ships.cruiser2.currentCords ||
             ships.cruiser2.isSunk()) &&
-          (ships.destroyer.currentCords === undefined ||
+          (!ships.destroyer.currentCords ||
             ships.destroyer.isSunk()) &&
-          (ships.destroyer1.currentCords === undefined ||
+          (!ships.destroyer1.currentCords ||
             ships.destroyer1.isSunk()) &&
-          (ships.destroyer2.currentCords === undefined ||
+          (!ships.destroyer2.currentCords ||
             ships.destroyer2.isSunk()) &&
-          (ships.destroyer3.currentCords === undefined ||
+          (!ships.destroyer3.currentCords ||
             ships.destroyer3.isSunk())
         )
           return true;
@@ -218,7 +218,7 @@ const playerLogic = (() => {
 
       if (isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
 
-      if (coords === undefined) {
+      if (!coords) {
         // if we set manual empty coords for testing or another purposes.
         usedCoords.push(coords);
         return rivalPlayer.receiveAttack(coords);
@@ -258,9 +258,9 @@ const DOMLogic = (() => {
           const gridElement2 = document.createElement("div");
           gridElement2.className = `${yPos},${i}`;
 
-          if (grid1 !== undefined && grid1 !== null)
+          if (grid1)
             grid1.appendChild(gridElement);
-          if (grid2 !== undefined && grid2 !== null)
+          if (grid2)
             grid2.appendChild(gridElement2);
         }
 
@@ -385,10 +385,8 @@ const DOMLogic = (() => {
     const currentGame = Game.newGame("example", playerCoords, cpuCoords);
 
     if (
-      gridContainer1 !== undefined &&
-      gridContainer1 !== null &&
-      gridContainer2 !== undefined &&
-      gridContainer2 !== null
+      gridContainer1 &&
+      gridContainer2
     ) {
       UILogic(
         gridContainer1.childNodes,
@@ -407,7 +405,7 @@ const DOMLogic = (() => {
       const currentCoord =
         document.getElementsByClassName(className)[gridNumber - 1];
 
-      if (currentCoord !== undefined)
+      if (currentCoord)
         currentCoord.style.border = "1px solid green";
     };
 
@@ -436,7 +434,7 @@ const DOMLogic = (() => {
 
     const deleteElements = () => {
       const gridsContainer = document.getElementsByClassName("grids-container")[0]
-      if (gridsContainer !== undefined) gridsContainer.remove()
+      if (gridsContainer) gridsContainer.remove()
     }
 
     const genGrid = (playerIndex, coords) => {
@@ -463,7 +461,7 @@ const DOMLogic = (() => {
         DOMLogic.displayGrid(null, grid)
       }
 
-      if (coords !== undefined) {
+      if (coords) {
         const startButton = document.createElement("button")
         startButton.className = "start-button"
         gridsContainer.appendChild(startButton)
@@ -553,7 +551,7 @@ const GameLoop = (() => {
     const startButton =
       document.getElementsByClassName("start-button")[0];
 
-    if (startButton !== undefined)
+    if (startButton)
       startButton.addEventListener("click", singlePlayer)
 
   }
