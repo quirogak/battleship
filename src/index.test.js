@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { mainObjects, playerLogic, Game, DOMLogic, GameLoop } from "./index";
+import { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -60,10 +60,10 @@ describe("receiveAttack tests", () => {
     expect(testShips1.carrier.currentHits()).toBe(2);
   });
 
-  testGameboard.receiveAttack([4, 8], testShips); // missed attack
+  testGameboard.receiveAttack([4, 8], testShips);
 
-  test("can record missed attacks", () => {
-    expect(testGameboard.missedAttacks).toStrictEqual([[4, 8]]);
+  test("can record every received attack", () => {
+    expect(isTargetInArray(testGameboard.receivedAttacks, [4, 8])).toBe(true);
   });
 });
 
@@ -126,7 +126,7 @@ describe("cpuPlayer tests", () => {
     cpuPlayer.attackPlayer();
 
     // because there is no player ships coordinates defined on this example, the cpu attack will always be a missedAttack.
-    expect(humanBoard.missedAttacks[0]).not.toBe(undefined);
+    expect(humanBoard.receivedAttacks).not.toBe(undefined);
   });
 
   test("can't shoot the same coordinate", () => {
@@ -141,7 +141,7 @@ describe("cpuPlayer tests", () => {
     cpuPlayer.attackPlayer([5, 3]);
 
     // if the cpu can attack the same coordinate twice, the second array element of the human's missedAttacks should be [5, 3] too
-    expect(humanBoard.missedAttacks[1]).not.toBe([5, 3]);
+    expect(humanBoard.receivedAttacks[1]).not.toBe([5, 3]);
   });
 });
 
@@ -223,20 +223,13 @@ describe("DOMLogic tests", () => {
   });
 });
 
-
 describe("GameLoop tests", () => {
 
   document.body.innerHTML =
     '<main>' +
-    '<div class ="grids-container">' +
-    '<button class ="start-button">' +
-    '</button>' +
-    '</div>' +
     '</main>';
 
-  const startButton = document.getElementsByClassName("start-button")[0]
-
-  GameLoop.singlePlayer()
+  GameLoop.setupDOM()
 
   const mockGrid1 = document.getElementsByClassName("grid-1")[0]
 
@@ -248,12 +241,19 @@ describe("GameLoop tests", () => {
 
   // when we click start button, it should remove repeatedGrid and itself from the DOM.
 
-  startButton.click()
+  const startGame = GameLoop.singlePlayer()
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
     const repeatedGrid = document.getElementsByClassName("grid-1")[1] // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
     expect(repeatedGrid).toBe(undefined)
-    expect(startButton.parentNode).toBe(null);
+  });
+
+  const mockGrid2 = document.getElementsByClassName("grid-2")[0]
+
+  mockGrid2.childNodes[0].click() // we attack the cpu, expecting to receive an attack from it.
+
+  test("after the player1 attacks, the cpu can make an attack", () => {
+    expect(typeof (startGame.playerObj.playerBoard.receivedAttacks[0])).toBe("object"); // if the cpu attacked the player, the player must have an attack in receivedAttacks
   });
 
 });

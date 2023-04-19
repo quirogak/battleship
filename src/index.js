@@ -445,10 +445,11 @@ const DOMLogic = (() => {
       gridsContainer.className = "grids-container"
 
       const main = document.querySelector("main")
-      main.appendChild(gridsContainer)
+      if (main)
+        main.appendChild(gridsContainer)
 
       const name = document.createElement("h3")
-      name.textContent = `Player's${playerIndex}Grid`
+      name.textContent = `Player's ${playerIndex} Grid`
       gridsContainer.appendChild(name)
 
       const grid = document.createElement("div");
@@ -483,6 +484,21 @@ const DOMLogic = (() => {
 
 const GameLoop = (() => {
 
+  const gameTurns = (player2, player1Coords) => {
+
+    let player2AttacksCount = 0
+
+    const turnsLogic = () => {
+
+      if (player2.cpuBoard.receivedAttacks.length === player2AttacksCount + 1) {
+        player2AttacksCount++
+        player2.attackPlayer(player1Coords)
+      }
+
+    }
+    return { turnsLogic }
+  }
+
   const ExampleCoords = [
     [[0, 1], [0, 2], [0, 3], [0, 4],],
     [[2, 1], [3, 1], [4, 1],],
@@ -511,11 +527,20 @@ const GameLoop = (() => {
 
     const playerObj = newGame.currentGame.Player
     const cpuObj = newGame.currentGame.cpuPlayer
-    const currentTurn = gameTurns(cpuObj, ExampleCoords, playerObj)
+    const currentTurn = gameTurns(cpuObj, ExampleCoords)
     const cpuGrid = newGame.gridContainer2
 
     // receive coords, grid containers and start the game.
 
+    const turnLoop = (player, player2, gameTurn, player2Grid) => {
+
+      for (let i = 0; i < player2Grid.childNodes.length; i++) {
+        const node = player2Grid.childNodes[i];
+        node.addEventListener("click", gameTurn.turnsLogic)
+      }
+    }
+
+    turnLoop(playerObj, cpuObj, currentTurn, cpuGrid)
 
     return { playerObj, cpuObj }
 
