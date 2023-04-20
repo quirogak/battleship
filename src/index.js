@@ -182,21 +182,26 @@ const mainObjects = (() => {
 })();
 
 const playerLogic = (() => {
-  const Player = (name, shipsCords) => {
+  const Player = (name, shipsCoords) => {
     const playerName = name;
+
+    const playerCoords = shipsCoords
 
     const playerBoard = mainObjects.Gameboard();
 
-    const playerShips = playerBoard.deployShips(...shipsCords);
+    const playerShips = playerBoard.deployShips(...shipsCoords);
 
     const receiveAttack = (coordinates) =>
       playerBoard.receiveAttack(coordinates, playerShips);
 
-    return { playerName, playerBoard, playerShips, receiveAttack };
+
+    return { playerName, playerCoords, playerBoard, playerShips, receiveAttack };
   };
 
   const cpuPlayer = (humanPlayer, shipsCords) => {
     const rivalPlayer = humanPlayer;
+
+    const cpuCoords = shipsCords
 
     const cpuBoard = mainObjects.Gameboard();
 
@@ -227,7 +232,7 @@ const playerLogic = (() => {
       return rivalPlayer.receiveAttack(randomCoords);
     };
 
-    return { attackPlayer, cpuBoard, cpuShips, receiveAttack };
+    return { attackPlayer, cpuBoard, cpuShips, cpuCoords, receiveAttack };
   };
 
   return { Player, cpuPlayer };
@@ -462,19 +467,24 @@ const DOMLogic = (() => {
       }
 
       if (coords) {
-        const startButton = document.createElement("button")
-        startButton.className = "start-button"
-        gridsContainer.appendChild(startButton)
-        startButton.textContent = "Start Game"
-
+        grid.className = `shown-grid`
         showShips(coords, playerIndex)
       }
 
       return grid;
     };
 
+    const genStartButton = () => {
+      const startButton = document.createElement("button")
+      startButton.className = "start-button"
+      startButton.textContent = "Start Game"
+      const gridsContainer = document.getElementsByClassName("grids-container")[0]
+      if (gridsContainer)
+        gridsContainer.appendChild(startButton)
+    }
 
-    return { genGrid, deleteElements }
+
+    return { genGrid, deleteElements, genStartButton }
   };
 
   return { startGame, displayGrid, genDOMElements };
@@ -482,17 +492,43 @@ const DOMLogic = (() => {
 
 const GameLoop = (() => {
 
-  const gameTurns = (player2, player1Coords) => {
+  const gameTurns = (player1, player2) => {
+
+    const player1Coords = player1.playerCoords
+
+    const player1Ships = player1.playerShips
+
+    const player2Coords = player2.cpuCoords
+
+    const player2Ships = player2.cpuShips
 
     let player2AttacksCount = 0
 
+    const endGame = (winner) => {
+
+    }
+
     const turnsLogic = () => {
+
+      let isGameOver = false
 
       if (player2.cpuBoard.receivedAttacks.length === player2AttacksCount + 1) {
         player2AttacksCount++
         player2.attackPlayer(player1Coords)
       }
 
+      if (player1.playerBoard.checkSunk(player1Ships)) {
+        endGame("player1")
+        isGameOver = true
+
+      }
+
+      if (player2.cpuBoard.checkSunk(player2Ships)) {
+        endGame("player2")
+        isGameOver = true
+      }
+
+      return isGameOver
     }
     return { turnsLogic }
   }
@@ -525,28 +561,29 @@ const GameLoop = (() => {
 
     const playerObj = newGame.currentGame.Player
     const cpuObj = newGame.currentGame.cpuPlayer
-    const currentTurn = gameTurns(cpuObj, ExampleCoords)
+    const currentTurn = gameTurns(playerObj, cpuObj)
     const cpuGrid = newGame.gridContainer2
 
     // receive coords, grid containers and start the game.
 
-    const turnLoop = (player, player2, gameTurn, player2Grid) => {
+    const turnLoop = (gameTurn, toAttackGrid) => {
 
-      for (let i = 0; i < player2Grid.childNodes.length; i++) {
-        const node = player2Grid.childNodes[i];
+      for (let i = 0; i < toAttackGrid.childNodes.length; i++) {
+        const node = toAttackGrid.childNodes[i];
         node.addEventListener("click", gameTurn.turnsLogic)
       }
     }
 
-    turnLoop(playerObj, cpuObj, currentTurn, cpuGrid)
+    turnLoop(currentTurn, cpuGrid)
 
-    return { playerObj, cpuObj }
+    return { playerObj, cpuObj, currentTurn }
 
   }
 
   const setupDOM = () => {
 
     genDOM.genGrid(1, ExampleCoords)
+    genDOM.genStartButton()
 
     const startButton =
       document.getElementsByClassName("start-button")[0];

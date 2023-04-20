@@ -231,15 +231,13 @@ describe("GameLoop tests", () => {
 
   GameLoop.setupDOM()
 
-  const mockGrid1 = document.getElementsByClassName("grid-1")[0]
+  const shownGrid1 = document.getElementsByClassName("shown-grid")[0]
 
-  const coordStyle = window.getComputedStyle(mockGrid1.childNodes[1])
+  const coordStyle = window.getComputedStyle(shownGrid1.childNodes[1])
 
   test("before initializing the game, the player can check it's occupied coordinates visually indicated.", () => {
     expect(coordStyle.getPropertyValue("border-color")).toBe("green");
   });
-
-  // when we click start button, it should remove repeatedGrid and itself from the DOM.
 
   const startGame = GameLoop.singlePlayer()
 
@@ -255,6 +253,33 @@ describe("GameLoop tests", () => {
   test("after the player1 attacks, the cpu can make an attack", () => {
     expect(typeof (startGame.playerObj.playerBoard.receivedAttacks[0])).toBe("object"); // if the cpu attacked the player, the player must have an attack in receivedAttacks
   });
+
+
+  test("the gameLoop ends when anybody is sunk.", () => { // click every cpuPlayer coord.
+    mockGrid2.childNodes[1].click()
+    mockGrid2.childNodes[2].click()
+    mockGrid2.childNodes[3].click()
+    mockGrid2.childNodes[4].click()
+    mockGrid2.childNodes[21].click()
+    mockGrid2.childNodes[31].click()
+    mockGrid2.childNodes[41].click()
+    mockGrid2.childNodes[6].click()
+    mockGrid2.childNodes[7].click()
+    mockGrid2.childNodes[8].click()
+    mockGrid2.childNodes[33].click()
+    mockGrid2.childNodes[34].click()
+    mockGrid2.childNodes[63].click()
+    mockGrid2.childNodes[62].click()
+    mockGrid2.childNodes[68].click()
+    mockGrid2.childNodes[69].click()
+    mockGrid2.childNodes[75].click()
+    mockGrid2.childNodes[92].click()
+    mockGrid2.childNodes[99].click()
+    mockGrid2.childNodes[87].click()
+    expect(startGame.currentTurn.turnsLogic()).toBe(true);
+  });
+
+
 
 });
 
