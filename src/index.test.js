@@ -254,7 +254,6 @@ describe("GameLoop tests", () => {
     expect(typeof (startGame.playerObj.playerBoard.receivedAttacks[0])).toBe("object"); // if the cpu attacked the player, the player must have an attack in receivedAttacks
   });
 
-
   test("the gameLoop ends when anybody is sunk.", () => { // click every cpuPlayer coord.
     mockGrid2.childNodes[1].click()
     mockGrid2.childNodes[2].click()
@@ -279,8 +278,11 @@ describe("GameLoop tests", () => {
     expect(startGame.currentTurn.turnsLogic()).toBe(true);
   });
 
+
   test("when the game ends, the grid event listeners are removed.", () => {
-    expect(mockGrid2.childNodes[14].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
+    const updatedGrid2 = document.getElementsByClassName("grid-2")[0]
+    updatedGrid2.childNodes[12].click()
+    expect(updatedGrid2.childNodes[12].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
   });
 
 

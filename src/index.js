@@ -277,7 +277,8 @@ const DOMLogic = (() => {
     createGrid(10);
   };
 
-  const UILogic = (nodes1, nodes2, gameInfo) => {
+  const UILogic = (nodes, gameInfo) => {
+
     const player1Coords = gameInfo.Player.playerShips.coordinates;
 
     const player2Coords = gameInfo.cpuPlayer.cpuShips.coordinates;
@@ -320,7 +321,6 @@ const DOMLogic = (() => {
       const arrayCoord = [];
 
       const x = classCoord.slice(0, 1);
-
       const y = classCoord.slice(2, 3);
 
       arrayCoord.push(Number(x));
@@ -338,6 +338,7 @@ const DOMLogic = (() => {
     };
 
     const detectAttacks = (e) => {
+
       const parentClass = e.target.parentElement.className;
 
       const nodeClass = e.target.className;
@@ -363,24 +364,17 @@ const DOMLogic = (() => {
       }
     };
 
-    for (let i = 0; i < nodes1.length; i++) {
-      nodes1[i].addEventListener("click", (e) => {
+    for (let i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
           visualIndicators(e, false);
         } else {
           visualIndicators(e, true);
         }
+      }, { once: true });
 
-      }, { once: true });
-      nodes2[i].addEventListener("click", (e) => {
-        if (detectAttacks(e) === false) {
-          visualIndicators(e, false);
-        } else {
-          visualIndicators(e, true);
-        }
-      }, { once: true });
-    }
-  };
+    };
+  }
 
   const startGame = (
     gridContainer1,
@@ -390,12 +384,15 @@ const DOMLogic = (() => {
   ) => {
     const currentGame = Game.newGame("example", playerCoords, cpuCoords);
 
-    if (
-      gridContainer1 &&
-      gridContainer2
-    ) {
+    if (gridContainer1.className !== "shown-grid") {
       UILogic(
         gridContainer1.childNodes,
+        currentGame
+      );
+    }
+
+    if (gridContainer2.className !== "shown-grid") {
+      UILogic(
         gridContainer2.childNodes,
         currentGame
       );
@@ -410,6 +407,8 @@ const DOMLogic = (() => {
     const changeCoordColor = (className, gridNumber) => {
       const currentCoord =
         document.getElementsByClassName(className)[gridNumber - 1];
+
+      currentCoord.classList.add("e")
 
       if (currentCoord)
         currentCoord.style.border = "1px solid green";
@@ -496,15 +495,17 @@ const DOMLogic = (() => {
 
     // cloned elements do not carry event listeners.
 
-    player1Grid.replaceWith(player1Grid.cloneNode(true))
+    if (player1Grid)
+      player1Grid.replaceWith(player1Grid.cloneNode(true))
 
-    player2Grid.replaceWith(player2Grid.cloneNode(true))
-
-
+    if (player2Grid)
+      player2Grid.replaceWith(player2Grid.cloneNode(true))
 
   }
 
   return { startGame, displayGrid, genDOMElements, endGame };
+
+
 })();
 
 const GameLoop = (() => {
@@ -514,8 +515,6 @@ const GameLoop = (() => {
     const player1Coords = player1.playerCoords
 
     const player1Ships = player1.playerShips
-
-    const player2Coords = player2.cpuCoords
 
     const player2Ships = player2.cpuShips
 
@@ -562,14 +561,14 @@ const GameLoop = (() => {
 
   const singlePlayer = () => {
 
+    genDOM.deleteElements() // clear previous elements
+
     const newGame = DOMLogic.startGame(
-      genDOM.genGrid(1),
+      genDOM.genGrid(1, ExampleCoords),
       genDOM.genGrid(2),
       ExampleCoords,
       ExampleCoords
     );
-
-    genDOM.deleteElements()
 
     const playerObj = newGame.currentGame.Player
     const cpuObj = newGame.currentGame.cpuPlayer
