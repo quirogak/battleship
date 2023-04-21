@@ -487,7 +487,22 @@ const DOMLogic = (() => {
     return { genGrid, deleteElements, genStartButton }
   };
 
-  return { startGame, displayGrid, genDOMElements };
+  const endGame = (winner) => {
+
+    const player1Grid = document.getElementsByClassName("grid-1")[0]
+
+    const player2Grid = document.getElementsByClassName("grid-2")[0]
+
+    // cloned elements do not carry event listeners.
+
+    player1Grid.replaceWith(player1Grid.cloneNode(true))
+
+    player2Grid.replaceWith(player2Grid.cloneNode(true))
+
+
+  }
+
+  return { startGame, displayGrid, genDOMElements, endGame };
 })();
 
 const GameLoop = (() => {
@@ -504,10 +519,6 @@ const GameLoop = (() => {
 
     let player2AttacksCount = 0
 
-    const endGame = (winner) => {
-
-    }
-
     const turnsLogic = () => {
 
       let isGameOver = false
@@ -518,13 +529,12 @@ const GameLoop = (() => {
       }
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
-        endGame("player1")
+        DOMLogic.endGame("player1")
         isGameOver = true
-
       }
 
       if (player2.cpuBoard.checkSunk(player2Ships)) {
-        endGame("player2")
+        DOMLogic.endGame("player2")
         isGameOver = true
       }
 

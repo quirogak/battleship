@@ -279,6 +279,10 @@ describe("GameLoop tests", () => {
     expect(startGame.currentTurn.turnsLogic()).toBe(true);
   });
 
+  test("when the game ends, the grid event listeners are removed.", () => {
+    expect(mockGrid2.childNodes[14].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
+  });
+
 
 
 });
