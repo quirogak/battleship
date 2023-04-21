@@ -370,14 +370,15 @@ const DOMLogic = (() => {
         } else {
           visualIndicators(e, true);
         }
-      });
+
+      }, { once: true });
       nodes2[i].addEventListener("click", (e) => {
         if (detectAttacks(e) === false) {
           visualIndicators(e, false);
         } else {
           visualIndicators(e, true);
         }
-      });
+      }, { once: true });
     }
   };
 
@@ -498,6 +499,7 @@ const DOMLogic = (() => {
     player1Grid.replaceWith(player1Grid.cloneNode(true))
 
     player2Grid.replaceWith(player2Grid.cloneNode(true))
+
 
 
   }
