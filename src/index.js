@@ -287,6 +287,21 @@ const DOMLogic = (() => {
 
     const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
 
+    const visualIndicators = (coord, wasSuccessful, target) => {
+
+      let index = 0
+      if (target === "cpu") index = 1
+
+      const currentNode = document.getElementsByClassName(coord)[index]
+      if (currentNode) {
+        if (wasSuccessful === false) currentNode.textContent = "•";
+        else {
+          currentNode.textContent = "X";
+        }
+      }
+
+    };
+
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
       let wasSuccessful = false;
@@ -329,14 +344,6 @@ const DOMLogic = (() => {
       return arrayCoord;
     };
 
-    const visualIndicators = (e, wasSuccessful) => {
-      const currentNode = e.target;
-      if (wasSuccessful === false) currentNode.textContent = "•";
-      else {
-        currentNode.textContent = "X";
-      }
-    };
-
     const detectAttacks = (e) => {
 
       const parentClass = e.target.parentElement.className;
@@ -351,29 +358,36 @@ const DOMLogic = (() => {
         const cleanCoords = Object.values(player1Coords).filter(
           (coords) => coords !== undefined
         ); // filter undefined coords.
-        if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) return true
-        return missedAttackOnClick(nodeCoord, attackPlayer)
+        if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
+          visualIndicators(nodeClass, true, "player")
+        }
+        else {
+          missedAttackOnClick(nodeCoord, attackPlayer)
+          visualIndicators(nodeClass, false, "player")
+        }
       }
 
       if (parentClass === "grid-2") {
         const cleanCoords = Object.values(player2Coords).filter(
           (coords) => coords !== undefined
         );
-        if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) return true
-        return missedAttackOnClick(nodeCoord, attackCpu)
+
+        if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
+          visualIndicators(nodeClass, true, "cpu")
+        }
+        else {
+          missedAttackOnClick(nodeCoord, attackCpu)
+          visualIndicators(nodeClass, false, "cpu")
+        }
       }
     };
 
     for (let i = 0; i < nodes.length; i++) {
-      nodes[i].addEventListener("click", (e) => {
-        if (detectAttacks(e) === false) {
-          visualIndicators(e, false);
-        } else {
-          visualIndicators(e, true);
-        }
-      }, { once: true });
+      nodes[i].addEventListener("click", (e) => { detectAttacks(e) }, { once: true });
 
     };
+
+    return { visualIndicators }
   }
 
   const startGame = (
@@ -407,8 +421,6 @@ const DOMLogic = (() => {
     const changeCoordColor = (className, gridNumber) => {
       const currentCoord =
         document.getElementsByClassName(className)[gridNumber - 1];
-
-      currentCoord.classList.add("e")
 
       if (currentCoord)
         currentCoord.style.border = "1px solid green";

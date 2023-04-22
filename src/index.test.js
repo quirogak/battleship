@@ -184,10 +184,20 @@ describe("Game tests", () => {
 });
 
 describe("DOMLogic tests", () => {
+
+  document.body.innerHTML =
+    '<main>' +
+    '</main>';
+
   const mockGrid1 = document.createElement("div");
   const mockGrid2 = document.createElement("div");
   mockGrid1.classList.add("grid-1");
   mockGrid2.classList.add("grid-2");
+
+  const main = document.querySelector("main")
+
+  main.appendChild(mockGrid1)
+  main.appendChild(mockGrid2)
 
   DOMLogic.displayGrid(mockGrid1);
   DOMLogic.displayGrid(mockGrid2);
@@ -198,7 +208,7 @@ describe("DOMLogic tests", () => {
     expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
   });
 
-  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[[0, 2], [0, 1]]], [[0, 0]]); // note that mockGrid1 has a two coordinates boat.
+  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[[0, 2], [0, 1]]], [[0, 1]]); // note that mockGrid1 has a two coordinates boat.
 
   mockGrid2.childNodes[0].click(); // click [0, 0] coordinate.
 
@@ -217,10 +227,14 @@ describe("DOMLogic tests", () => {
     expect(mockGrid2.childNodes[35].textContent).toBe("•");
   });
 
-  mockGrid2.childNodes[2].click() // 0,1 coordinate has a ship
+  mockGrid2.childNodes[1].click() // 0,1 coordinate has a ship
+
   test("when a coordinate is clicked, and it is a successful attack, there should be a visual indicator.", () => {
-    expect(mockGrid2.childNodes[0].textContent).toBe("X");
+    expect(mockGrid2.childNodes[1].textContent).toBe("X");
   });
+
+  // test("when a ship is sunk, there should be a visual indicator", () => { });
+
 });
 
 describe("GameLoop tests", () => {
@@ -283,6 +297,12 @@ describe("GameLoop tests", () => {
     const updatedGrid2 = document.getElementsByClassName("grid-2")[0]
     updatedGrid2.childNodes[12].click()
     expect(updatedGrid2.childNodes[12].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
+  });
+
+  test("if the cpu makes an 'no-click' attack, it should be displayed in player's grid.", () => {
+    const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0]
+    const DOMCoord = document.getElementsByClassName(attackedCoord)[0]
+    expect(DOMCoord.textContent).toBe("X");
   });
 
 
