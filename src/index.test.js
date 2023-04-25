@@ -302,10 +302,8 @@ describe("GameLoop tests", () => {
   test("if the cpu makes an 'no-click' attack, it should be displayed in player's grid.", () => {
     const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0]
     const DOMCoord = document.getElementsByClassName(attackedCoord)[0]
-    expect(DOMCoord.textContent).toBe("X");
+    expect(DOMCoord.textContent === "X" || DOMCoord.textContent === "•").toBeTruthy()
   });
-
-
 
 });
 

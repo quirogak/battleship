@@ -1,3 +1,5 @@
+
+// multiple purposes functions
 const isTargetInArray = (arr, target) => {
   let contains = false;
 
@@ -14,6 +16,21 @@ const isTargetInArray = (arr, target) => {
   }
 
   return contains;
+};
+
+const visualIndicators = (coord, wasSuccessful, target) => {
+
+  let index = 0
+  if (target === "cpu") index = 1
+
+  const currentNode = document.getElementsByClassName(coord)[index]
+  if (currentNode) {
+    if (wasSuccessful === false) currentNode.textContent = "•";
+    else {
+      currentNode.textContent = "X";
+    }
+  }
+
 };
 
 const mainObjects = (() => {
@@ -228,8 +245,14 @@ const playerLogic = (() => {
         usedCoords.push(coords);
         return rivalPlayer.receiveAttack(coords);
       }
+      rivalPlayer.receiveAttack(randomCoords); // make the attack
+      const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
 
-      return rivalPlayer.receiveAttack(randomCoords);
+      if (isTargetInArray(rivalPlayerHits, randomCoords)) { // check if it was a successful attack or not.
+        return visualIndicators(randomCoords, true, "player")
+      }
+      return visualIndicators(randomCoords, false, "player")
+
     };
 
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, receiveAttack };
@@ -287,21 +310,6 @@ const DOMLogic = (() => {
 
     const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
 
-    const visualIndicators = (coord, wasSuccessful, target) => {
-
-      let index = 0
-      if (target === "cpu") index = 1
-
-      const currentNode = document.getElementsByClassName(coord)[index]
-      if (currentNode) {
-        if (wasSuccessful === false) currentNode.textContent = "•";
-        else {
-          currentNode.textContent = "X";
-        }
-      }
-
-    };
-
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
       let wasSuccessful = false;
@@ -318,6 +326,7 @@ const DOMLogic = (() => {
         if (isTargetInArray(currentCoords, nodeCoord)) {
           attackFunction(nodeCoord);
           wasSuccessful = true;
+
           break; // stop looping through the ships coords to optimize time complexity.
         }
       }
