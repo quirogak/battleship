@@ -300,6 +300,30 @@ const DOMLogic = (() => {
     createGrid(10);
   };
 
+  const genIndicators = (xContainer, yContainer) => {
+
+    const gridIndicatorsX = document.createElement("section")
+    const gridIndicatorsY = document.createElement("section")
+
+    gridIndicatorsX.classList.add("X")
+    gridIndicatorsY.classList.add("Y")
+
+    const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+
+    for (let i = 1; i <= 10; i++) {
+      const element = document.createElement("div")
+      element.textContent = i
+      gridIndicatorsY.appendChild(element)
+
+      const element2 = document.createElement("div")
+      element2.textContent = alphabet[i - 1]
+      gridIndicatorsX.appendChild(element2)
+    }
+
+    xContainer.appendChild(gridIndicatorsX)
+    yContainer.appendChild(gridIndicatorsY)
+  }
+
   const UILogic = (nodes, gameInfo) => {
 
     const player1Coords = gameInfo.Player.playerShips.coordinates;
@@ -393,7 +417,6 @@ const DOMLogic = (() => {
 
     for (let i = 0; i < nodes.length; i++) {
       nodes[i].addEventListener("click", (e) => { detectAttacks(e) }, { once: true });
-
     };
 
     return { visualIndicators }
@@ -476,9 +499,17 @@ const DOMLogic = (() => {
       name.textContent = `Player's ${playerIndex} Grid`
       gridsContainer.appendChild(name)
 
+      const gridWrapper = document.createElement("div");
+      gridWrapper.className = "grid-wrapper"
+
+      genIndicators(gridsContainer, gridWrapper) // gen indicators here to put "X" container above the grid.
+
+      gridsContainer.appendChild(gridWrapper)
+
+
       const grid = document.createElement("div");
       grid.className = `grid-${playerIndex}`;
-      gridsContainer.appendChild(grid);
+      gridWrapper.appendChild(grid);
 
       if (playerIndex === 1)
         DOMLogic.displayGrid(grid, null)
