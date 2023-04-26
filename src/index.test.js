@@ -233,8 +233,6 @@ describe("DOMLogic tests", () => {
     expect(mockGrid2.childNodes[1].textContent).toBe("X");
   });
 
-  // test("when a ship is sunk, there should be a visual indicator", () => { });
-
 });
 
 describe("GameLoop tests", () => {
@@ -269,6 +267,7 @@ describe("GameLoop tests", () => {
   });
 
   test("the gameLoop ends when anybody is sunk.", () => { // click every cpuPlayer coord.
+
     mockGrid2.childNodes[1].click()
     mockGrid2.childNodes[2].click()
     mockGrid2.childNodes[3].click()
@@ -289,6 +288,7 @@ describe("GameLoop tests", () => {
     mockGrid2.childNodes[92].click()
     mockGrid2.childNodes[99].click()
     mockGrid2.childNodes[87].click()
+
     expect(startGame.currentTurn.turnsLogic()).toBe(true);
   });
 
@@ -303,6 +303,11 @@ describe("GameLoop tests", () => {
     const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0]
     const DOMCoord = document.getElementsByClassName(attackedCoord)[0]
     expect(DOMCoord.textContent === "X" || DOMCoord.textContent === "•").toBeTruthy()
+
+  });
+
+  test("when a ship is sunk, there should be a visual indicator", () => {
+    expect(mockGrid2.childNodes[33].style.borderColor && mockGrid2.childNodes[34].style.borderColor).toBe("red") // 3,3 and 3,4 make an entire ship.
   });
 
 });

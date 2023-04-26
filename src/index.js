@@ -239,9 +239,14 @@ const playerLogic = (() => {
 
     const playerShips = playerBoard.deployShips(...shipsCoords);
 
-    const receiveAttack = (coordinates) =>
-      playerBoard.receiveAttack(coordinates, playerShips)
+    const receiveAttack = (coordinates, indicateSunk) => {
+      const receivedAttack = playerBoard.receiveAttack(coordinates, playerShips)
 
+      if (indicateSunk)
+        if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+          indicateSunk(receivedAttack, 1)
+
+    }
 
     return { playerName, playerCoords, playerBoard, playerShips, receiveAttack };
   };
@@ -255,8 +260,14 @@ const playerLogic = (() => {
 
     const cpuShips = cpuBoard.deployShips(...shipsCords);
 
-    const receiveAttack = (coordinates) =>
-      cpuBoard.receiveAttack(coordinates, cpuShips)
+    const receiveAttack = (coordinates, indicateSunk) => {
+      const receivedAttack = cpuBoard.receiveAttack(coordinates, cpuShips)
+
+      if (indicateSunk)
+        if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+          indicateSunk(receivedAttack, 2)
+
+    }
 
     const usedCoords = [];
 
@@ -331,6 +342,45 @@ const DOMLogic = (() => {
     createGrid(10);
   };
 
+  const flatCoords = (coordsArr) => {
+    const oneDimensionCoords = [];
+
+    for (let i = 0; i < coordsArr.length; i++) {
+      const coords = coordsArr[i];
+
+      if (typeof coords[0] === "object")
+        oneDimensionCoords.push(
+          ...coords
+        ); // if the ships have more than one coordinate.
+      else oneDimensionCoords.push(coords);
+    }
+    return oneDimensionCoords;
+  };
+
+  const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
+
+  const changeCoordColor = (className, gridNumber, color) => {
+    const currentCoord =
+      document.getElementsByClassName(className)[gridNumber - 1];
+
+    if (currentCoord)
+      currentCoord.style.border = `1px solid ${color}`;
+  };
+
+  const indicateSunk = (ship, gridNumber) => {
+
+    const currentCoords = ship.currentCords
+
+    if (typeof (currentCoords[0]) === "number")  // when the ship only has one coordinate.
+      changeCoordColor(coordToClass(currentCoords), gridNumber, "red")
+    else
+      for (let i = 0; i < currentCoords.length; i++) {
+        changeCoordColor(coordToClass(currentCoords[i]), gridNumber, "red");
+      }
+
+  };
+
+
   const genIndicators = (xContainer, yContainer) => {
 
     const gridIndicatorsX = document.createElement("section")
@@ -361,9 +411,9 @@ const DOMLogic = (() => {
 
     const player2Coords = gameInfo.cpuPlayer.cpuShips.coordinates;
 
-    const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord);
+    const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord, indicateSunk);
 
-    const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
+    const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord, indicateSunk);
 
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
@@ -479,36 +529,13 @@ const DOMLogic = (() => {
   };
 
   const genDOMElements = () => {
-    const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
 
-    const changeCoordColor = (className, gridNumber) => {
-      const currentCoord =
-        document.getElementsByClassName(className)[gridNumber - 1];
-
-      if (currentCoord)
-        currentCoord.style.border = "1px solid green";
-    };
-
-    const flatCoords = (coordsArr) => {
-      const oneDimensionCoords = [];
-
-      for (let i = 0; i < coordsArr.length; i++) {
-        const coords = coordsArr[i];
-
-        if (typeof coords[0] === "object")
-          oneDimensionCoords.push(
-            ...coords
-          ); // if the ships have more than one coordinate.
-        else oneDimensionCoords.push(coords);
-      }
-      return oneDimensionCoords;
-    };
 
     const showShips = (currentCoords, gridNumber) => {
       const coords = flatCoords(currentCoords);
 
       for (let i = 0; i < coords.length; i++) {
-        changeCoordColor(coordToClass(coords[i]), gridNumber);
+        changeCoordColor(coordToClass(coords[i]), gridNumber, "green");
       }
     };
 
@@ -536,7 +563,6 @@ const DOMLogic = (() => {
       genIndicators(gridsContainer, gridWrapper) // gen indicators here to put "X" container above the grid.
 
       gridsContainer.appendChild(gridWrapper)
-
 
       const grid = document.createElement("div");
       grid.className = `grid-${playerIndex}`;
@@ -587,7 +613,6 @@ const DOMLogic = (() => {
   }
 
   return { startGame, displayGrid, genDOMElements, endGame };
-
 
 })();
 
