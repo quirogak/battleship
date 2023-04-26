@@ -137,20 +137,51 @@ const mainObjects = (() => {
           successAttacks.push(targetCords);
 
           // if the target cords matches a ship cords.
-          if (shipName === "carrier") playerShips.carrier.hit();
-          if (shipName === "battleShip") playerShips.battleShip.hit();
-          if (shipName === "battleShip1") playerShips.battleShip1.hit();
-          if (shipName === "cruiser") playerShips.cruiser.hit();
-          if (shipName === "cruiser1") playerShips.cruiser1.hit();
-          if (shipName === "cruiser2") playerShips.cruiser2.hit();
-          if (shipName === "destroyer") playerShips.destroyer.hit();
-          if (shipName === "destroyer1") playerShips.destroyer1.hit();
-          if (shipName === "destroyer2") playerShips.destroyer2.hit();
-          if (shipName === "destroyer3") playerShips.destroyer3.hit();
+          if (shipName === "carrier") {
+            playerShips.carrier.hit();
+            if (playerShips.carrier.isSunk()) return playerShips.carrier
+          }
+          if (shipName === "battleShip") {
+            playerShips.battleShip.hit();
+            if (playerShips.battleShip.isSunk()) return playerShips.battleShip
+          }
+          if (shipName === "battleShip1") {
+            playerShips.battleShip1.hit();
+            if (playerShips.battleShip1.isSunk()) return playerShips.battleShip1
+          }
+          if (shipName === "cruiser") {
+            playerShips.cruiser.hit();
+            if (playerShips.cruiser.isSunk()) return playerShips.cruiser
+          }
+          if (shipName === "cruiser1") {
+            playerShips.cruiser1.hit();
+            if (playerShips.cruiser1.isSunk()) return playerShips.cruiser1
+          }
+          if (shipName === "cruiser2") {
+            playerShips.cruiser2.hit();
+            if (playerShips.cruiser2.isSunk()) return playerShips.cruiser2
+          }
+          if (shipName === "destroyer") {
+            playerShips.destroyer.hit();
+            if (playerShips.destroyer.isSunk()) return playerShips.destroyer
+          }
+          if (shipName === "destroyer1") {
+            playerShips.destroyer1.hit();
+            if (playerShips.destroyer1.isSunk()) return playerShips.destroyer1
+          }
+          if (shipName === "destroyer2") {
+            playerShips.destroyer2.hit();
+            if (playerShips.destroyer2.isSunk()) return playerShips.destroyer2
+          }
+          if (shipName === "destroyer3") {
+            playerShips.destroyer3.hit();
+            if (playerShips.destroyer3.isSunk()) return playerShips.destroyer3
+          }
         }
 
         if (success === true) break;
       }
+
     };
 
     const checkSunk = (playerShips) => {
@@ -209,7 +240,7 @@ const playerLogic = (() => {
     const playerShips = playerBoard.deployShips(...shipsCoords);
 
     const receiveAttack = (coordinates) =>
-      playerBoard.receiveAttack(coordinates, playerShips);
+      playerBoard.receiveAttack(coordinates, playerShips)
 
 
     return { playerName, playerCoords, playerBoard, playerShips, receiveAttack };
@@ -225,7 +256,7 @@ const playerLogic = (() => {
     const cpuShips = cpuBoard.deployShips(...shipsCords);
 
     const receiveAttack = (coordinates) =>
-      cpuBoard.receiveAttack(coordinates, cpuShips);
+      cpuBoard.receiveAttack(coordinates, cpuShips)
 
     const usedCoords = [];
 
