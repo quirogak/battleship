@@ -272,7 +272,7 @@ const playerLogic = (() => {
 
   };
 
-  const attackCorners = (nodeCoord, playerObj) => {
+  const attackCorners = (nodeCoord, playerObj, targetName) => {
 
     const corners = []
 
@@ -285,7 +285,7 @@ const playerLogic = (() => {
 
     for (let i = 0; i < corners.length; i++) {
       playerObj.receiveAttack(corners[i])
-      visualIndicators(corners[i], false, "player")
+      visualIndicators(corners[i], false, targetName)
     }
 
   }
@@ -349,7 +349,7 @@ const playerLogic = (() => {
       const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
 
       if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) {// check if it was a successful attack or not.
-        attackCorners(randomCoords, rivalPlayer)
+        attackCorners(randomCoords, rivalPlayer, "player")
         return visualIndicators(randomCoords, true, "player")
       }
       return visualIndicators(randomCoords, false, "player")
@@ -498,7 +498,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
           playerLogic.visualIndicators(nodeClass, true, "player")
-          playerLogic.attackCorners(nodeCoord, gameInfo.Player)
+          playerLogic.attackCorners(nodeCoord, gameInfo.Player, "player")
 
         }
         else {
@@ -514,7 +514,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
           playerLogic.visualIndicators(nodeClass, true, "cpu")
-          playerLogic.attackCorners(nodeCoord, gameInfo.cpuPlayer)
+          playerLogic.attackCorners(nodeCoord, gameInfo.cpuPlayer, "cpu")
         }
         else {
           missedAttackOnClick(nodeCoord, attackCpu)
