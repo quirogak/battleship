@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray } from "./index";
+import { mainObjects, playerLogic, Game, DOMLogic, GameLoop, globalLogic } from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -63,7 +63,7 @@ describe("receiveAttack tests", () => {
   testGameboard.receiveAttack([4, 8], testShips);
 
   test("can record every received attack", () => {
-    expect(isTargetInArray(testGameboard.receivedAttacks, [4, 8])).toBe(true);
+    expect(globalLogic.isTargetInArray(testGameboard.receivedAttacks, [4, 8])).toBe(true);
   });
 });
 
@@ -311,4 +311,27 @@ describe("GameLoop tests", () => {
   });
 
 });
+
+describe("Game mechanics tests", () => {
+
+  const newGame = Game.newGame("example", ExampleCoords, ExampleCoords)
+
+  playerLogic.attackCorners([7, 5], newGame.cpuPlayer)
+
+  test("on a successful attack, the 4 corners of the attacked coordinate should be attacked too.", () => {
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[0]).toStrictEqual([8, 6])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[1]).toStrictEqual([8, 4])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[2]).toStrictEqual([6, 6])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[3]).toStrictEqual([6, 4])
+  });
+
+  playerLogic.attackCorners([0, 1], newGame.cpuPlayer)
+
+  test("if there is no corners in one side or more sides, can still attack the remaining corners", () => {
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[4]).toStrictEqual([1, 2])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[5]).toStrictEqual([1, 0])
+  });
+
+
+})
 

@@ -271,6 +271,25 @@ const playerLogic = (() => {
     }
 
   };
+
+  const attackCorners = (nodeCoord, playerObj) => {
+
+    const corners = []
+
+    const corner1 = [nodeCoord[0] + 1, nodeCoord[1] + 1]
+    const corner2 = [nodeCoord[0] + 1, nodeCoord[1] + -1]
+    const corner3 = [nodeCoord[0] - 1, nodeCoord[1] + 1]
+    const corner4 = [nodeCoord[0] - 1, nodeCoord[1] - 1]
+
+    corners.push(corner1, corner2, corner3, corner4)
+
+    for (let i = 0; i < corners.length; i++) {
+      playerObj.receiveAttack(corners[i])
+      visualIndicators(corners[i], false, "player")
+    }
+
+  }
+
   const Player = (name, shipsCoords) => {
     const playerName = name;
 
@@ -329,7 +348,8 @@ const playerLogic = (() => {
       rivalPlayer.receiveAttack(randomCoords); // make the attack
       const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
 
-      if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) { // check if it was a successful attack or not.
+      if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) {// check if it was a successful attack or not.
+        attackCorners(randomCoords, rivalPlayer)
         return visualIndicators(randomCoords, true, "player")
       }
       return visualIndicators(randomCoords, false, "player")
@@ -339,7 +359,7 @@ const playerLogic = (() => {
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, receiveAttack };
   };
 
-  return { Player, cpuPlayer, visualIndicators };
+  return { Player, cpuPlayer, visualIndicators, attackCorners };
 })();
 
 const Game = (() => {
@@ -475,8 +495,11 @@ const DOMLogic = (() => {
         const cleanCoords = Object.values(player1Coords).filter(
           (coords) => coords !== undefined
         ); // filter undefined coords.
+
         if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
           playerLogic.visualIndicators(nodeClass, true, "player")
+          playerLogic.attackCorners(nodeCoord, gameInfo.Player)
+
         }
         else {
           missedAttackOnClick(nodeCoord, attackPlayer)
@@ -491,6 +514,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
           playerLogic.visualIndicators(nodeClass, true, "cpu")
+          playerLogic.attackCorners(nodeCoord, gameInfo.cpuPlayer)
         }
         else {
           missedAttackOnClick(nodeCoord, attackCpu)
