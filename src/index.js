@@ -652,16 +652,10 @@ const GameLoop = (() => {
 
     const player2Ships = player2.cpuShips
 
-    let player2AttacksCount = 0
-
     const turnsLogic = () => {
 
       let isGameOver = false
-
-      if (player2.cpuBoard.receivedAttacks.length === player2AttacksCount + 1) {
-        player2AttacksCount++
-        player2.attackPlayer(player1Coords)
-      }
+      player2.attackPlayer(player1Coords)
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
         DOMLogic.endGame("player1")
@@ -706,7 +700,7 @@ const GameLoop = (() => {
 
     const playerObj = newGame.currentGame.Player
     const cpuObj = newGame.currentGame.cpuPlayer
-    const currentTurn = gameTurns(playerObj, cpuObj)
+    const currentTurn = gameTurns(playerObj, cpuObj, 0)
     const cpuGrid = newGame.gridContainer2
 
     // receive coords, grid containers and start the game.
@@ -715,7 +709,10 @@ const GameLoop = (() => {
 
       for (let i = 0; i < toAttackGrid.childNodes.length; i++) {
         const node = toAttackGrid.childNodes[i];
-        node.addEventListener("click", gameTurn.turnsLogic)
+        node.addEventListener('click', () => {
+          gameTurn.turnsLogic()
+        }, { once: true });
+
       }
     }
 
