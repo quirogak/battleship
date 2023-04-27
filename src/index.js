@@ -1,37 +1,62 @@
+const globalLogic = (() => {
 
-// multiple purposes functions
-const isTargetInArray = (arr, target) => {
-  let contains = false;
+  // these functions are used in almost every other module, so i need to have them here in order to invoke them.
 
-  if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
+  const isTargetInArray = (arr, target) => {
+    let contains = false;
 
-  if (!arr) return contains;
+    if (JSON.stringify(arr) === JSON.stringify(target)) contains = true;
 
-  if (!target) return contains;
+    if (!arr) return contains;
 
-  for (let i = 0; i < arr.length; i++) {
-    const element = arr[i];
+    if (!target) return contains;
 
-    if (JSON.stringify(element) === JSON.stringify(target)) contains = true;
-  }
+    for (let i = 0; i < arr.length; i++) {
+      const element = arr[i];
 
-  return contains;
-};
-
-const visualIndicators = (coord, wasSuccessful, target) => {
-
-  let index = 0
-  if (target === "cpu") index = 1
-
-  const currentNode = document.getElementsByClassName(coord)[index]
-  if (currentNode) {
-    if (wasSuccessful === false) currentNode.textContent = "•";
-    else {
-      currentNode.textContent = "X";
+      if (JSON.stringify(element) === JSON.stringify(target)) contains = true;
     }
-  }
 
-};
+    return contains;
+  };
+
+  const classToArray = (classCoord) => {
+    const arrayCoord = [];
+
+    const x = classCoord.slice(0, 1);
+    const y = classCoord.slice(2, 3);
+
+    arrayCoord.push(Number(x));
+    arrayCoord.push(Number(y));
+
+    return arrayCoord;
+  };
+
+  const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
+
+  const changeCoordColor = (className, gridNumber, color) => {
+    const currentCoord =
+      document.getElementsByClassName(className)[gridNumber - 1];
+
+    if (currentCoord)
+      currentCoord.style.border = `1px solid ${color}`;
+  };
+
+  const indicateSunk = (ship, gridNumber) => {
+
+    const currentCoords = ship.currentCords
+
+    if (typeof (currentCoords[0]) === "number")  // when the ship only has one coordinate.
+      changeCoordColor(coordToClass(currentCoords), gridNumber, "red")
+    else
+      for (let i = 0; i < currentCoords.length; i++) {
+        changeCoordColor(coordToClass(currentCoords[i]), gridNumber, "red");
+      }
+  };
+
+  return { isTargetInArray, changeCoordColor, indicateSunk, classToArray, coordToClass }
+
+})();
 
 const mainObjects = (() => {
   const Ship = (lengthNumber, hitsNumber, coords) => {
@@ -54,6 +79,7 @@ const mainObjects = (() => {
 
     return { isSunk, hit, currentHits, currentCords, shipLength };
   };
+
 
   const Gameboard = () => {
     const deployShips = (
@@ -131,7 +157,7 @@ const mainObjects = (() => {
 
         const shipName = currentShips[i][0];
 
-        if (isTargetInArray(shipCords, targetCords)) {
+        if (globalLogic.isTargetInArray(shipCords, targetCords)) {
           success = true;
 
           successAttacks.push(targetCords);
@@ -230,6 +256,21 @@ const mainObjects = (() => {
 })();
 
 const playerLogic = (() => {
+
+  const visualIndicators = (coord, wasSuccessful, target) => {
+
+    let index = 0
+    if (target === "cpu") index = 1
+
+    const currentNode = document.getElementsByClassName(coord)[index]
+    if (currentNode) {
+      if (wasSuccessful === false) currentNode.textContent = "•";
+      else {
+        currentNode.textContent = "X";
+      }
+    }
+
+  };
   const Player = (name, shipsCoords) => {
     const playerName = name;
 
@@ -239,12 +280,11 @@ const playerLogic = (() => {
 
     const playerShips = playerBoard.deployShips(...shipsCoords);
 
-    const receiveAttack = (coordinates, indicateSunk) => {
+    const receiveAttack = (coordinates) => {
       const receivedAttack = playerBoard.receiveAttack(coordinates, playerShips)
 
-      if (indicateSunk)
-        if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
-          indicateSunk(receivedAttack, 1)
+      if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+        globalLogic.indicateSunk(receivedAttack, 1)
 
     }
 
@@ -260,12 +300,11 @@ const playerLogic = (() => {
 
     const cpuShips = cpuBoard.deployShips(...shipsCords);
 
-    const receiveAttack = (coordinates, indicateSunk) => {
+    const receiveAttack = (coordinates) => {
       const receivedAttack = cpuBoard.receiveAttack(coordinates, cpuShips)
 
-      if (indicateSunk)
-        if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
-          indicateSunk(receivedAttack, 2)
+      if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+        globalLogic.indicateSunk(receivedAttack, 2)
 
     }
 
@@ -278,9 +317,9 @@ const playerLogic = (() => {
       const randomCoords = [randomInt(9), randomInt(9)];
 
       // call the function again and generate new random coords if the attack has already be done in that coordinate.
-      if (isTargetInArray(usedCoords, coords)) return attackPlayer();
+      if (globalLogic.isTargetInArray(usedCoords, coords)) return attackPlayer();
 
-      if (isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
+      if (globalLogic.isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
 
       if (!coords) {
         // if we set manual empty coords for testing or another purposes.
@@ -290,7 +329,7 @@ const playerLogic = (() => {
       rivalPlayer.receiveAttack(randomCoords); // make the attack
       const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
 
-      if (isTargetInArray(rivalPlayerHits, randomCoords)) { // check if it was a successful attack or not.
+      if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) { // check if it was a successful attack or not.
         return visualIndicators(randomCoords, true, "player")
       }
       return visualIndicators(randomCoords, false, "player")
@@ -300,7 +339,7 @@ const playerLogic = (() => {
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, receiveAttack };
   };
 
-  return { Player, cpuPlayer };
+  return { Player, cpuPlayer, visualIndicators };
 })();
 
 const Game = (() => {
@@ -357,30 +396,6 @@ const DOMLogic = (() => {
     return oneDimensionCoords;
   };
 
-  const coordToClass = (arr) => `${arr.slice(0, 1)},${arr.slice(1, 2)}`;
-
-  const changeCoordColor = (className, gridNumber, color) => {
-    const currentCoord =
-      document.getElementsByClassName(className)[gridNumber - 1];
-
-    if (currentCoord)
-      currentCoord.style.border = `1px solid ${color}`;
-  };
-
-  const indicateSunk = (ship, gridNumber) => {
-
-    const currentCoords = ship.currentCords
-
-    if (typeof (currentCoords[0]) === "number")  // when the ship only has one coordinate.
-      changeCoordColor(coordToClass(currentCoords), gridNumber, "red")
-    else
-      for (let i = 0; i < currentCoords.length; i++) {
-        changeCoordColor(coordToClass(currentCoords[i]), gridNumber, "red");
-      }
-
-  };
-
-
   const genIndicators = (xContainer, yContainer) => {
 
     const gridIndicatorsX = document.createElement("section")
@@ -411,14 +426,14 @@ const DOMLogic = (() => {
 
     const player2Coords = gameInfo.cpuPlayer.cpuShips.coordinates;
 
-    const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord, indicateSunk);
+    const attackPlayer = (coord) => gameInfo.Player.receiveAttack(coord);
 
-    const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord, indicateSunk);
+    const attackCpu = (coord) => gameInfo.cpuPlayer.receiveAttack(coord);
 
     const attackOnClick = (shipCoords, nodeCoord, attackFunction) => {
       // if the player has a ship in the clicked coordinate, attack the player to that specific coord.
       let wasSuccessful = false;
-      if (isTargetInArray(Object.values(shipCoords), nodeCoord)) {
+      if (globalLogic.isTargetInArray(Object.values(shipCoords), nodeCoord)) {
         // when the nodeCoord is inside of a one-coordinate ship, this conditional is used.
         attackFunction(nodeCoord);
         wasSuccessful = true;
@@ -428,7 +443,7 @@ const DOMLogic = (() => {
       for (let i = 0; i < shipCoords.length; i++) {
         // loop through the coords array of each ship, until the nodeCoord is found.
         const currentCoords = shipCoords[i];
-        if (isTargetInArray(currentCoords, nodeCoord)) {
+        if (globalLogic.isTargetInArray(currentCoords, nodeCoord)) {
           attackFunction(nodeCoord);
           wasSuccessful = true;
 
@@ -446,25 +461,13 @@ const DOMLogic = (() => {
       return false
     }
 
-    const classToArray = (classCoord) => {
-      const arrayCoord = [];
-
-      const x = classCoord.slice(0, 1);
-      const y = classCoord.slice(2, 3);
-
-      arrayCoord.push(Number(x));
-      arrayCoord.push(Number(y));
-
-      return arrayCoord;
-    };
-
     const detectAttacks = (e) => {
 
       const parentClass = e.target.parentElement.className;
 
       const nodeClass = e.target.className;
 
-      const nodeCoord = classToArray(nodeClass);
+      const nodeCoord = globalLogic.classToArray(nodeClass);
 
       if (parentClass === "grid-1") {
         // if the clicked coordinate is inside of grid-1, we know that it is an attack to player1.
@@ -473,11 +476,11 @@ const DOMLogic = (() => {
           (coords) => coords !== undefined
         ); // filter undefined coords.
         if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
-          visualIndicators(nodeClass, true, "player")
+          playerLogic.visualIndicators(nodeClass, true, "player")
         }
         else {
           missedAttackOnClick(nodeCoord, attackPlayer)
-          visualIndicators(nodeClass, false, "player")
+          playerLogic.visualIndicators(nodeClass, false, "player")
         }
       }
 
@@ -487,11 +490,11 @@ const DOMLogic = (() => {
         );
 
         if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
-          visualIndicators(nodeClass, true, "cpu")
+          playerLogic.visualIndicators(nodeClass, true, "cpu")
         }
         else {
           missedAttackOnClick(nodeCoord, attackCpu)
-          visualIndicators(nodeClass, false, "cpu")
+          playerLogic.visualIndicators(nodeClass, false, "cpu")
         }
       }
     };
@@ -500,7 +503,6 @@ const DOMLogic = (() => {
       nodes[i].addEventListener("click", (e) => { detectAttacks(e) }, { once: true });
     };
 
-    return { visualIndicators }
   }
 
   const startGame = (
@@ -535,7 +537,7 @@ const DOMLogic = (() => {
       const coords = flatCoords(currentCoords);
 
       for (let i = 0; i < coords.length; i++) {
-        changeCoordColor(coordToClass(coords[i]), gridNumber, "green");
+        globalLogic.changeCoordColor(globalLogic.coordToClass(coords[i]), gridNumber, "green");
       }
     };
 
@@ -719,4 +721,4 @@ const GameLoop = (() => {
 GameLoop.setupDOM()
 
 
-export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, isTargetInArray };
+export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, globalLogic };
