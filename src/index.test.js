@@ -241,7 +241,7 @@ describe("GameLoop tests", () => {
     '<main>' +
     '</main>';
 
-  GameLoop.setupDOM()
+  const newGame = GameLoop.setupDOM()
 
   const shownGrid1 = document.getElementsByClassName("shown-grid")[0]
 
@@ -295,8 +295,10 @@ describe("GameLoop tests", () => {
 
   test("when the game ends, the grid event listeners are removed.", () => {
     const updatedGrid2 = document.getElementsByClassName("grid-2")[0]
-    updatedGrid2.childNodes[12].click()
-    expect(updatedGrid2.childNodes[12].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
+
+    updatedGrid2.childNodes[38].click()
+
+    expect(updatedGrid2.childNodes[38].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
   });
 
   test("if the cpu makes an 'no-click' attack, it should be displayed in player's grid.", () => {
@@ -316,7 +318,7 @@ describe("Game mechanics tests", () => {
 
   const newGame = Game.newGame("example", ExampleCoords, ExampleCoords)
 
-  playerLogic.attackCorners([7, 5], newGame.cpuPlayer)
+  playerLogic.attackCorners([7, 5], newGame.cpuPlayer.receiveAttack)
 
   test("on a successful attack, the 4 corners of the attacked coordinate should be attacked too.", () => {
     expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[0]).toStrictEqual([8, 6])
@@ -325,7 +327,7 @@ describe("Game mechanics tests", () => {
     expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[3]).toStrictEqual([6, 4])
   });
 
-  playerLogic.attackCorners([0, 1], newGame.cpuPlayer)
+  playerLogic.attackCorners([0, 1], newGame.cpuPlayer.receiveAttack)
 
   test("if there is no corners in one side or more sides, can still attack the remaining corners", () => {
     expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[4]).toStrictEqual([1, 2])
