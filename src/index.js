@@ -273,7 +273,7 @@ const playerLogic = (() => {
 
   };
 
-  const attackCorners = (nodeCoord, playerObj, targetName) => {
+  const attackCorners = (nodeCoord, attackFunction) => {
 
     const corners = []
 
@@ -292,8 +292,7 @@ const playerLogic = (() => {
     for (let i = 0; i < corners.length; i++) {
 
       if (validateCoord(corners[i])) {
-        playerObj.receiveAttack(corners[i])
-        visualIndicators(corners[i], false, targetName)
+        attackFunction(corners[i], true)
       }
       else return
     }
@@ -331,42 +330,53 @@ const playerLogic = (() => {
 
     const receiveAttack = (coordinates) => {
       const receivedAttack = cpuBoard.receiveAttack(coordinates, cpuShips)
-
       if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 2)
-
     }
 
     const usedCoords = [];
 
-    const attackPlayer = (coords) => {
+    const attackPlayer = (coords, ignoreCoords) => {
 
       const randomInt = (max) => Math.floor(Math.random() * max);
 
-      const randomCoords = [randomInt(9), randomInt(9)];
+      const randomCoords = [randomInt(10), randomInt(10)];
 
       // call the function again and generate new random coords if the attack has already be done in that coordinate.
-      if (globalLogic.isTargetInArray(usedCoords, coords)) return attackPlayer();
 
-      if (globalLogic.isTargetInArray(usedCoords, randomCoords)) return attackPlayer();
+      if (globalLogic.isTargetInArray(usedCoords, randomCoords) && ignoreCoords !== true) return attackPlayer();
 
-      if (!coords) {
-        // if we set manual empty coords for testing or another purposes.
-        usedCoords.push(coords);
-        return rivalPlayer.receiveAttack(coords);
-      }
+      if (coords) { // when the coords are indicated manually.
+        const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
+        rivalPlayer.receiveAttack(coords)
+        usedCoords.push(coords)
+
+        if (globalLogic.isTargetInArray(rivalPlayerHits, coords)) { // check if it was a successful attack or not.
+          visualIndicators(coords, true, "player")
+          attackCorners(coords, attackPlayer)
+          return coords
+        }
+        return visualIndicators(coords, false, "player")
+
+      };
+
+      // when the coords are generated randomly.
       rivalPlayer.receiveAttack(randomCoords); // make the attack
+      usedCoords.push(randomCoords);
+
       const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
 
       if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) {// check if it was a successful attack or not.
-        attackCorners(randomCoords, rivalPlayer, "player")
-        return visualIndicators(randomCoords, true, "player")
+        visualIndicators(randomCoords, true, "player")
+        attackCorners(randomCoords, attackPlayer)
+        return randomCoords
       }
+
       return visualIndicators(randomCoords, false, "player")
 
     };
 
-    return { attackPlayer, cpuBoard, cpuShips, cpuCoords, receiveAttack };
+    return { attackPlayer, cpuBoard, cpuShips, cpuCoords, usedCoords, receiveAttack };
   };
 
   return { Player, cpuPlayer, visualIndicators, attackCorners };
@@ -508,7 +518,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
           playerLogic.visualIndicators(nodeClass, true, "player")
-          playerLogic.attackCorners(nodeCoord, gameInfo.Player, "player")
+          playerLogic.attackCorners(nodeCoord, attackPlayer)
 
         }
         else {
@@ -524,7 +534,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
           playerLogic.visualIndicators(nodeClass, true, "cpu")
-          playerLogic.attackCorners(nodeCoord, gameInfo.cpuPlayer, "cpu")
+          playerLogic.attackCorners(nodeCoord, attackCpu)
         }
         else {
           missedAttackOnClick(nodeCoord, attackCpu)
@@ -656,8 +666,6 @@ const GameLoop = (() => {
 
   const gameTurns = (player1, player2) => {
 
-    const player1Coords = player1.playerCoords
-
     const player1Ships = player1.playerShips
 
     const player2Ships = player2.cpuShips
@@ -666,7 +674,7 @@ const GameLoop = (() => {
 
 
       let isGameOver = false
-      player2.attackPlayer(player1Coords)
+      player2.attackPlayer()
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
         DOMLogic.endGame("player1")
