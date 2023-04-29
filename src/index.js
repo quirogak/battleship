@@ -273,7 +273,7 @@ const playerLogic = (() => {
 
   };
 
-  const attackCorners = (nodeCoord, attackFunction) => {
+  const attackCorners = (nodeCoord, attackFunction, target) => {
 
     const corners = []
 
@@ -292,14 +292,16 @@ const playerLogic = (() => {
     for (let i = 0; i < corners.length; i++) {
 
       if (validateCoord(corners[i])) {
-        attackFunction(corners[i], true)
+        visualIndicators(corners[i], false, target)
+        if (typeof (attackFunction) === "function") attackFunction(corners[i], true)
       }
       else return
     }
 
   }
 
-  const Player = (name, shipsCoords) => {
+  const Player = (name, shipsCoords,) => {
+
     const playerName = name;
 
     const playerCoords = shipsCoords
@@ -308,8 +310,8 @@ const playerLogic = (() => {
 
     const playerShips = playerBoard.deployShips(...shipsCoords);
 
-    const receiveAttack = (coordinates) => {
-      const receivedAttack = playerBoard.receiveAttack(coordinates, playerShips)
+    const receiveAttack = (coords) => {
+      const receivedAttack = playerBoard.receiveAttack(coords, playerShips)
 
       if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 1)
@@ -353,7 +355,7 @@ const playerLogic = (() => {
 
         if (globalLogic.isTargetInArray(rivalPlayerHits, coords)) { // check if it was a successful attack or not.
           visualIndicators(coords, true, "player")
-          attackCorners(coords, attackPlayer)
+          attackCorners(coords, attackPlayer, "player")
           return coords
         }
         return visualIndicators(coords, false, "player")
@@ -368,7 +370,7 @@ const playerLogic = (() => {
 
       if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) {// check if it was a successful attack or not.
         visualIndicators(randomCoords, true, "player")
-        attackCorners(randomCoords, attackPlayer)
+        attackCorners(randomCoords, attackPlayer, "player")
         return randomCoords
       }
 
@@ -518,7 +520,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackPlayer) === true) {
           playerLogic.visualIndicators(nodeClass, true, "player")
-          playerLogic.attackCorners(nodeCoord, attackPlayer)
+          playerLogic.attackCorners(nodeCoord, attackPlayer, "player")
 
         }
         else {
@@ -534,7 +536,7 @@ const DOMLogic = (() => {
 
         if (attackOnClick(cleanCoords, nodeCoord, attackCpu) === true) {
           playerLogic.visualIndicators(nodeClass, true, "cpu")
-          playerLogic.attackCorners(nodeCoord, attackCpu)
+          playerLogic.attackCorners(nodeCoord, attackCpu, "cpu")
         }
         else {
           missedAttackOnClick(nodeCoord, attackCpu)
