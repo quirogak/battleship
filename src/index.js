@@ -263,6 +263,7 @@ const playerLogic = (() => {
     if (target === "cpu") index = 1
 
     const currentNode = document.getElementsByClassName(coord)[index]
+
     if (currentNode) {
       if (wasSuccessful === false) currentNode.textContent = "•";
       else {
@@ -283,9 +284,18 @@ const playerLogic = (() => {
 
     corners.push(corner1, corner2, corner3, corner4)
 
+    const validateCoord = (coord) => {
+      if (coord[0] < 0 || coord[1] < 0) return false
+      return true
+    }
+
     for (let i = 0; i < corners.length; i++) {
-      playerObj.receiveAttack(corners[i])
-      visualIndicators(corners[i], false, targetName)
+
+      if (validateCoord(corners[i])) {
+        playerObj.receiveAttack(corners[i])
+        visualIndicators(corners[i], false, targetName)
+      }
+      else return
     }
 
   }
@@ -653,6 +663,7 @@ const GameLoop = (() => {
     const player2Ships = player2.cpuShips
 
     const turnsLogic = () => {
+
 
       let isGameOver = false
       player2.attackPlayer(player1Coords)
