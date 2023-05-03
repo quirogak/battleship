@@ -333,7 +333,7 @@ const playerLogic = (() => {
     for (let i = 0; i < flatCoords.length; i++) {
       if (!globalLogic.isTargetInArray(successAttacks, flatCoords[i])) { // avoid modifying successful attacks.
         visualIndicators(flatCoords[i], false, target)
-        removeNodeListeners(flatCoords, target)
+        removeNodeListeners(flatCoords[i], target)
         attackFunction(flatCoords[i], ships)
       }
     }
