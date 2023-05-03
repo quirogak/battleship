@@ -273,6 +273,14 @@ const playerLogic = (() => {
 
   };
 
+  const validateCoord = (coord) => {
+    if (coord[0] < 0 || coord[1] < 0) return false
+    return true
+  }
+
+
+
+
   const attackCorners = (nodeCoord, attackFunction, target) => {
 
     const corners = []
@@ -283,11 +291,6 @@ const playerLogic = (() => {
     const corner4 = [nodeCoord[0] - 1, nodeCoord[1] - 1]
 
     corners.push(corner1, corner2, corner3, corner4)
-
-    const validateCoord = (coord) => {
-      if (coord[0] < 0 || coord[1] < 0) return false
-      return true
-    }
 
     for (let i = 0; i < corners.length; i++) {
 
@@ -313,8 +316,9 @@ const playerLogic = (() => {
     const receiveAttack = (coords) => {
       const receivedAttack = playerBoard.receiveAttack(coords, playerShips)
 
-      if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+      if (receivedAttack) { // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 1)
+      }
 
     }
 
@@ -332,8 +336,9 @@ const playerLogic = (() => {
 
     const receiveAttack = (coordinates) => {
       const receivedAttack = cpuBoard.receiveAttack(coordinates, cpuShips)
-      if (receivedAttack)  // if receivedAttack is a true value, it means that it contains a sunked ship.
+      if (receivedAttack) {  // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 2)
+      }
     }
 
     const usedCoords = [];
@@ -348,33 +353,23 @@ const playerLogic = (() => {
 
       if (globalLogic.isTargetInArray(usedCoords, randomCoords) && ignoreCoords !== true) return attackPlayer();
 
-      if (coords) { // when the coords are indicated manually.
+      const attackLogic = (coordinates) => {
+        rivalPlayer.receiveAttack(coordinates)
+        usedCoords.push(coordinates)
         const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
-        rivalPlayer.receiveAttack(coords)
-        usedCoords.push(coords)
 
-        if (globalLogic.isTargetInArray(rivalPlayerHits, coords)) { // check if it was a successful attack or not.
-          visualIndicators(coords, true, "player")
-          attackCorners(coords, attackPlayer, "player")
-          return coords
+        if (globalLogic.isTargetInArray(rivalPlayerHits, coordinates)) { // check if it was a successful attack or not.
+          visualIndicators(coordinates, true, "player")
+          attackCorners(coordinates, attackPlayer, "player")
+          return coordinates
         }
-        return visualIndicators(coords, false, "player")
-
-      };
-
-      // when the coords are generated randomly.
-      rivalPlayer.receiveAttack(randomCoords); // make the attack
-      usedCoords.push(randomCoords);
-
-      const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks
-
-      if (globalLogic.isTargetInArray(rivalPlayerHits, randomCoords)) {// check if it was a successful attack or not.
-        visualIndicators(randomCoords, true, "player")
-        attackCorners(randomCoords, attackPlayer, "player")
-        return randomCoords
+        return visualIndicators(coordinates, false, "player")
       }
 
-      return visualIndicators(randomCoords, false, "player")
+      if (coords) { // when the coords are indicated manually.
+        return attackLogic(coords)
+      }
+      return attackLogic(randomCoords); // when the coords are generated randomly.
 
     };
 
