@@ -44,7 +44,7 @@ const globalLogic = (() => {
 
   const indicateSunk = (ship, gridNumber) => {
 
-    const currentCoords = ship.currentCords
+    const { currentCoords } = ship
 
     if (typeof (currentCoords[0]) === "number")  // when the ship only has one coordinate.
       changeCoordColor(coordToClass(currentCoords), gridNumber, "red")
@@ -60,7 +60,7 @@ const globalLogic = (() => {
 
 const mainObjects = (() => {
   const Ship = (lengthNumber, hitsNumber, coords) => {
-    const currentCords = coords;
+    const currentCoords = coords;
 
     const checkSunk = (length, hits) => {
       if (length === hits) return true;
@@ -77,7 +77,7 @@ const mainObjects = (() => {
 
     const currentHits = () => shipHits;
 
-    return { isSunk, hit, currentHits, currentCords, shipLength };
+    return { isSunk, hit, currentHits, currentCoords, shipLength };
   };
 
 
@@ -214,25 +214,25 @@ const mainObjects = (() => {
       const areAllSunk = (ships) => {
         // either we didn't defined the cords of a ship (undefined), or it is actually sunk, we take that as true.
         if (
-          (!ships.carrier.currentCords ||
+          (!ships.carrier.currentCoords ||
             ships.carrier.isSunk()) &&
-          (!ships.battleShip.currentCords ||
+          (!ships.battleShip.currentCoords ||
             ships.battleShip.isSunk()) &&
-          (!ships.battleShip1.currentCords ||
+          (!ships.battleShip1.currentCoords ||
             ships.battleShip1.isSunk()) &&
-          (!ships.cruiser.currentCords ||
+          (!ships.cruiser.currentCoords ||
             ships.cruiser.isSunk()) &&
-          (!ships.cruiser1.currentCords ||
+          (!ships.cruiser1.currentCoords ||
             ships.cruiser1.isSunk()) &&
-          (!ships.cruiser2.currentCords ||
+          (!ships.cruiser2.currentCoords ||
             ships.cruiser2.isSunk()) &&
-          (!ships.destroyer.currentCords ||
+          (!ships.destroyer.currentCoords ||
             ships.destroyer.isSunk()) &&
-          (!ships.destroyer1.currentCords ||
+          (!ships.destroyer1.currentCoords ||
             ships.destroyer1.isSunk()) &&
-          (!ships.destroyer2.currentCords ||
+          (!ships.destroyer2.currentCoords ||
             ships.destroyer2.isSunk()) &&
-          (!ships.destroyer3.currentCords ||
+          (!ships.destroyer3.currentCoords ||
             ships.destroyer3.isSunk())
         )
           return true;
@@ -273,13 +273,24 @@ const playerLogic = (() => {
 
   };
 
+  const removeNodeListeners = (coord, target) => {
+
+    let index = 0
+    if (target === "cpu") index = 1
+
+    const coordinate = globalLogic.coordToClass(coord)
+
+    const element = document.getElementsByClassName(coordinate)[index]
+
+    if (element)
+      element.replaceWith(element.cloneNode(true))
+
+  }
+
   const validateCoord = (coord) => {
     if (coord[0] < 0 || coord[1] < 0) return false
     return true
   }
-
-
-
 
   const attackCorners = (nodeCoord, attackFunction, target) => {
 
@@ -296,6 +307,7 @@ const playerLogic = (() => {
 
       if (validateCoord(corners[i])) {
         visualIndicators(corners[i], false, target)
+        removeNodeListeners(corners[i], target)
         if (typeof (attackFunction) === "function") attackFunction(corners[i], true)
       }
       else return
@@ -307,7 +319,7 @@ const playerLogic = (() => {
 
     const playerName = name;
 
-    const playerCoords = shipsCoords
+    const playerCoords = shipsCoords;
 
     const playerBoard = mainObjects.Gameboard();
 
@@ -318,6 +330,7 @@ const playerLogic = (() => {
 
       if (receivedAttack) { // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 1)
+
       }
 
     }
@@ -336,9 +349,11 @@ const playerLogic = (() => {
 
     const receiveAttack = (coordinates) => {
       const receivedAttack = cpuBoard.receiveAttack(coordinates, cpuShips)
+
       if (receivedAttack) {  // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 2)
       }
+
     }
 
     const usedCoords = [];
@@ -539,9 +554,8 @@ const DOMLogic = (() => {
         }
       }
     };
-
     for (let i = 0; i < nodes.length; i++) {
-      nodes[i].addEventListener("click", (e) => { detectAttacks(e) }, { once: true });
+      nodes[i].addEventListener("click", detectAttacks, { once: true });
     };
 
   }

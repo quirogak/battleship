@@ -92,11 +92,11 @@ describe("checkSunk tests", () => {
   // here we manually set the coordinates after we deploy the ships, to make sure we can do that.
   testShips2.coordinates.destroyer = [3, 4];
 
-  testShips2.destroyer.currentCords = [3, 4];
+  testShips2.destroyer.currentCoords = [3, 4];
 
   testShips2.coordinates.destroyer1 = [4, 3];
 
-  testShips2.destroyer1.currentCords = [4, 3];
+  testShips2.destroyer1.currentCoords = [4, 3];
 
   testGameboard.receiveAttack([3, 4], testShips2);
 
@@ -163,10 +163,10 @@ describe("Game tests", () => {
 
   test("The ships coordinates are in place for each ship", () => {
     expect(
-      gameExample.Player.playerShips.destroyer3.currentCords
+      gameExample.Player.playerShips.destroyer3.currentCoords
     ).toStrictEqual([8, 7]);
-    expect(gameExample.Player.playerShips.destroyer.currentCords).toStrictEqual([7, 2]);
-    expect(gameExample.Player.playerShips.carrier.currentCords).toStrictEqual([
+    expect(gameExample.Player.playerShips.destroyer.currentCoords).toStrictEqual([7, 2]);
+    expect(gameExample.Player.playerShips.carrier.currentCoords).toStrictEqual([
       [0, 1],
       [0, 2],
       [0, 3],
@@ -174,7 +174,7 @@ describe("Game tests", () => {
     ]);
 
     expect(
-      gameExample.cpuPlayer.cpuShips.battleShip.currentCords
+      gameExample.cpuPlayer.cpuShips.battleShip.currentCoords
     ).toStrictEqual([
       [2, 1],
       [3, 1],
@@ -241,7 +241,7 @@ describe("GameLoop tests", () => {
     '<main>' +
     '</main>';
 
-  const newGame = GameLoop.setupDOM()
+  GameLoop.setupDOM()
 
   const shownGrid1 = document.getElementsByClassName("shown-grid")[0]
 
@@ -334,6 +334,24 @@ describe("Game mechanics tests", () => {
     expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[5]).toStrictEqual([1, 0])
   });
 
+  test("if the player clicks the corners, no attacks should be done later on player's grid.", () => {
+
+    document.body.innerHTML =
+      '<main>' +
+      '</main>';
+
+    GameLoop.setupDOM()
+    const startGame = GameLoop.singlePlayer()
+    const mockGrid2 = document.getElementsByClassName("grid-2")[0]
+
+    mockGrid2.childNodes[75].click() // make an attack, the cpu takes his turn and attacks us.
+    // 8,6 is a corner of 7,5
+    mockGrid2.childNodes[86].click() // if clicking the corner makes an attack, the cpu should attack us here again.
+
+    if (startGame.playerObj.playerBoard.successAttacks.length === 0) // when the random cpu attack is a missed attack
+      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(1)
+    else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1)
+  });
 
 })
 
