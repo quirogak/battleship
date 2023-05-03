@@ -292,6 +292,53 @@ const playerLogic = (() => {
     return true
   }
 
+  const validateCoords = (coords) => {
+
+    const validatedCoords = []
+    for (let i = 0; i < coords.length; i++) {
+      if (validateCoord(coords[i])) validatedCoords.push(coords[i])
+    }
+    return validatedCoords
+  }
+
+  const coordSides = (nodeCoord) => {
+
+    const coords = []
+
+    const up = [nodeCoord[0] - 1, nodeCoord[1]]
+    const down = [nodeCoord[0] + 1, nodeCoord[1]]
+    const right = [nodeCoord[0], nodeCoord[1] + 1]
+    const left = [nodeCoord[0], nodeCoord[1] - 1]
+
+    coords.push(up, down, right, left)
+
+    return coords
+  }
+
+  const attackAround = (nodeCoords, attackFunction, ships, target, successAttacks) => {
+
+    const aroundCoords = []
+
+    if (typeof (nodeCoords[0]) === "object") {
+      for (let i = 0; i < nodeCoords.length; i++) {
+        aroundCoords.push(coordSides(nodeCoords[i]))
+      }
+    }
+    else {
+      aroundCoords.push(coordSides(nodeCoords)) // when the ship has only one coord.
+    }
+
+    const flatCoords = validateCoords(aroundCoords.flat())
+
+    for (let i = 0; i < flatCoords.length; i++) {
+      if (!globalLogic.isTargetInArray(successAttacks, flatCoords[i])) { // avoid modifying successful attacks.
+        visualIndicators(flatCoords[i], false, target)
+        removeNodeListeners(flatCoords, target)
+        attackFunction(flatCoords[i], ships)
+      }
+    }
+  }
+
   const attackCorners = (nodeCoord, attackFunction, target) => {
 
     const corners = []
@@ -303,14 +350,12 @@ const playerLogic = (() => {
 
     corners.push(corner1, corner2, corner3, corner4)
 
-    for (let i = 0; i < corners.length; i++) {
+    const validCorners = validateCoords(corners)
 
-      if (validateCoord(corners[i])) {
-        visualIndicators(corners[i], false, target)
-        removeNodeListeners(corners[i], target)
-        if (typeof (attackFunction) === "function") attackFunction(corners[i], true)
-      }
-      else return
+    for (let i = 0; i < validCorners.length; i++) {
+      visualIndicators(validCorners[i], false, target)
+      removeNodeListeners(validCorners[i], target)
+      attackFunction(validCorners[i], true)
     }
 
   }
@@ -319,7 +364,7 @@ const playerLogic = (() => {
 
     const playerName = name;
 
-    const playerCoords = shipsCoords;
+    const playerCoords = shipsCoords
 
     const playerBoard = mainObjects.Gameboard();
 
@@ -330,7 +375,7 @@ const playerLogic = (() => {
 
       if (receivedAttack) { // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 1)
-
+        attackAround(receivedAttack.currentCoords, playerBoard.receiveAttack, playerShips, "player", playerBoard.successAttacks)
       }
 
     }
@@ -352,6 +397,7 @@ const playerLogic = (() => {
 
       if (receivedAttack) {  // if receivedAttack is a true value, it means that it contains a sunked ship.
         globalLogic.indicateSunk(receivedAttack, 2)
+        attackAround(receivedAttack.currentCoords, cpuBoard.receiveAttack, cpuShips, "cpu", cpuBoard.successAttacks)
       }
 
     }
@@ -391,7 +437,7 @@ const playerLogic = (() => {
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, usedCoords, receiveAttack };
   };
 
-  return { Player, cpuPlayer, visualIndicators, attackCorners };
+  return { Player, cpuPlayer, visualIndicators, attackCorners, attackAround };
 })();
 
 const Game = (() => {
@@ -682,7 +728,6 @@ const GameLoop = (() => {
     const player2Ships = player2.cpuShips
 
     const turnsLogic = () => {
-
 
       let isGameOver = false
       player2.attackPlayer()

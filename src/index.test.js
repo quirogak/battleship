@@ -353,5 +353,15 @@ describe("Game mechanics tests", () => {
     else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1)
   });
 
+
+  playerLogic.attackAround([7, 5], newGame.cpuPlayer.receiveAttack)
+
+  test("on a successful sunk, the 4 sides of each coordinate should be attacked too.", () => {
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[6]).toStrictEqual([6, 5])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[7]).toStrictEqual([8, 5])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[8]).toStrictEqual([7, 6])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[9]).toStrictEqual([7, 4])
+  });
+
 })
 
