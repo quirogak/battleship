@@ -386,6 +386,16 @@ describe("Game setup tests", () => {
     expect(battleShip[2][0].length).toBe(3)
     expect(battleShip[4][0].length).toBe(2)
     expect(battleShip[6].length).toBe(2)
+
+  })
+
+  test("a multiple coordinate ship should have adjacent coordinates.", () => {
+    const randomCoord = GameLoop.genShipCoord(2)
+
+    expect(
+      (randomCoord[0][0] === randomCoord[1][0]) + 1 && (randomCoord[0][1] === randomCoord[1][1]) ||
+      (randomCoord[0][1] === randomCoord[1][1]) + 1 && (randomCoord[0][0] === randomCoord[1][0])
+    ).toBe(true)
   })
 
 

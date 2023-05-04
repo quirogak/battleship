@@ -747,16 +747,43 @@ const GameLoop = (() => {
     return { turnsLogic }
   }
 
+  const randomInt = (max) => Math.floor(Math.random() * max);
+
+  const randomOrientation = () => {
+    const number = randomInt(2)
+
+    if (number === 0) return "h"
+    return "v"
+  }
+
+  const genRandomCoords = (previousCoords, orientation) => {
+
+    if (previousCoords) {
+      if (orientation === "v")
+        return [previousCoords[0] + 1, previousCoords[1]]
+
+      return [previousCoords[0], previousCoords[1] + 1]
+    }
+
+    const randomCoords = [randomInt(10), randomInt(10)];
+
+    return randomCoords
+  }
+
   const genShipCoord = (size) => {
 
     const shipCoords = []
 
-    const randomInt = (max) => Math.floor(Math.random() * max);
-
-    const randomCoords = [randomInt(10), randomInt(10)];
-
     for (let i = 0; i < size; i++) {
-      shipCoords.push(randomCoords)
+
+      const previousCoords = shipCoords[shipCoords.length - 1]
+
+      if (previousCoords)
+        shipCoords.push(genRandomCoords(previousCoords, randomOrientation()))
+      else {
+        shipCoords.push(genRandomCoords())
+      }
+
     }
 
     if (shipCoords.length > 1) return shipCoords // multiple coordinate ship
