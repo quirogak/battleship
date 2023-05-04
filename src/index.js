@@ -747,6 +747,42 @@ const GameLoop = (() => {
     return { turnsLogic }
   }
 
+  const genShipCoord = (size) => {
+
+    const shipCoords = []
+
+    const randomInt = (max) => Math.floor(Math.random() * max);
+
+    const randomCoords = [randomInt(10), randomInt(10)];
+
+    for (let i = 0; i < size; i++) {
+      shipCoords.push(randomCoords)
+    }
+
+    if (shipCoords.length > 1) return shipCoords // multiple coordinate ship
+
+    return shipCoords[0]
+
+  }
+
+  const genBattleshipCoords = () => {
+
+    const coords = [
+      [genShipCoord(4)],
+      [genShipCoord(3)],
+      [genShipCoord(3)],
+      [genShipCoord(2)],
+      [genShipCoord(2)],
+      [genShipCoord(2)],
+      genShipCoord(1),
+      genShipCoord(1),
+      genShipCoord(1),
+      genShipCoord(1)
+    ]
+
+    return coords
+  }
+
   const ExampleCoords = [
     [[0, 1], [0, 2], [0, 3], [0, 4],],
     [[2, 1], [3, 1], [4, 1],],
@@ -810,7 +846,7 @@ const GameLoop = (() => {
 
   }
 
-  return { singlePlayer, setupDOM };
+  return { singlePlayer, setupDOM, genShipCoord, genBattleshipCoords };
 
 })();
 

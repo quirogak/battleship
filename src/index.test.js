@@ -365,3 +365,28 @@ describe("Game mechanics tests", () => {
 
 })
 
+describe("Game setup tests", () => {
+
+  test("can create a random-coords 1x1 ship", () => {
+    const randomCoord = GameLoop.genShipCoord(1)
+    expect(typeof (randomCoord[0])).toBe("number")
+    expect(typeof (randomCoord[1])).toBe("number")
+  })
+
+  test("can create a random-coords 2x1 ship", () => {
+    const randomCoord = GameLoop.genShipCoord(2)
+    expect(typeof (randomCoord[0])).toBe("object")
+    expect(typeof (randomCoord[1])).toBe("object")
+  })
+
+  test("can create a random-coords battleship", () => {
+    const battleShip = GameLoop.genBattleshipCoords()
+
+    expect(battleShip[0][0].length).toBe(4)
+    expect(battleShip[2][0].length).toBe(3)
+    expect(battleShip[4][0].length).toBe(2)
+    expect(battleShip[6].length).toBe(2)
+  })
+
+
+})
