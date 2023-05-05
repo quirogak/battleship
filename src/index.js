@@ -809,22 +809,22 @@ const GameLoop = (() => {
       const usedCoords = []
 
       const carrier = genShipCoord(4, usedCoords)
-      usedCoords.push(carrier[0])
+      usedCoords.push(...carrier)
 
       const battleShip = genShipCoord(3, usedCoords)
-      usedCoords.push(battleShip[0])
+      usedCoords.push(...battleShip)
 
       const battleShip2 = genShipCoord(3, usedCoords)
-      usedCoords.push(battleShip2[0])
+      usedCoords.push(...battleShip2)
 
       const cruiser = genShipCoord(2, usedCoords)
-      usedCoords.push(cruiser[0])
+      usedCoords.push(...cruiser)
 
       const cruiser1 = genShipCoord(2, usedCoords)
-      usedCoords.push(cruiser1[0])
+      usedCoords.push(...cruiser1)
 
       const cruiser2 = genShipCoord(2, usedCoords)
-      usedCoords.push(cruiser2[0])
+      usedCoords.push(...cruiser2)
 
       const destroyer = genShipCoord(1, usedCoords)
       usedCoords.push(destroyer)
