@@ -301,7 +301,7 @@ const playerLogic = (() => {
     return validatedCoords
   }
 
-  const coordSides = (nodeCoord) => {
+  const returnSides = (nodeCoord) => {
 
     const coords = []
 
@@ -321,11 +321,11 @@ const playerLogic = (() => {
 
     if (typeof (nodeCoords[0]) === "object") {
       for (let i = 0; i < nodeCoords.length; i++) {
-        aroundCoords.push(coordSides(nodeCoords[i]))
+        aroundCoords.push(returnSides(nodeCoords[i]))
       }
     }
     else {
-      aroundCoords.push(coordSides(nodeCoords)) // when the ship has only one coord.
+      aroundCoords.push(returnSides(nodeCoords)) // when the ship has only one coord.
     }
 
     const flatCoords = validateCoords(aroundCoords.flat())
@@ -339,16 +339,24 @@ const playerLogic = (() => {
     }
   }
 
-  const attackCorners = (nodeCoord, attackFunction, target) => {
+  const returnCorners = (node) => {
 
     const corners = []
 
-    const corner1 = [nodeCoord[0] + 1, nodeCoord[1] + 1]
-    const corner2 = [nodeCoord[0] + 1, nodeCoord[1] + -1]
-    const corner3 = [nodeCoord[0] - 1, nodeCoord[1] + 1]
-    const corner4 = [nodeCoord[0] - 1, nodeCoord[1] - 1]
+    const corner1 = [node[0] + 1, node[1] + 1]
+    const corner2 = [node[0] + 1, node[1] + -1]
+    const corner3 = [node[0] - 1, node[1] + 1]
+    const corner4 = [node[0] - 1, node[1] - 1]
 
     corners.push(corner1, corner2, corner3, corner4)
+
+    return corners
+
+  }
+
+  const attackCorners = (nodeCoord, attackFunction, target) => {
+
+    const corners = returnCorners(nodeCoord)
 
     const validCorners = validateCoords(corners)
 
@@ -437,7 +445,7 @@ const playerLogic = (() => {
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, usedCoords, receiveAttack };
   };
 
-  return { Player, cpuPlayer, visualIndicators, attackCorners, attackAround };
+  return { Player, cpuPlayer, visualIndicators, attackCorners, attackAround, returnCorners, returnSides };
 })();
 
 const Game = (() => {
@@ -749,6 +757,15 @@ const GameLoop = (() => {
 
   const genCoords = () => {
 
+    const surroundCoords = (nodeCoord) => {
+
+      const coords = []
+      if (typeof (nodeCoord[0]) !== "object")
+        coords.push(...playerLogic.returnCorners(nodeCoord), ...playerLogic.returnSides(nodeCoord), nodeCoord)
+
+      return coords
+    }
+
     const randomInt = (max) => Math.floor(Math.random() * max);
 
     const randomOrientation = () => {
@@ -815,7 +832,8 @@ const GameLoop = (() => {
           genInitialCoords()
       }
 
-      if (shipCoords.length > 1) return shipCoords // multiple coordinate ship
+      // multiple coordinate ship
+      if (shipCoords.length > 1) return shipCoords
 
       return shipCoords[0]
 
@@ -853,7 +871,7 @@ const GameLoop = (() => {
       usedCoords.push(destroyer2)
 
       const destroyer3 = genShipCoord(1, usedCoords)
-      usedCoords.push(destroyer3)
+      usedCoords.push(surroundCoords(destroyer3))
 
       const coords = [
         carrier,
@@ -868,12 +886,10 @@ const GameLoop = (() => {
         destroyer3
       ]
 
-      console.log(coords)
-
       return { coords, usedCoords }
     }
 
-    return { genBattleships, genShipCoord }
+    return { genBattleships, genShipCoord, surroundCoords }
   }
 
   const ExampleCoords = [

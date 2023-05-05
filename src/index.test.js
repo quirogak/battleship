@@ -421,8 +421,19 @@ describe("Game setup tests", () => {
     expect(checkGetOut(battleShip) !== true).toBe(true)
   })
 
+  test("can return the surrounding coords of a 1x1 ship.", () => {
 
+    const coords = GameLoop.genCoords().surroundCoords([5, 5])
+    const expectedCoords = [
+      [6, 6], [6, 4],
+      [4, 6], [4, 4],
+      [4, 5], [6, 5],
+      [5, 6], [5, 4],
+      [5, 5]
+    ]
 
+    expect(coords).toStrictEqual(expectedCoords)
 
+  })
 
 })
