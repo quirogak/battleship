@@ -407,6 +407,22 @@ describe("Game setup tests", () => {
 
   })
 
+  test("the generated ships can't get out of the grid.", () => {
+
+    const battleShip = GameLoop.genCoords().genBattleships().usedCoords
+
+    const checkGetOut = (shipsCoords) => {
+      for (let i = 0; i < shipsCoords.length; i++) {
+        const element = shipsCoords[i];
+        if (globalLogic.isTargetInArray(element, 10)) return true
+      }
+    }
+
+    expect(checkGetOut(battleShip) !== true).toBe(true)
+  })
+
+
+
 
 
 })
