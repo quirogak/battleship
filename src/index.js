@@ -823,6 +823,7 @@ const GameLoop = (() => {
       return randomCoords
     }
 
+
     const genShipCoord = (size, usedCoords) => {
 
       const shipCoords = []
@@ -833,7 +834,7 @@ const GameLoop = (() => {
 
         const coords = genRandomCoords(orientation, size)
 
-        if (!globalLogic.isTargetInArray(usedCoords, coords)) {
+        if (!globalLogic.isTargetInArray(usedCoords, coords)) { // validate that the initial coord is in a valid position
           shipCoords.push(coords)
         }
         else
@@ -853,8 +854,23 @@ const GameLoop = (() => {
       }
 
       // multiple coordinate ship
-      if (shipCoords.length > 1) return shipCoords
+      if (shipCoords.length > 1) {
 
+        let isValid = true
+
+        for (let index = 0; index < shipCoords.length; index++) {
+          const element = shipCoords[index];
+          if (globalLogic.isTargetInArray(usedCoords, element)) isValid = false  // if one element of the ship has a invalid position, isValid is false.
+        }
+
+        if (isValid === false)
+          genShipCoord(size, usedCoords) // and when isValid is false, we recursively create another ship, until it has a valid position.
+        else
+          return shipCoords
+      }
+
+
+      // one coordinate ship.
       return shipCoords[0]
 
     }
@@ -893,7 +909,6 @@ const GameLoop = (() => {
       const destroyer3 = genShipCoord(1, usedCoords)
       usedCoords.push(...surroundCoords(destroyer3))
 
-      console.log(usedCoords)
       const coords = [
         carrier,
         battleShip,
