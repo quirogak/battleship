@@ -445,7 +445,7 @@ const playerLogic = (() => {
     return { attackPlayer, cpuBoard, cpuShips, cpuCoords, usedCoords, receiveAttack };
   };
 
-  return { Player, cpuPlayer, visualIndicators, attackCorners, attackAround, returnCorners, returnSides };
+  return { Player, cpuPlayer, visualIndicators, attackCorners, attackAround, returnCorners, returnSides, validateCoords };
 })();
 
 const Game = (() => {
@@ -759,11 +759,32 @@ const GameLoop = (() => {
 
     const surroundCoords = (nodeCoord) => {
 
-      const coords = []
-      if (typeof (nodeCoord[0]) !== "object")
-        coords.push(...playerLogic.returnCorners(nodeCoord), ...playerLogic.returnSides(nodeCoord), nodeCoord)
+      const getSurruonds = (node) => {
 
-      return coords
+        const currentSurrounds = [...playerLogic.returnCorners(node), ...playerLogic.returnSides(node), node]
+
+        return playerLogic.validateCoords(currentSurrounds)
+      }
+
+      const coords = []
+      if (typeof (nodeCoord[0]) !== "object") { // one-coord ship
+        const surround = getSurruonds(nodeCoord)
+        coords.push(...surround)
+
+        return coords
+      }
+
+      for (let i = 0; i < nodeCoord.length; i++) {
+        const currentCoord = nodeCoord[i];
+        const surround = getSurruonds(currentCoord)
+
+        coords.push(...surround)
+      }
+
+      const noRepeatCoords = [...new Set(coords)]
+
+      return noRepeatCoords
+
     }
 
     const randomInt = (max) => Math.floor(Math.random() * max);
@@ -844,39 +865,40 @@ const GameLoop = (() => {
       const usedCoords = []
 
       const carrier = genShipCoord(4, usedCoords)
-      usedCoords.push(...carrier)
+      usedCoords.push(...surroundCoords(carrier))
 
       const battleShip = genShipCoord(3, usedCoords)
-      usedCoords.push(...battleShip)
+      usedCoords.push(...surroundCoords(battleShip))
 
-      const battleShip2 = genShipCoord(3, usedCoords)
-      usedCoords.push(...battleShip2)
+      const battleShip1 = genShipCoord(3, usedCoords)
+      usedCoords.push(...surroundCoords(battleShip1))
 
       const cruiser = genShipCoord(2, usedCoords)
-      usedCoords.push(...cruiser)
+      usedCoords.push(...surroundCoords(cruiser))
 
       const cruiser1 = genShipCoord(2, usedCoords)
-      usedCoords.push(...cruiser1)
+      usedCoords.push(...surroundCoords(cruiser1))
 
       const cruiser2 = genShipCoord(2, usedCoords)
-      usedCoords.push(...cruiser2)
+      usedCoords.push(...surroundCoords(cruiser2))
 
       const destroyer = genShipCoord(1, usedCoords)
-      usedCoords.push(destroyer)
+      usedCoords.push(...surroundCoords(destroyer))
 
       const destroyer1 = genShipCoord(1, usedCoords)
-      usedCoords.push(destroyer1)
+      usedCoords.push(...surroundCoords(destroyer1))
 
       const destroyer2 = genShipCoord(1, usedCoords)
-      usedCoords.push(destroyer2)
+      usedCoords.push(...surroundCoords(destroyer2))
 
       const destroyer3 = genShipCoord(1, usedCoords)
-      usedCoords.push(surroundCoords(destroyer3))
+      usedCoords.push(...surroundCoords(destroyer3))
 
+      console.log(usedCoords)
       const coords = [
         carrier,
         battleShip,
-        battleShip2,
+        battleShip1,
         cruiser,
         cruiser1,
         cruiser2,
@@ -943,7 +965,7 @@ const GameLoop = (() => {
 
   const setupDOM = () => {
 
-    genDOM.genGrid(1, ExampleCoords)
+    genDOM.genGrid(1, genCoords().genBattleships().coords)
     genDOM.genStartButton()
 
     const startButton =
