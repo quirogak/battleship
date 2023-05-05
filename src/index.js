@@ -758,20 +758,25 @@ const GameLoop = (() => {
       return "v"
     }
 
-    const genRandomCoords = (previousCoords, orientation) => {
+    const genRandomCoords = (orientation, size, previousCoords) => {
 
       if (previousCoords) {
         const verticalCoords = [previousCoords[0] + 1, previousCoords[1]]
         const horizontalCoords = [previousCoords[0], previousCoords[1] + 1]
-        if (orientation === "v")
-          if (!globalLogic.isTargetInArray(verticalCoords, 10)) // if there isn't a 10, return the coords.
-            return verticalCoords
 
-        if (!globalLogic.isTargetInArray(horizontalCoords, 10))
-          return horizontalCoords
+        if (orientation === "v")
+          return verticalCoords
+
+        return horizontalCoords
       }
 
-      const randomCoords = [randomInt(10), randomInt(10)];
+      let randomCoords;
+
+      // substract the size depending on the orientation, in order to have space for the next coords of the ship.
+      randomCoords = [randomInt(10 - size), randomInt(10 - size)];
+
+      if (size === 1)
+        randomCoords = [randomInt(10), randomInt(10)];
 
       return randomCoords
     }
@@ -784,7 +789,7 @@ const GameLoop = (() => {
 
       const genInitialCoords = () => {
 
-        const coords = genRandomCoords()
+        const coords = genRandomCoords(orientation, size)
 
         if (!globalLogic.isTargetInArray(usedCoords, coords)) {
           shipCoords.push(coords)
@@ -797,7 +802,8 @@ const GameLoop = (() => {
       for (let i = 0; i < size; i++) {
 
         const previousCoords = shipCoords[shipCoords.length - 1]
-        const coords = genRandomCoords(previousCoords, orientation)
+        const coords = genRandomCoords(orientation, size, previousCoords)
+
         if (previousCoords) {
           shipCoords.push(coords)
         }
@@ -857,6 +863,8 @@ const GameLoop = (() => {
         destroyer2,
         destroyer3
       ]
+
+      console.log(coords)
 
       return { coords, usedCoords }
     }
