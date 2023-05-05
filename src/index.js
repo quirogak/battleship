@@ -288,7 +288,7 @@ const playerLogic = (() => {
   }
 
   const validateCoord = (coord) => {
-    if (coord[0] < 0 || coord[1] < 0) return false
+    if ((coord[0] < 0 || coord[1] < 0) || coord[0] > 9 || coord[1] > 9) return false
     return true
   }
 
@@ -838,7 +838,6 @@ const GameLoop = (() => {
         }
         else
           genInitialCoords() // if the generated coords are already used, generate new coords.
-
       }
 
       for (let i = 0; i < size; i++) {
