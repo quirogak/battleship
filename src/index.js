@@ -773,7 +773,11 @@ const GameLoop = (() => {
       let randomCoords;
 
       // substract the size depending on the orientation, in order to have space for the next coords of the ship.
-      randomCoords = [randomInt(10 - size), randomInt(10 - size)];
+      if (orientation === "v")
+        randomCoords = [randomInt(10 - size), randomInt(10)];
+      else {
+        randomCoords = [randomInt(10), randomInt(10 - size)];
+      }
 
       if (size === 1)
         randomCoords = [randomInt(10), randomInt(10)];
