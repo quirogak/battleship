@@ -747,67 +747,114 @@ const GameLoop = (() => {
     return { turnsLogic }
   }
 
-  const randomInt = (max) => Math.floor(Math.random() * max);
+  const genCoords = () => {
 
-  const randomOrientation = () => {
-    const number = randomInt(2)
+    const randomInt = (max) => Math.floor(Math.random() * max);
 
-    if (number === 0) return "h"
-    return "v"
-  }
+    const randomOrientation = () => {
+      const number = randomInt(2)
 
-  const genRandomCoords = (previousCoords, orientation) => {
-
-    if (previousCoords) {
-      if (orientation === "v")
-        return [previousCoords[0] + 1, previousCoords[1]]
-
-      return [previousCoords[0], previousCoords[1] + 1]
+      if (number === 0) return "h"
+      return "v"
     }
 
-    const randomCoords = [randomInt(10), randomInt(10)];
+    const genRandomCoords = (previousCoords, orientation) => {
 
-    return randomCoords
-  }
+      if (previousCoords) {
+        if (orientation === "v")
+          return [previousCoords[0] + 1, previousCoords[1]]
 
-  const genShipCoord = (size) => {
-
-    const shipCoords = []
-
-    for (let i = 0; i < size; i++) {
-
-      const previousCoords = shipCoords[shipCoords.length - 1]
-
-      if (previousCoords)
-        shipCoords.push(genRandomCoords(previousCoords, randomOrientation()))
-      else {
-        shipCoords.push(genRandomCoords())
+        return [previousCoords[0], previousCoords[1] + 1]
       }
 
+      const randomCoords = [randomInt(10), randomInt(10)];
+
+      return randomCoords
     }
 
-    if (shipCoords.length > 1) return shipCoords // multiple coordinate ship
+    const genShipCoord = (size, usedCoords) => {
 
-    return shipCoords[0]
+      const shipCoords = []
 
-  }
+      const orientation = randomOrientation()
 
-  const genBattleshipCoords = () => {
+      const genInitialCoords = () => {
 
-    const coords = [
-      [genShipCoord(4)],
-      [genShipCoord(3)],
-      [genShipCoord(3)],
-      [genShipCoord(2)],
-      [genShipCoord(2)],
-      [genShipCoord(2)],
-      genShipCoord(1),
-      genShipCoord(1),
-      genShipCoord(1),
-      genShipCoord(1)
-    ]
+        const coords = genRandomCoords()
+        if (!globalLogic.isTargetInArray(usedCoords, coords))
+          shipCoords.push(coords)
+        else
+          genInitialCoords() // if the generated coords are already used, generate new coords.
 
-    return coords
+      }
+
+      for (let i = 0; i < size; i++) {
+
+        const previousCoords = shipCoords[shipCoords.length - 1]
+
+        if (previousCoords)
+          shipCoords.push(genRandomCoords(previousCoords, orientation))
+        else
+          genInitialCoords()
+      }
+
+      if (shipCoords.length > 1) return shipCoords // multiple coordinate ship
+
+      return shipCoords[0]
+
+    }
+
+    const genBattleships = () => {
+
+      const usedCoords = []
+
+      const carrier = genShipCoord(4, usedCoords)
+      usedCoords.push(carrier[0])
+
+      const battleShip = genShipCoord(3, usedCoords)
+      usedCoords.push(battleShip[0])
+
+      const battleShip2 = genShipCoord(3, usedCoords)
+      usedCoords.push(battleShip2[0])
+
+      const cruiser = genShipCoord(2, usedCoords)
+      usedCoords.push(cruiser[0])
+
+      const cruiser1 = genShipCoord(2, usedCoords)
+      usedCoords.push(cruiser1[0])
+
+      const cruiser2 = genShipCoord(2, usedCoords)
+      usedCoords.push(cruiser2[0])
+
+      const destroyer = genShipCoord(1, usedCoords)
+      usedCoords.push(destroyer)
+
+      const destroyer1 = genShipCoord(1, usedCoords)
+      usedCoords.push(destroyer1)
+
+      const destroyer2 = genShipCoord(1, usedCoords)
+      usedCoords.push(destroyer2)
+
+      const destroyer3 = genShipCoord(1, usedCoords)
+      usedCoords.push(destroyer3)
+
+      const coords = [
+        carrier,
+        battleShip,
+        battleShip2,
+        cruiser,
+        cruiser1,
+        cruiser2,
+        destroyer,
+        destroyer1,
+        destroyer2,
+        destroyer3
+      ]
+
+      return { coords, usedCoords }
+    }
+
+    return { genBattleships, genShipCoord }
   }
 
   const ExampleCoords = [
@@ -853,7 +900,6 @@ const GameLoop = (() => {
 
       }
     }
-
     turnLoop(currentTurn, cpuGrid)
 
     return { playerObj, cpuObj, currentTurn }
@@ -873,11 +919,10 @@ const GameLoop = (() => {
 
   }
 
-  return { singlePlayer, setupDOM, genShipCoord, genBattleshipCoords };
+  return { singlePlayer, setupDOM, genCoords };
 
 })();
 
 GameLoop.setupDOM()
-
 
 export { mainObjects, playerLogic, Game, DOMLogic, GameLoop, globalLogic };

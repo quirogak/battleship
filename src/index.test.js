@@ -368,35 +368,45 @@ describe("Game mechanics tests", () => {
 describe("Game setup tests", () => {
 
   test("can create a random-coords 1x1 ship", () => {
-    const randomCoord = GameLoop.genShipCoord(1)
+    const randomCoord = GameLoop.genCoords().genShipCoord(1)
     expect(typeof (randomCoord[0])).toBe("number")
     expect(typeof (randomCoord[1])).toBe("number")
   })
 
   test("can create a random-coords 2x1 ship", () => {
-    const randomCoord = GameLoop.genShipCoord(2)
+    const randomCoord = GameLoop.genCoords().genShipCoord(2)
     expect(typeof (randomCoord[0])).toBe("object")
     expect(typeof (randomCoord[1])).toBe("object")
   })
 
   test("can create a random-coords battleship", () => {
-    const battleShip = GameLoop.genBattleshipCoords()
+    const battleShip = GameLoop.genCoords().genBattleships().coords
 
-    expect(battleShip[0][0].length).toBe(4)
-    expect(battleShip[2][0].length).toBe(3)
-    expect(battleShip[4][0].length).toBe(2)
+    expect(battleShip[0].length).toBe(4)
+    expect(battleShip[2].length).toBe(3)
+    expect(battleShip[4].length).toBe(2)
     expect(battleShip[6].length).toBe(2)
 
   })
 
   test("a multiple coordinate ship should have adjacent coordinates.", () => {
-    const randomCoord = GameLoop.genShipCoord(2)
+    const randomCoord = GameLoop.genCoords().genShipCoord(2)
 
     expect(
       (randomCoord[0][0] === randomCoord[1][0]) + 1 && (randomCoord[0][1] === randomCoord[1][1]) ||
       (randomCoord[0][1] === randomCoord[1][1]) + 1 && (randomCoord[0][0] === randomCoord[1][0])
     ).toBe(true)
   })
+
+  test("the generated ships don't have repeated coordinates.", () => {
+
+    const battleShip = GameLoop.genCoords().genBattleships().usedCoords
+    const noRepeatBattleShip = battleShip.filter((element, index) => battleShip.indexOf(element) === index);
+
+    expect(battleShip).toStrictEqual(noRepeatBattleShip)
+
+  })
+
 
 
 })
