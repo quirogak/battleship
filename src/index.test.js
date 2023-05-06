@@ -2,7 +2,14 @@
  * @jest-environment jsdom
  */
 
-import { mainObjects, playerLogic, Game, DOMLogic, GameLoop, globalLogic } from "./index";
+import {
+  mainObjects,
+  playerLogic,
+  Game,
+  DOMLogic,
+  GameLoop,
+  globalLogic,
+} from "./index";
 
 describe("ship test", () => {
   test("can check if a ship is not sunk", () => {
@@ -63,7 +70,9 @@ describe("receiveAttack tests", () => {
   testGameboard.receiveAttack([4, 8], testShips);
 
   test("can record every received attack", () => {
-    expect(globalLogic.isTargetInArray(testGameboard.receivedAttacks, [4, 8])).toBe(true);
+    expect(
+      globalLogic.isTargetInArray(testGameboard.receivedAttacks, [4, 8])
+    ).toBe(true);
   });
 });
 
@@ -152,7 +161,7 @@ const ExampleCoords = [
   [[3, 3], [3, 4],],
   [[6, 3], [6, 2],],
   [[6, 8], [6, 9],],
-  [7, 2],
+  [7, 5],
   [9, 2],
   [9, 9],
   [8, 7],
@@ -165,7 +174,9 @@ describe("Game tests", () => {
     expect(
       gameExample.Player.playerShips.destroyer3.currentCoords
     ).toStrictEqual([8, 7]);
-    expect(gameExample.Player.playerShips.destroyer.currentCoords).toStrictEqual([7, 2]);
+    expect(
+      gameExample.Player.playerShips.destroyer.currentCoords
+    ).toStrictEqual([7, 5]);
     expect(gameExample.Player.playerShips.carrier.currentCoords).toStrictEqual([
       [0, 1],
       [0, 2],
@@ -184,20 +195,17 @@ describe("Game tests", () => {
 });
 
 describe("DOMLogic tests", () => {
-
-  document.body.innerHTML =
-    '<main>' +
-    '</main>';
+  document.body.innerHTML = "<main>" + "</main>";
 
   const mockGrid1 = document.createElement("div");
   const mockGrid2 = document.createElement("div");
   mockGrid1.classList.add("grid-1");
   mockGrid2.classList.add("grid-2");
 
-  const main = document.querySelector("main")
+  const main = document.querySelector("main");
 
-  main.appendChild(mockGrid1)
-  main.appendChild(mockGrid2)
+  main.appendChild(mockGrid1);
+  main.appendChild(mockGrid2);
 
   DOMLogic.displayGrid(mockGrid1);
   DOMLogic.displayGrid(mockGrid2);
@@ -208,232 +216,268 @@ describe("DOMLogic tests", () => {
     expect([mockGrid1.childNodes[99].className]).toStrictEqual(["9,9"]);
   });
 
-  const newGame = DOMLogic.startGame(mockGrid1, mockGrid2, [[[0, 2], [0, 1]]], [[0, 1]]); // note that mockGrid1 has a two coordinates boat.
+  const newGame = DOMLogic.startGame(
+    mockGrid1,
+    mockGrid2,
+    [
+      [
+        [0, 2],
+        [0, 1],
+      ],
+    ],
+    [[0, 1]]
+  ); // note that mockGrid1 has a two coordinates boat.
 
   mockGrid2.childNodes[0].click(); // click [0, 0] coordinate.
 
   test("can click a specific coordinate in the cpu board and run receiveAttack", () => {
-    expect(newGame.currentGame.cpuPlayer.cpuShips.carrier.currentHits()).toBe(1);
+    expect(newGame.currentGame.cpuPlayer.cpuShips.carrier.currentHits()).toBe(
+      1
+    );
   });
 
   mockGrid1.childNodes[1].click(); // click [0, 1] coordinate.
 
   test("can click a specific coordinate in the cpu board and run receiveAttack, but the ship have multiple coordinates.", () => {
-    expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(1);
+    expect(newGame.currentGame.Player.playerShips.carrier.currentHits()).toBe(
+      1
+    );
   });
 
-  mockGrid2.childNodes[35].click() // 3,5 coordinate doesn't has a ship.
+  mockGrid2.childNodes[35].click(); // 3,5 coordinate doesn't has a ship.
   test("when a coordinate is clicked, and it is a missed attack, there should be a visual indicator.", () => {
     expect(mockGrid2.childNodes[35].textContent).toBe("•");
   });
 
-  mockGrid2.childNodes[1].click() // 0,1 coordinate has a ship
+  mockGrid2.childNodes[1].click(); // 0,1 coordinate has a ship
 
   test("when a coordinate is clicked, and it is a successful attack, there should be a visual indicator.", () => {
     expect(mockGrid2.childNodes[1].textContent).toBe("X");
   });
-
 });
 
 describe("GameLoop tests", () => {
-
   document.body.innerHTML =
-    '<main>' +
-    '</main>';
+    "<main>" +
+    "</main>";
 
-  GameLoop.setupDOM()
-
-  const shownGrid1 = document.getElementsByClassName("shown-grid")[0]
-
-  const coordStyle = window.getComputedStyle(shownGrid1.childNodes[1])
-
-  test("before initializing the game, the player can check it's occupied coordinates visually indicated.", () => {
-    expect(coordStyle.getPropertyValue("border-color")).toBe("green");
-  });
-
-  const startGame = GameLoop.singlePlayer()
+  const startGame = GameLoop.singlePlayer(ExampleCoords, true);
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
-    const repeatedGrid = document.getElementsByClassName("grid-1")[1] // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
-    expect(repeatedGrid).toBe(undefined)
+    const repeatedGrid = document.getElementsByClassName("grid-1")[1]; // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
+    expect(repeatedGrid).toBe(undefined);
   });
 
-  const mockGrid2 = document.getElementsByClassName("grid-2")[0]
+  const mockGrid2 = document.getElementsByClassName("grid-2")[0];
 
-  mockGrid2.childNodes[0].click() // we attack the cpu, expecting to receive an attack from it.
+  mockGrid2.childNodes[0].click(); // we attack the cpu, expecting to receive an attack from it.
 
   test("after the player1 attacks, the cpu can make an attack", () => {
-    expect(typeof (startGame.playerObj.playerBoard.receivedAttacks[0])).toBe("object"); // if the cpu attacked the player, the player must have an attack in receivedAttacks
+    expect(typeof startGame.playerObj.playerBoard.receivedAttacks[0]).toBe(
+      "object"
+    ); // if the cpu attacked the player, the player must have an attack in receivedAttacks
   });
 
-  test("the gameLoop ends when anybody is sunk.", () => { // click every cpuPlayer coord.
+  test("the gameLoop ends when anybody is sunk.", () => {
+    // click every cpuPlayer coord.
 
-    mockGrid2.childNodes[1].click()
-    mockGrid2.childNodes[2].click()
-    mockGrid2.childNodes[3].click()
-    mockGrid2.childNodes[4].click()
-    mockGrid2.childNodes[21].click()
-    mockGrid2.childNodes[31].click()
-    mockGrid2.childNodes[41].click()
-    mockGrid2.childNodes[6].click()
-    mockGrid2.childNodes[7].click()
-    mockGrid2.childNodes[8].click()
-    mockGrid2.childNodes[33].click()
-    mockGrid2.childNodes[34].click()
-    mockGrid2.childNodes[63].click()
-    mockGrid2.childNodes[62].click()
-    mockGrid2.childNodes[68].click()
-    mockGrid2.childNodes[69].click()
-    mockGrid2.childNodes[75].click()
-    mockGrid2.childNodes[92].click()
-    mockGrid2.childNodes[99].click()
-    mockGrid2.childNodes[87].click()
+    mockGrid2.childNodes[1].click();
+    mockGrid2.childNodes[2].click();
+    mockGrid2.childNodes[3].click();
+    mockGrid2.childNodes[4].click();
+    mockGrid2.childNodes[21].click();
+    mockGrid2.childNodes[31].click();
+    mockGrid2.childNodes[41].click();
+    mockGrid2.childNodes[6].click();
+    mockGrid2.childNodes[7].click();
+    mockGrid2.childNodes[8].click();
+    mockGrid2.childNodes[33].click();
+    mockGrid2.childNodes[34].click();
+    mockGrid2.childNodes[63].click();
+    mockGrid2.childNodes[62].click();
+    mockGrid2.childNodes[68].click();
+    mockGrid2.childNodes[69].click();
+    mockGrid2.childNodes[75].click();
+    mockGrid2.childNodes[92].click();
+    mockGrid2.childNodes[99].click();
+    mockGrid2.childNodes[87].click();
 
     expect(startGame.currentTurn.turnsLogic()).toBe(true);
   });
 
-
   test("when the game ends, the grid event listeners are removed.", () => {
-    const updatedGrid2 = document.getElementsByClassName("grid-2")[0]
+    const updatedGrid2 = document.getElementsByClassName("grid-2")[0];
 
-    updatedGrid2.childNodes[38].click()
+    updatedGrid2.childNodes[38].click();
 
     expect(updatedGrid2.childNodes[38].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
   });
 
   test("if the cpu makes an 'no-click' attack, it should be displayed in player's grid.", () => {
-    const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0]
-    const DOMCoord = document.getElementsByClassName(attackedCoord)[0]
-    expect(DOMCoord.textContent === "X" || DOMCoord.textContent === "•").toBeTruthy()
-
+    const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0];
+    const DOMCoord = document.getElementsByClassName(attackedCoord)[0];
+    expect(
+      DOMCoord.textContent === "X" || DOMCoord.textContent === "•"
+    ).toBeTruthy();
   });
 
   test("when a ship is sunk, there should be a visual indicator", () => {
-    expect(mockGrid2.childNodes[33].style.borderColor && mockGrid2.childNodes[34].style.borderColor).toBe("red") // 3,3 and 3,4 make an entire ship.
+    expect(
+      mockGrid2.childNodes[33].style.borderColor &&
+      mockGrid2.childNodes[34].style.borderColor
+    ).toBe("red"); // 3,3 and 3,4 make an entire ship.
   });
-
 });
 
 describe("Game mechanics tests", () => {
+  const newGame = Game.newGame("example", ExampleCoords, ExampleCoords);
 
-  const newGame = Game.newGame("example", ExampleCoords, ExampleCoords)
-
-  playerLogic.attackCorners([7, 5], newGame.cpuPlayer.receiveAttack)
+  playerLogic.attackCorners([7, 5], newGame.cpuPlayer.receiveAttack);
 
   test("on a successful attack, the 4 corners of the attacked coordinate should be attacked too.", () => {
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[0]).toStrictEqual([8, 6])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[1]).toStrictEqual([8, 4])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[2]).toStrictEqual([6, 6])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[3]).toStrictEqual([6, 4])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[0]).toStrictEqual([8, 6]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[1]).toStrictEqual([8, 4]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[2]).toStrictEqual([6, 6]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[3]).toStrictEqual([6, 4]);
   });
 
-  playerLogic.attackCorners([0, 1], newGame.cpuPlayer.receiveAttack)
+  playerLogic.attackCorners([0, 1], newGame.cpuPlayer.receiveAttack);
 
   test("if there is no corners in one side or more sides, can still attack the remaining corners", () => {
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[4]).toStrictEqual([1, 2])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[5]).toStrictEqual([1, 0])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[4]).toStrictEqual([1, 2]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[5]).toStrictEqual([1, 0]);
   });
 
   test("if the player clicks the corners, no attacks should be done later on player's grid.", () => {
+    document.body.innerHTML = "<main>" +
+      "</main>";
 
-    document.body.innerHTML =
-      '<main>' +
-      '</main>';
+    GameLoop.genInitialElements(ExampleCoords);
+    const startGame = GameLoop.singlePlayer(ExampleCoords);
+    const mockGrid2 = document.getElementsByClassName("grid-2")[0];
 
-    GameLoop.setupDOM()
-    const startGame = GameLoop.singlePlayer()
-    const mockGrid2 = document.getElementsByClassName("grid-2")[0]
-
-    mockGrid2.childNodes[75].click() // make an attack, the cpu takes his turn and attacks us.
+    mockGrid2.childNodes[75].click(); // make an attack, the cpu takes his turn and attacks us.
     // 8,6 is a corner of 7,5
-    mockGrid2.childNodes[86].click() // if clicking the corner makes an attack, the cpu should attack us here again.
+    mockGrid2.childNodes[86].click(); // if clicking the corner makes an attack, the cpu should attack us here again.
 
-    if (startGame.playerObj.playerBoard.successAttacks.length === 0) // when the random cpu attack is a missed attack
-      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(1)
-    else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1)
+    if (startGame.playerObj.playerBoard.successAttacks.length === 0)
+      // when the random cpu attack is a missed attack
+      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(1);
+    else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1);
   });
 
-
-  playerLogic.attackAround([7, 5], newGame.cpuPlayer.receiveAttack)
+  playerLogic.attackAround([7, 5], newGame.cpuPlayer.receiveAttack);
 
   test("on a successful sunk, the 4 sides of each coordinate should be attacked too.", () => {
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[6]).toStrictEqual([6, 5])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[7]).toStrictEqual([8, 5])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[8]).toStrictEqual([7, 6])
-    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[9]).toStrictEqual([7, 4])
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[6]).toStrictEqual([6, 5]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[7]).toStrictEqual([8, 5]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[8]).toStrictEqual([7, 6]);
+    expect(newGame.cpuPlayer.cpuBoard.receivedAttacks[9]).toStrictEqual([7, 4]);
   });
-
-})
+});
 
 describe("Game setup tests", () => {
-
   test("can create a random-coords 1x1 ship", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(1)
-    expect(typeof (randomCoord[0])).toBe("number")
-    expect(typeof (randomCoord[1])).toBe("number")
-  })
+    const randomCoord = GameLoop.genCoords().genShipCoord(1);
+    expect(typeof randomCoord[0]).toBe("number");
+    expect(typeof randomCoord[1]).toBe("number");
+  });
 
   test("can create a random-coords 2x1 ship", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(2)
-    expect(typeof (randomCoord[0])).toBe("object")
-    expect(typeof (randomCoord[1])).toBe("object")
-  })
+    const randomCoord = GameLoop.genCoords().genShipCoord(2);
+    expect(typeof randomCoord[0]).toBe("object");
+    expect(typeof randomCoord[1]).toBe("object");
+  });
 
   test("can create a random-coords battleship", () => {
-    const battleShip = GameLoop.genCoords().genBattleships().coords
+    const battleShip = GameLoop.genCoords().genBattleships().coords;
 
-    expect(battleShip[0].length).toBe(4)
-    expect(battleShip[2].length).toBe(3)
-    expect(battleShip[4].length).toBe(2)
-    expect(battleShip[6].length).toBe(2)
-
-  })
+    expect(battleShip[0].length).toBe(4);
+    expect(battleShip[2].length).toBe(3);
+    expect(battleShip[4].length).toBe(2);
+    expect(battleShip[6].length).toBe(2);
+  });
 
   test("a multiple coordinate ship should have adjacent coordinates.", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(2)
+    const randomCoord = GameLoop.genCoords().genShipCoord(2);
 
     expect(
-      (randomCoord[0][0] === randomCoord[1][0]) + 1 && (randomCoord[0][1] === randomCoord[1][1]) ||
-      (randomCoord[0][1] === randomCoord[1][1]) + 1 && (randomCoord[0][0] === randomCoord[1][0])
-    ).toBe(true)
-  })
+      ((randomCoord[0][0] === randomCoord[1][0]) + 1 &&
+        randomCoord[0][1] === randomCoord[1][1]) ||
+      ((randomCoord[0][1] === randomCoord[1][1]) + 1 &&
+        randomCoord[0][0] === randomCoord[1][0])
+    ).toBe(true);
+  });
 
   test("the generated ships don't have repeated coordinates.", () => {
+    const battleShip = GameLoop.genCoords().genBattleships().usedCoords;
+    const noRepeatBattleShip = battleShip.filter(
+      (element, index) => battleShip.indexOf(element) === index
+    );
 
-    const battleShip = GameLoop.genCoords().genBattleships().usedCoords
-    const noRepeatBattleShip = battleShip.filter((element, index) => battleShip.indexOf(element) === index);
-
-    expect(battleShip).toStrictEqual(noRepeatBattleShip)
-
-  })
+    expect(battleShip).toStrictEqual(noRepeatBattleShip);
+  });
 
   test("the generated ships can't get out of the grid.", () => {
-
-    const battleShip = GameLoop.genCoords().genBattleships().usedCoords
+    const battleShip = GameLoop.genCoords().genBattleships().usedCoords;
 
     const checkGetOut = (shipsCoords) => {
       for (let i = 0; i < shipsCoords.length; i++) {
         const element = shipsCoords[i];
-        if (globalLogic.isTargetInArray(element, 10)) return true
+        if (globalLogic.isTargetInArray(element, 10)) return true;
       }
-    }
+    };
 
-    expect(checkGetOut(battleShip) !== true).toBe(true)
-  })
+    expect(checkGetOut(battleShip) !== true).toBe(true);
+  });
 
   test("can return the surrounding coords of a 1x1 ship.", () => {
-
-    const coords = GameLoop.genCoords().surroundCoords([5, 5])
+    const coords = GameLoop.genCoords().surroundCoords([5, 5]);
     const expectedCoords = [
-      [6, 6], [6, 4],
-      [4, 6], [4, 4],
-      [4, 5], [6, 5],
-      [5, 6], [5, 4],
-      [5, 5]
-    ]
+      [6, 6],
+      [6, 4],
+      [4, 6],
+      [4, 4],
+      [4, 5],
+      [6, 5],
+      [5, 6],
+      [5, 4],
+      [5, 5],
+    ];
 
-    expect(coords).toStrictEqual(expectedCoords)
+    expect(coords).toStrictEqual(expectedCoords);
+  });
 
-  })
+  test("can return the surrounding coords of a multi-coordinate ship.", () => {
+    const exampleCoords = [
+      [5, 5],
+      [5, 6],
+    ];
+    const coords = GameLoop.genCoords().surroundCoords(exampleCoords);
 
-})
+    const expectedCoords = [
+      [6, 6],
+      [6, 4],
+      [4, 6],
+      [4, 4],
+      [4, 5],
+      [6, 5],
+      [5, 6],
+      [5, 4],
+      [5, 5],
+      [6, 7],
+      [6, 5],
+      [4, 7],
+      [4, 5],
+      [4, 6],
+      [6, 6],
+      [5, 7],
+      [5, 5],
+      [5, 6],
+    ];
+    expect(coords).toStrictEqual(expectedCoords);
+  });
+
+});
+
+

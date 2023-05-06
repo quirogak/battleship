@@ -927,13 +927,25 @@ const GameLoop = (() => {
 
     genDOM.deleteElements(0); // clear previous elements
 
-    const cpuCoords = genCoords().genBattleships().coords // gen random coords.
-    const newGame = DOMLogic.startGame(
-      genDOM.genGrid(1, coords),
-      genDOM.genGrid(2),
-      coords,
-      cpuCoords
-    );
+    let newGame;
+
+    if (sameCoords !== true) {
+      const cpuCoords = genCoords().genBattleships().coords // gen random coords.
+      newGame = DOMLogic.startGame(
+        genDOM.genGrid(1, coords),
+        genDOM.genGrid(2),
+        coords,
+        cpuCoords
+      );
+    }
+    else {
+      newGame = DOMLogic.startGame(
+        genDOM.genGrid(1, coords),
+        genDOM.genGrid(2),
+        coords,
+        coords
+      );
+    }
 
     const playerObj = newGame.currentGame.Player;
     const cpuObj = newGame.currentGame.cpuPlayer;
