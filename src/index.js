@@ -826,6 +826,8 @@ const GameLoop = (() => {
 
     const genShipCoord = (size, usedCoords) => {
 
+      // the problem is because the wrong ships are still ocupping space in usedCoords, so we have to make a plan on how to free up these spaces.
+      // create a beforeShip usedcoords?
       const shipCoords = []
 
       const orientation = randomOrientation()
@@ -854,7 +856,7 @@ const GameLoop = (() => {
       }
 
       // multiple coordinate ship
-      if (shipCoords.length > 1) {
+      if (shipCoords.length !== 1) {
 
         let isValid = true
 
@@ -863,12 +865,13 @@ const GameLoop = (() => {
           if (globalLogic.isTargetInArray(usedCoords, element)) isValid = false  // if one element of the ship has a invalid position, isValid is false.
         }
 
-        if (isValid === false)
-          genShipCoord(size, usedCoords) // and when isValid is false, we recursively create another ship, until it has a valid position.
-        else
-          return shipCoords
-      }
+        if (isValid === false) {
+          console.log(shipCoords)
+          return genShipCoord(size, usedCoords) // and when isValid is false, we recursively change the ship position, until it is valid.
+        }
+        return shipCoords
 
+      }
 
       // one coordinate ship.
       return shipCoords[0]
@@ -921,6 +924,10 @@ const GameLoop = (() => {
         destroyer2,
         destroyer3
       ]
+
+
+
+
 
       return { coords, usedCoords }
     }
