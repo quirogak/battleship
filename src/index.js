@@ -35,9 +35,10 @@ const globalLogic = (() => {
 
   const changeCoordColor = (className, gridNumber, color) => {
     const currentCoord =
-      document.getElementsByClassName(className)[gridNumber - 1];
+      document.getElementsByClassName(className)[gridNumber - 1]
 
     if (currentCoord) currentCoord.style.border = `1px solid ${color}`;
+
   };
 
   const indicateSunk = (ship, gridNumber) => {
@@ -971,11 +972,51 @@ const GameLoop = (() => {
     return { playerObj, cpuObj, currentTurn };
   };
 
+  const flatCoords = (elements) => {
+
+    const multipleCoordShips = elements.filter(el => typeof (el[0]) === "object")
+    const oneCoordShips = elements.filter(el => typeof (el[0]) === "number")
+
+    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips)
+
+    return flattedCoords
+  }
+
+  const dragAndDrop = (elements) => {
+
+    const coordList = flatCoords(elements)
+
+    const dragStart = (e) => {
+
+    }
+
+    const dragDrop = (e) => {
+
+    }
+
+    // add event listeners to each element.
+
+    for (let i = 0; i < coordList.length; i++) {
+      const elementName = globalLogic.coordToClass(coordList[i])
+      const element = document.getElementsByClassName(elementName)[0]
+
+      if (element) {
+        element.draggable = true
+        element.addEventListener("dragstart", dragStart)
+        element.addEventListener("drop", dragDrop)
+      }
+
+    }
+
+  }
+
+
   const genInitialElements = (coords, sameCoords) => {
 
     genDOM.genGrid(1, coords);
     genDOM.genStartButton();
     genDOM.genRandomizeButton();
+    dragAndDrop(coords)
 
     const randomizeGrid = (index) => {
       genDOM.deleteElements(index)
@@ -994,6 +1035,7 @@ const GameLoop = (() => {
   const setupDOM = () => {
 
     const randomCoords = genCoords().genBattleships().coords
+
     genInitialElements(randomCoords)
 
   };
