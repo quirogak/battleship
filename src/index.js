@@ -35,10 +35,9 @@ const globalLogic = (() => {
 
   const changeCoordColor = (className, gridNumber, color) => {
     const currentCoord =
-      document.getElementsByClassName(className)[gridNumber - 1]
+      document.getElementsByClassName(className)[gridNumber - 1];
 
     if (currentCoord) currentCoord.style.border = `1px solid ${color}`;
-
   };
 
   const indicateSunk = (ship, gridNumber) => {
@@ -716,21 +715,53 @@ const DOMLogic = (() => {
       const gridsContainer =
         document.getElementsByClassName("grids-container")[0];
       if (gridsContainer) gridsContainer.appendChild(randomButton);
-    }
+    };
 
     return { genGrid, deleteElements, genStartButton, genRandomizeButton };
   };
 
-  const endGame = () => {
+  const createModal = (winner) => {
+
+    const body = document.querySelector("body")
+
+    const modal = document.createElement("dialog")
+    modal.classList.add("modal")
+    body.appendChild(modal)
+
+    const modalText = document.createElement("div")
+    modal.appendChild(modalText)
+
+    modalText.textContent = `Congratulations ${winner}, you won!`
+
+    const reloadGameButton = document.createElement("button")
+    reloadGameButton.textContent = "New Game"
+
+    const reloadPage = () => window.location.reload()
+
+    reloadGameButton.addEventListener("click", reloadPage)
+    modal.appendChild(reloadGameButton)
+
+    modal.showModal()
+
+  }
+
+  const endGame = (winner) => {
+
     const player1Grid = document.getElementsByClassName("grid-1")[0];
 
     const player2Grid = document.getElementsByClassName("grid-2")[0];
 
     // cloned elements do not carry event listeners.
 
-    if (player1Grid) player1Grid.replaceWith(player1Grid.cloneNode(true));
+    if (player1Grid)
+      player1Grid.replaceWith(player1Grid.cloneNode(true));
 
-    if (player2Grid) player2Grid.replaceWith(player2Grid.cloneNode(true));
+
+    if (player2Grid)
+      player2Grid.replaceWith(player2Grid.cloneNode(true));
+
+    createModal(winner)
+
   };
 
   return { startGame, displayGrid, genDOMElements, endGame };
@@ -747,12 +778,12 @@ const GameLoop = (() => {
       player2.attackPlayer();
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
-        DOMLogic.endGame("player1");
+        DOMLogic.endGame("Player1");
         isGameOver = true;
       }
 
       if (player2.cpuBoard.checkSunk(player2Ships)) {
-        DOMLogic.endGame("player2");
+        DOMLogic.endGame("Player2");
         isGameOver = true;
       }
 
@@ -925,21 +956,19 @@ const GameLoop = (() => {
   const genDOM = DOMLogic.genDOMElements();
 
   const singlePlayer = (coords, sameCoords) => {
-
     genDOM.deleteElements(0); // clear previous elements
 
     let newGame;
 
     if (sameCoords !== true) {
-      const cpuCoords = genCoords().genBattleships().coords // gen random coords.
+      const cpuCoords = genCoords().genBattleships().coords; // gen random coords.
       newGame = DOMLogic.startGame(
         genDOM.genGrid(1, coords),
         genDOM.genGrid(2),
         coords,
         cpuCoords
       );
-    }
-    else {
+    } else {
       newGame = DOMLogic.startGame(
         genDOM.genGrid(1, coords),
         genDOM.genGrid(2),
@@ -972,72 +1001,70 @@ const GameLoop = (() => {
     return { playerObj, cpuObj, currentTurn };
   };
 
+  /*
+  
   const flatCoords = (elements) => {
+    const multipleCoordShips = elements.filter(
+      (el) => typeof el[0] === "object"
+    );
+    const oneCoordShips = elements.filter((el) => typeof el[0] === "number");
 
-    const multipleCoordShips = elements.filter(el => typeof (el[0]) === "object")
-    const oneCoordShips = elements.filter(el => typeof (el[0]) === "number")
+    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips);
 
-    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips)
+    return flattedCoords;
+  };
 
-    return flattedCoords
-  }
-
+  
   const dragAndDrop = (elements) => {
+    const coordList = flatCoords(elements);
 
-    const coordList = flatCoords(elements)
+    const dragStart = (e) => {};
 
-    const dragStart = (e) => {
-
-    }
-
-    const dragDrop = (e) => {
-
-    }
+    const dragDrop = (e) => {};
 
     // add event listeners to each element.
 
     for (let i = 0; i < coordList.length; i++) {
-      const elementName = globalLogic.coordToClass(coordList[i])
-      const element = document.getElementsByClassName(elementName)[0]
+      const elementName = globalLogic.coordToClass(coordList[i]);
+      const element = document.getElementsByClassName(elementName)[0];
 
       if (element) {
-        element.draggable = true
-        element.addEventListener("dragstart", dragStart)
-        element.addEventListener("drop", dragDrop)
+        element.draggable = true;
+        element.addEventListener("dragstart", dragStart);
+        element.addEventListener("drop", dragDrop);
       }
-
     }
-
-  }
-
+  };
+  */
 
   const genInitialElements = (coords, sameCoords) => {
-
     genDOM.genGrid(1, coords);
     genDOM.genStartButton();
     genDOM.genRandomizeButton();
-    dragAndDrop(coords)
+    // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
-      genDOM.deleteElements(index)
-      genInitialElements(genCoords().genBattleships().coords)
-    }
+      genDOM.deleteElements(index);
+      genInitialElements(genCoords().genBattleships().coords);
+    };
 
     const startButton = document.getElementsByClassName("start-button")[0];
     const randomizeButton = document.getElementsByClassName("random-button")[0];
 
-    if (randomizeButton) randomizeButton.addEventListener("click", () => { randomizeGrid(0) })
+    if (randomizeButton)
+      randomizeButton.addEventListener("click", () => {
+        randomizeGrid(0);
+      });
 
-    if (startButton) startButton.addEventListener("click", () => { singlePlayer(coords, sameCoords) });
-
-  }
+    if (startButton)
+      startButton.addEventListener("click", () => {
+        singlePlayer(coords, sameCoords);
+      });
+  };
 
   const setupDOM = () => {
-
-    const randomCoords = genCoords().genBattleships().coords
-
-    genInitialElements(randomCoords)
-
+    const randomCoords = genCoords().genBattleships().coords;
+    genInitialElements(randomCoords, true);
   };
 
   return { singlePlayer, setupDOM, genCoords, genInitialElements };
