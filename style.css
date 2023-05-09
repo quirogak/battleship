@@ -171,3 +171,12 @@ input:focus {
   width: 3vh;
   flex-direction: column;
 }
+
+dialog {
+  border-radius: 10px;
+  border: 1px solid rgb(255, 255, 255);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+}
