@@ -720,7 +720,7 @@ const DOMLogic = (() => {
     return { genGrid, deleteElements, genStartButton, genRandomizeButton };
   };
 
-  const createModal = (winner) => {
+  const createModal = (winner, cpuWin) => {
 
     const body = document.querySelector("body")
 
@@ -731,7 +731,11 @@ const DOMLogic = (() => {
     const modalText = document.createElement("div")
     modal.appendChild(modalText)
 
-    modalText.textContent = `Congratulations ${winner}, you won!`
+    if (!cpuWin)
+      modalText.textContent = `Congratulations ${winner}, you won!`
+    else {
+      modalText.textContent = `${winner} won, try again!`
+    }
 
     const reloadGameButton = document.createElement("button")
     reloadGameButton.textContent = "New Game"
@@ -745,7 +749,7 @@ const DOMLogic = (() => {
 
   }
 
-  const endGame = (winner) => {
+  const endGame = (winner, cpuWin) => {
 
     const player1Grid = document.getElementsByClassName("grid-1")[0];
 
@@ -760,7 +764,7 @@ const DOMLogic = (() => {
     if (player2Grid)
       player2Grid.replaceWith(player2Grid.cloneNode(true));
 
-    createModal(winner)
+    createModal(winner, cpuWin)
 
   };
 
@@ -778,12 +782,12 @@ const GameLoop = (() => {
       player2.attackPlayer();
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
-        DOMLogic.endGame("Player1");
+        DOMLogic.endGame("Player2", true);
         isGameOver = true;
       }
 
       if (player2.cpuBoard.checkSunk(player2Ships)) {
-        DOMLogic.endGame("Player2");
+        DOMLogic.endGame("Player1");
         isGameOver = true;
       }
 
@@ -1064,7 +1068,7 @@ const GameLoop = (() => {
 
   const setupDOM = () => {
     const randomCoords = genCoords().genBattleships().coords;
-    genInitialElements(randomCoords, true);
+    genInitialElements(randomCoords);
   };
 
   return { singlePlayer, setupDOM, genCoords, genInitialElements };
