@@ -659,17 +659,22 @@ const DOMLogic = (() => {
     };
 
     const deleteElements = (index) => {
-      const gridsContainer =
-        document.getElementsByClassName("grids-container")[index];
-      if (gridsContainer) gridsContainer.remove();
+      const mainContainer =
+        document.getElementsByClassName("main-container")[index];
+      if (mainContainer) mainContainer.remove();
     };
 
     const genGrid = (playerIndex, coords) => {
-      const gridsContainer = document.createElement("section");
-      gridsContainer.className = "grids-container";
+      const mainContainer = document.createElement("section");
+      mainContainer.className = "main-container";
 
       const main = document.querySelector("main");
-      if (main) main.appendChild(gridsContainer);
+      if (main) main.appendChild(mainContainer);
+
+      const gridsContainer = document.createElement("div");
+      gridsContainer.className = "grids-container";
+
+      if (mainContainer) mainContainer.appendChild(gridsContainer);
 
       const name = document.createElement("h3");
       name.textContent = `Player's ${playerIndex} Grid`;
@@ -703,21 +708,109 @@ const DOMLogic = (() => {
       const startButton = document.createElement("button");
       startButton.className = "start-button";
       startButton.textContent = "Start Game";
+      const buttonContainer =
+        document.getElementsByClassName("button-wrapper")[0];
+      if (buttonContainer) buttonContainer.appendChild(startButton);
+    };
+
+    const genCoordInputs = () => {
+      const coordInputsContainer = document.createElement("div")
+      coordInputsContainer.className = "inputs-container"
+
+      const mainContainer =
+        document.getElementsByClassName("main-container")[0];
+
+      mainContainer.appendChild(coordInputsContainer)
+
+      for (let i = 0; i <= 9; i++) {
+        const inputElement = document.createElement("div")
+        inputElement.classList.add(`input-element`, i)
+        coordInputsContainer.appendChild(inputElement)
+
+        const inputTitle = document.createElement("h3")
+        inputTitle.classList.add(`input-title`, i)
+        inputElement.appendChild(inputTitle)
+
+        const inputWrapper = document.createElement("div")
+        inputWrapper.classList.add(`input-wrapper`, i)
+        inputElement.appendChild(inputWrapper)
+
+        const input1 = document.createElement("input")
+        input1.classList.add(`start-input`, i)
+        inputWrapper.appendChild(input1)
+
+      }
+
+      const shipTitle = document.getElementsByClassName("input-title")[0]
+      shipTitle.textContent = "Carrier"
+
+      const ship1Title = document.getElementsByClassName("input-title")[1]
+      ship1Title.textContent = "Battleship 1"
+
+      const ship2Title = document.getElementsByClassName("input-title")[2]
+      ship2Title.textContent = "Battleship 2"
+
+      const ship3Title = document.getElementsByClassName("input-title")[3]
+      ship3Title.textContent = "Cruiser 1"
+
+      const ship4Title = document.getElementsByClassName("input-title")[4]
+      ship4Title.textContent = "Cruiser 2"
+
+      const ship5Title = document.getElementsByClassName("input-title")[5]
+      ship5Title.textContent = "Cruiser 3"
+
+      const ship6Title = document.getElementsByClassName("input-title")[6]
+      ship6Title.textContent = "Destroyer 1"
+
+      const ship7Title = document.getElementsByClassName("input-title")[7]
+      ship7Title.textContent = "Destroyer 2"
+
+      const ship8Title = document.getElementsByClassName("input-title")[8]
+      ship8Title.textContent = "Destroyer 3"
+
+      const ship9Title = document.getElementsByClassName("input-title")[9]
+      ship9Title.textContent = "Destroyer 4"
+
+    }
+
+    const genButtonWrapper = () => {
+
+      const buttonWrapper = document.createElement("div")
+      buttonWrapper.classList.add("button-wrapper")
+
       const gridsContainer =
         document.getElementsByClassName("grids-container")[0];
-      if (gridsContainer) gridsContainer.appendChild(startButton);
-    };
+
+      if (gridsContainer)
+        gridsContainer.appendChild(buttonWrapper)
+    }
 
     const genRandomizeButton = () => {
       const randomButton = document.createElement("button");
       randomButton.className = "random-button";
-      randomButton.textContent = "Randomize Coordinates";
-      const gridsContainer =
-        document.getElementsByClassName("grids-container")[0];
-      if (gridsContainer) gridsContainer.appendChild(randomButton);
+      randomButton.textContent = "Randomize";
+      const buttonContainer =
+        document.getElementsByClassName("button-wrapper")[0];
+      if (buttonContainer) buttonContainer.appendChild(randomButton);
     };
 
-    return { genGrid, deleteElements, genStartButton, genRandomizeButton };
+    const genCustomizeButton = () => {
+      const customizeButton = document.createElement("button");
+      customizeButton.className = "customize-button";
+      customizeButton.textContent = "Customize";
+      const buttonContainer =
+        document.getElementsByClassName("button-wrapper")[0];
+      if (buttonContainer) buttonContainer.appendChild(customizeButton);
+    }
+
+    const genButtons = () => {
+      genButtonWrapper()
+      genRandomizeButton()
+      genStartButton()
+      genCustomizeButton()
+    }
+
+    return { genGrid, deleteElements, genButtons, genCoordInputs };
   };
 
   const createModal = (winner, cpuWin) => {
@@ -1043,8 +1136,7 @@ const GameLoop = (() => {
 
   const genInitialElements = (coords, sameCoords) => {
     genDOM.genGrid(1, coords);
-    genDOM.genStartButton();
-    genDOM.genRandomizeButton();
+    genDOM.genButtons()
     // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
@@ -1054,16 +1146,24 @@ const GameLoop = (() => {
 
     const startButton = document.getElementsByClassName("start-button")[0];
     const randomizeButton = document.getElementsByClassName("random-button")[0];
+    const customizeButton = document.getElementsByClassName("customize-button")[0];
 
     if (randomizeButton)
       randomizeButton.addEventListener("click", () => {
         randomizeGrid(0);
       });
 
+    if (customizeButton)
+      customizeButton.addEventListener("click", () => {
+        genDOM.genCoordInputs()
+      }, { once: true });
+
     if (startButton)
       startButton.addEventListener("click", () => {
         singlePlayer(coords, sameCoords);
       });
+
+
   };
 
   const setupDOM = () => {
