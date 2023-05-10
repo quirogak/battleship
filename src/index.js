@@ -714,76 +714,72 @@ const DOMLogic = (() => {
     };
 
     const genCoordInputs = () => {
-      const coordInputsContainer = document.createElement("div")
-      coordInputsContainer.className = "inputs-container"
+      const coordInputsContainer = document.createElement("div");
+      coordInputsContainer.className = "inputs-container";
 
       const mainContainer =
         document.getElementsByClassName("main-container")[0];
 
-      mainContainer.appendChild(coordInputsContainer)
+      mainContainer.appendChild(coordInputsContainer);
 
       for (let i = 0; i <= 9; i++) {
-        const inputElement = document.createElement("div")
-        inputElement.classList.add(`input-element`, i)
-        coordInputsContainer.appendChild(inputElement)
+        const inputElement = document.createElement("div");
+        inputElement.classList.add(`input-element`, i);
+        coordInputsContainer.appendChild(inputElement);
 
-        const inputTitle = document.createElement("h3")
-        inputTitle.classList.add(`input-title`, i)
-        inputElement.appendChild(inputTitle)
+        const inputTitle = document.createElement("h3");
+        inputTitle.classList.add(`input-title`, i);
+        inputElement.appendChild(inputTitle);
 
-        const inputWrapper = document.createElement("div")
-        inputWrapper.classList.add(`input-wrapper`, i)
-        inputElement.appendChild(inputWrapper)
+        const inputWrapper = document.createElement("div");
+        inputWrapper.classList.add(`input-wrapper`, i);
+        inputElement.appendChild(inputWrapper);
 
-        const input1 = document.createElement("input")
-        input1.classList.add(`start-input`, i)
-        inputWrapper.appendChild(input1)
-
+        const input1 = document.createElement("input");
+        input1.classList.add(`start-input`, i);
+        inputWrapper.appendChild(input1);
       }
 
-      const shipTitle = document.getElementsByClassName("input-title")[0]
-      shipTitle.textContent = "Carrier"
+      const shipTitle = document.getElementsByClassName("input-title")[0];
+      shipTitle.textContent = "Carrier";
 
-      const ship1Title = document.getElementsByClassName("input-title")[1]
-      ship1Title.textContent = "Battleship 1"
+      const ship1Title = document.getElementsByClassName("input-title")[1];
+      ship1Title.textContent = "Battleship 1";
 
-      const ship2Title = document.getElementsByClassName("input-title")[2]
-      ship2Title.textContent = "Battleship 2"
+      const ship2Title = document.getElementsByClassName("input-title")[2];
+      ship2Title.textContent = "Battleship 2";
 
-      const ship3Title = document.getElementsByClassName("input-title")[3]
-      ship3Title.textContent = "Cruiser 1"
+      const ship3Title = document.getElementsByClassName("input-title")[3];
+      ship3Title.textContent = "Cruiser 1";
 
-      const ship4Title = document.getElementsByClassName("input-title")[4]
-      ship4Title.textContent = "Cruiser 2"
+      const ship4Title = document.getElementsByClassName("input-title")[4];
+      ship4Title.textContent = "Cruiser 2";
 
-      const ship5Title = document.getElementsByClassName("input-title")[5]
-      ship5Title.textContent = "Cruiser 3"
+      const ship5Title = document.getElementsByClassName("input-title")[5];
+      ship5Title.textContent = "Cruiser 3";
 
-      const ship6Title = document.getElementsByClassName("input-title")[6]
-      ship6Title.textContent = "Destroyer 1"
+      const ship6Title = document.getElementsByClassName("input-title")[6];
+      ship6Title.textContent = "Destroyer 1";
 
-      const ship7Title = document.getElementsByClassName("input-title")[7]
-      ship7Title.textContent = "Destroyer 2"
+      const ship7Title = document.getElementsByClassName("input-title")[7];
+      ship7Title.textContent = "Destroyer 2";
 
-      const ship8Title = document.getElementsByClassName("input-title")[8]
-      ship8Title.textContent = "Destroyer 3"
+      const ship8Title = document.getElementsByClassName("input-title")[8];
+      ship8Title.textContent = "Destroyer 3";
 
-      const ship9Title = document.getElementsByClassName("input-title")[9]
-      ship9Title.textContent = "Destroyer 4"
-
-    }
+      const ship9Title = document.getElementsByClassName("input-title")[9];
+      ship9Title.textContent = "Destroyer 4";
+    };
 
     const genButtonWrapper = () => {
-
-      const buttonWrapper = document.createElement("div")
-      buttonWrapper.classList.add("button-wrapper")
+      const buttonWrapper = document.createElement("div");
+      buttonWrapper.classList.add("button-wrapper");
 
       const gridsContainer =
         document.getElementsByClassName("grids-container")[0];
 
-      if (gridsContainer)
-        gridsContainer.appendChild(buttonWrapper)
-    }
+      if (gridsContainer) gridsContainer.appendChild(buttonWrapper);
+    };
 
     const genRandomizeButton = () => {
       const randomButton = document.createElement("button");
@@ -801,67 +797,59 @@ const DOMLogic = (() => {
       const buttonContainer =
         document.getElementsByClassName("button-wrapper")[0];
       if (buttonContainer) buttonContainer.appendChild(customizeButton);
-    }
+    };
 
     const genButtons = () => {
-      genButtonWrapper()
-      genRandomizeButton()
-      genStartButton()
-      genCustomizeButton()
-    }
+      genButtonWrapper();
+      genRandomizeButton();
+      genStartButton();
+      genCustomizeButton();
+    };
 
     return { genGrid, deleteElements, genButtons, genCoordInputs };
   };
 
   const createModal = (winner, cpuWin) => {
+    const body = document.querySelector("body");
 
-    const body = document.querySelector("body")
+    const modal = document.createElement("dialog");
+    modal.classList.add("modal");
+    body.appendChild(modal);
 
-    const modal = document.createElement("dialog")
-    modal.classList.add("modal")
-    body.appendChild(modal)
+    const modalText = document.createElement("div");
+    modal.appendChild(modalText);
 
-    const modalText = document.createElement("div")
-    modal.appendChild(modalText)
-
-    if (!cpuWin)
-      modalText.textContent = `Congratulations ${winner}, you won!`
+    if (!cpuWin) modalText.textContent = `Congratulations ${winner}, you won!`;
     else {
-      modalText.textContent = `${winner} won, try again!`
+      modalText.textContent = `${winner} won, try again!`;
     }
 
-    const reloadGameButton = document.createElement("button")
-    reloadGameButton.textContent = "New Game"
+    const reloadGameButton = document.createElement("button");
+    reloadGameButton.textContent = "New Game";
 
-    const reloadPage = () => window.location.reload()
+    const reloadPage = () => window.location.reload();
 
-    reloadGameButton.addEventListener("click", reloadPage)
-    modal.appendChild(reloadGameButton)
+    reloadGameButton.addEventListener("click", reloadPage);
+    modal.appendChild(reloadGameButton);
 
-    modal.showModal()
+    if (modal) modal.showModal();
 
-  }
+  };
 
-  const endGame = (winner, cpuWin) => {
-
+  const endGame = () => {
     const player1Grid = document.getElementsByClassName("grid-1")[0];
 
     const player2Grid = document.getElementsByClassName("grid-2")[0];
 
     // cloned elements do not carry event listeners.
 
-    if (player1Grid)
-      player1Grid.replaceWith(player1Grid.cloneNode(true));
+    if (player1Grid) player1Grid.replaceWith(player1Grid.cloneNode(true));
 
-
-    if (player2Grid)
-      player2Grid.replaceWith(player2Grid.cloneNode(true));
-
-    createModal(winner, cpuWin)
+    if (player2Grid) player2Grid.replaceWith(player2Grid.cloneNode(true));
 
   };
 
-  return { startGame, displayGrid, genDOMElements, endGame };
+  return { startGame, displayGrid, genDOMElements, endGame, createModal };
 })();
 
 const GameLoop = (() => {
@@ -875,12 +863,14 @@ const GameLoop = (() => {
       player2.attackPlayer();
 
       if (player1.playerBoard.checkSunk(player1Ships)) {
-        DOMLogic.endGame("Player2", true);
+        DOMLogic.endGame();
+        DOMLogic.createModal("Player2", true);
         isGameOver = true;
       }
 
       if (player2.cpuBoard.checkSunk(player2Ships)) {
-        DOMLogic.endGame("Player1");
+        DOMLogic.endGame();
+        DOMLogic.createModal("Player1");
         isGameOver = true;
       }
 
@@ -1050,9 +1040,95 @@ const GameLoop = (() => {
     return { genBattleships, genShipCoord, surroundCoords };
   };
 
+  const flatCoords = (elements) => {
+    const multipleCoordShips = elements.filter(
+      (el) => typeof el[0] === "object"
+    );
+    const oneCoordShips = elements.filter((el) => typeof el[0] === "number");
+
+    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips);
+
+    return flattedCoords;
+  };
+
+  const rotateCoords = (ship) => {
+    const checkOrientation = () => {
+      if (ship.coords[0][0] + 1 === ship.coords[1][0]) return "v";
+      return "h";
+    };
+
+    if (checkOrientation() === "v") {
+      let newArray = [ship.firstCoord];
+
+      for (let i = 0; i < ship.coords.length - 1; i++) {
+        const yPos = newArray[i][0];
+        const xPos = newArray[i][1] + 1;
+
+        const newCoord = [yPos, xPos];
+
+        newArray = newArray.concat([newCoord]);
+      }
+
+      return newArray;
+    }
+
+    let newArray = [ship.firstCoord];
+
+    for (let i = 0; i < ship.coords.length - 1; i++) {
+      const yPos = newArray[i][0] + 1;
+      const xPos = newArray[i][1];
+
+      const newCoord = [yPos, xPos];
+
+      newArray = newArray.concat([newCoord]);
+    }
+
+    return newArray;
+  };
+
+  const rotateShips = (coords, index) => {
+    const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
+    const coordinates = flatCoords(cleanCoords);
+
+    const rotate = (e) => {
+      const clickedCoord = e.target.className;
+
+      const getShipCoords = (coord) => {
+        for (let i = 0; i < cleanCoords.length; i++) {
+          const coordsArr = cleanCoords[i];
+
+          const coordsInfo = [coordsArr, i];
+
+          if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo;
+        }
+      };
+
+      const fullArray = getShipCoords(globalLogic.classToArray(clickedCoord));
+
+      const shipInfo = {
+        coords: fullArray[0],
+        firstCoord: fullArray[0][0],
+        coordsPosition: fullArray[1],
+      };
+
+      const rotatedCoords = rotateCoords(shipInfo);
+
+      return rotatedCoords;
+    };
+
+    for (let i = 0; i < coordinates.length; i++) {
+      // select every ship-occupied coord
+      const elementClass = globalLogic.coordToClass(coordinates[i]);
+      const element = document.getElementsByClassName(elementClass)[index];
+      if (element) element.addEventListener("click", rotate);
+    }
+
+    return { rotateCoords }
+  };
+
   const genDOM = DOMLogic.genDOMElements();
 
-  const singlePlayer = (coords, sameCoords) => {
+  const singlePlayer = (coords, sameCoords, useModal) => {
     genDOM.deleteElements(0); // clear previous elements
 
     let newGame;
@@ -1099,19 +1175,6 @@ const GameLoop = (() => {
   };
 
   /*
-  
-  const flatCoords = (elements) => {
-    const multipleCoordShips = elements.filter(
-      (el) => typeof el[0] === "object"
-    );
-    const oneCoordShips = elements.filter((el) => typeof el[0] === "number");
-
-    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips);
-
-    return flattedCoords;
-  };
-
-  
   const dragAndDrop = (elements) => {
     const coordList = flatCoords(elements);
 
@@ -1136,7 +1199,8 @@ const GameLoop = (() => {
 
   const genInitialElements = (coords, sameCoords) => {
     genDOM.genGrid(1, coords);
-    genDOM.genButtons()
+    genDOM.genButtons();
+    rotateShips(coords, 0);
     // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
@@ -1146,7 +1210,8 @@ const GameLoop = (() => {
 
     const startButton = document.getElementsByClassName("start-button")[0];
     const randomizeButton = document.getElementsByClassName("random-button")[0];
-    const customizeButton = document.getElementsByClassName("customize-button")[0];
+    const customizeButton =
+      document.getElementsByClassName("customize-button")[0];
 
     if (randomizeButton)
       randomizeButton.addEventListener("click", () => {
@@ -1154,16 +1219,18 @@ const GameLoop = (() => {
       });
 
     if (customizeButton)
-      customizeButton.addEventListener("click", () => {
-        genDOM.genCoordInputs()
-      }, { once: true });
+      customizeButton.addEventListener(
+        "click",
+        () => {
+          genDOM.genCoordInputs();
+        },
+        { once: true }
+      );
 
     if (startButton)
       startButton.addEventListener("click", () => {
         singlePlayer(coords, sameCoords);
       });
-
-
   };
 
   const setupDOM = () => {
@@ -1171,7 +1238,7 @@ const GameLoop = (() => {
     genInitialElements(randomCoords);
   };
 
-  return { singlePlayer, setupDOM, genCoords, genInitialElements };
+  return { singlePlayer, setupDOM, genCoords, genInitialElements, rotateCoords };
 })();
 
 GameLoop.setupDOM();
