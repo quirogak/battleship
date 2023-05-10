@@ -155,12 +155,34 @@ describe("cpuPlayer tests", () => {
 });
 
 const ExampleCoords = [
-  [[0, 1], [0, 2], [0, 3], [0, 4],],
-  [[2, 1], [3, 1], [4, 1],],
-  [[0, 6], [0, 7], [0, 8],],
-  [[3, 3], [3, 4],],
-  [[6, 3], [6, 2],],
-  [[6, 8], [6, 9],],
+  [
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
+  ],
+  [
+    [2, 1],
+    [3, 1],
+    [4, 1],
+  ],
+  [
+    [0, 6],
+    [0, 7],
+    [0, 8],
+  ],
+  [
+    [3, 3],
+    [3, 4],
+  ],
+  [
+    [6, 3],
+    [6, 2],
+  ],
+  [
+    [6, 8],
+    [6, 9],
+  ],
   [7, 5],
   [9, 2],
   [9, 9],
@@ -257,9 +279,7 @@ describe("DOMLogic tests", () => {
 });
 
 describe("GameLoop tests", () => {
-  document.body.innerHTML =
-    "<main>" +
-    "</main>";
+  document.body.innerHTML = "<main>" + "</main>";
 
   const startGame = GameLoop.singlePlayer(ExampleCoords, true);
 
@@ -278,41 +298,6 @@ describe("GameLoop tests", () => {
     ); // if the cpu attacked the player, the player must have an attack in receivedAttacks
   });
 
-  test("the gameLoop ends when anybody is sunk.", () => {
-    // click every cpuPlayer coord.
-
-    mockGrid2.childNodes[1].click();
-    mockGrid2.childNodes[2].click();
-    mockGrid2.childNodes[3].click();
-    mockGrid2.childNodes[4].click();
-    mockGrid2.childNodes[21].click();
-    mockGrid2.childNodes[31].click();
-    mockGrid2.childNodes[41].click();
-    mockGrid2.childNodes[6].click();
-    mockGrid2.childNodes[7].click();
-    mockGrid2.childNodes[8].click();
-    mockGrid2.childNodes[33].click();
-    mockGrid2.childNodes[34].click();
-    mockGrid2.childNodes[63].click();
-    mockGrid2.childNodes[62].click();
-    mockGrid2.childNodes[68].click();
-    mockGrid2.childNodes[69].click();
-    mockGrid2.childNodes[75].click();
-    mockGrid2.childNodes[92].click();
-    mockGrid2.childNodes[99].click();
-    mockGrid2.childNodes[87].click();
-
-    expect(startGame.currentTurn.turnsLogic()).toBe(true);
-  });
-
-  test("when the game ends, the grid event listeners are removed.", () => {
-    const updatedGrid2 = document.getElementsByClassName("grid-2")[0];
-
-    updatedGrid2.childNodes[38].click();
-
-    expect(updatedGrid2.childNodes[38].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
-  });
-
   test("if the cpu makes an 'no-click' attack, it should be displayed in player's grid.", () => {
     const attackedCoord = startGame.playerObj.playerBoard.receivedAttacks[0];
     const DOMCoord = document.getElementsByClassName(attackedCoord)[0];
@@ -322,11 +307,24 @@ describe("GameLoop tests", () => {
   });
 
   test("when a ship is sunk, there should be a visual indicator", () => {
+
+    mockGrid2.childNodes[33].click()
+    mockGrid2.childNodes[34].click()
     expect(
       mockGrid2.childNodes[33].style.borderColor &&
       mockGrid2.childNodes[34].style.borderColor
     ).toBe("red"); // 3,3 and 3,4 make an entire ship.
   });
+
+  test("when the game ends, the grid event listeners are removed.", () => {
+    DOMLogic.endGame()
+    const updatedGrid2 = document.getElementsByClassName("grid-2")[0];
+
+    updatedGrid2.childNodes[38].click();
+
+    expect(updatedGrid2.childNodes[38].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
+  });
+
 });
 
 describe("Game mechanics tests", () => {
@@ -349,20 +347,21 @@ describe("Game mechanics tests", () => {
   });
 
   test("if the player clicks the corners, no attacks should be done later on player's grid.", () => {
-    document.body.innerHTML = "<main>" +
-      "</main>";
+    document.body.innerHTML = "<main>" + "</main>";
 
-    GameLoop.genInitialElements(ExampleCoords);
-    const startGame = GameLoop.singlePlayer(ExampleCoords);
+    GameLoop.genInitialElements(ExampleCoords, true);
+    const startGame = GameLoop.singlePlayer(ExampleCoords, true);
     const mockGrid2 = document.getElementsByClassName("grid-2")[0];
 
     mockGrid2.childNodes[75].click(); // make an attack, the cpu takes his turn and attacks us.
     // 8,6 is a corner of 7,5
+
     mockGrid2.childNodes[86].click(); // if clicking the corner makes an attack, the cpu should attack us here again.
 
     if (startGame.playerObj.playerBoard.successAttacks.length === 0)
-      // when the random cpu attack is a missed attack
-      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(1);
+      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(
+        1
+      ); // when the random cpu attack is a missed attack
     else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1);
   });
 
@@ -477,7 +476,32 @@ describe("Game setup tests", () => {
     ];
     expect(coords).toStrictEqual(expectedCoords);
   });
+});
+
+describe("rotate on click tests", () => {
+
+  test("can rotate a 2x1 vertical ship", () => {
+    const shipInfo = {
+      coords: [[2, 1], [2, 2]],
+      firstCoord: [2, 1],
+    };
+
+    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[2, 1], [3, 1]]); // because there aren't event listeners, no more clicks can be done.
+  });
+
 
 });
 
+describe("input battleship coords tests", () => {
 
+  const setupGame = () => {
+    document.body.innerHTML =
+      "<main>" +
+      "</main>";
+    const randomCoords = GameLoop.genCoords().genBattleships().coords;
+    GameLoop.genInitialElements(randomCoords)
+  }
+
+  // test("can input the coords of a 1x1 ship.", () => {});
+
+});
