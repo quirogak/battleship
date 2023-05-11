@@ -882,6 +882,20 @@ const GameLoop = (() => {
     return { turnsLogic };
   };
 
+  const flatCoords = (elements) => {
+    if (elements) {
+      const multipleCoordShips = elements.filter(
+        (el) => typeof el[0] === "object"
+      );
+
+      const oneCoordShips = elements.filter((el) => typeof el[0] === "number");
+
+      const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips);
+
+      return flattedCoords;
+    }
+  };
+
   const genCoords = () => {
     const surroundCoords = (nodeCoord) => {
       const getSurruonds = (node) => {
@@ -949,16 +963,16 @@ const GameLoop = (() => {
     };
 
     const genShipCoord = (size, usedCoords) => {
-      // the problem is because the wrong ships are still ocupping space in usedCoords, so we have to make a plan on how to free up these spaces.
-      // create a beforeShip usedcoords?
       const shipCoords = [];
 
       const orientation = randomOrientation();
 
+      const invalidCoords = flatCoords(usedCoords)
+
       const genInitialCoords = () => {
         const coords = genRandomCoords(orientation, size);
 
-        if (!globalLogic.isTargetInArray(usedCoords, coords)) {
+        if (!globalLogic.isTargetInArray(invalidCoords, coords)) {
           // validate that the initial coord is in a valid position
           shipCoords.push(coords);
         } else genInitialCoords(); // if the generated coords are already used, generate new coords.
@@ -979,10 +993,10 @@ const GameLoop = (() => {
 
         for (let index = 0; index < shipCoords.length; index++) {
           const element = shipCoords[index];
-          if (globalLogic.isTargetInArray(usedCoords, element)) isValid = false; // if one element of the ship has a invalid position, isValid is false.
+          if (globalLogic.isTargetInArray(invalidCoords, element)) isValid = false; // if one element of the ship has a invalid position, isValid is false.
         }
 
-        if (isValid === false) return genShipCoord(size, usedCoords); // and when isValid is false, we recursively change the ship position, until it is valid.
+        if (isValid === false) return genShipCoord(size, invalidCoords); // and when isValid is false, we recursively change the ship position, until it is valid.
 
         return shipCoords;
       }
@@ -995,34 +1009,34 @@ const GameLoop = (() => {
       const usedCoords = [];
 
       const carrier = genShipCoord(4, usedCoords);
-      usedCoords.push(...surroundCoords(carrier));
+      usedCoords.push(surroundCoords(carrier));
 
       const battleShip = genShipCoord(3, usedCoords);
-      usedCoords.push(...surroundCoords(battleShip));
+      usedCoords.push(surroundCoords(battleShip));
 
       const battleShip1 = genShipCoord(3, usedCoords);
-      usedCoords.push(...surroundCoords(battleShip1));
+      usedCoords.push(surroundCoords(battleShip1));
 
       const cruiser = genShipCoord(2, usedCoords);
-      usedCoords.push(...surroundCoords(cruiser));
+      usedCoords.push(surroundCoords(cruiser));
 
       const cruiser1 = genShipCoord(2, usedCoords);
-      usedCoords.push(...surroundCoords(cruiser1));
+      usedCoords.push(surroundCoords(cruiser1));
 
       const cruiser2 = genShipCoord(2, usedCoords);
-      usedCoords.push(...surroundCoords(cruiser2));
+      usedCoords.push(surroundCoords(cruiser2));
 
       const destroyer = genShipCoord(1, usedCoords);
-      usedCoords.push(...surroundCoords(destroyer));
+      usedCoords.push(surroundCoords(destroyer));
 
       const destroyer1 = genShipCoord(1, usedCoords);
-      usedCoords.push(...surroundCoords(destroyer1));
+      usedCoords.push(surroundCoords(destroyer1));
 
       const destroyer2 = genShipCoord(1, usedCoords);
-      usedCoords.push(...surroundCoords(destroyer2));
+      usedCoords.push(surroundCoords(destroyer2));
 
       const destroyer3 = genShipCoord(1, usedCoords);
-      usedCoords.push(...surroundCoords(destroyer3));
+      usedCoords.push(surroundCoords(destroyer3));
 
       const coords = [
         carrier,
@@ -1043,16 +1057,6 @@ const GameLoop = (() => {
     return { genBattleships, genShipCoord, surroundCoords };
   };
 
-  const flatCoords = (elements) => {
-    const multipleCoordShips = elements.filter(
-      (el) => typeof el[0] === "object"
-    );
-    const oneCoordShips = elements.filter((el) => typeof el[0] === "number");
-
-    const flattedCoords = multipleCoordShips.flat().concat(oneCoordShips);
-
-    return flattedCoords;
-  };
 
   const rotateCoords = (ship) => {
     const checkOrientation = () => {
@@ -1099,7 +1103,7 @@ const GameLoop = (() => {
 
   }
 
-  const rotateShips = (coords, index, restartGrid) => {
+  const rotateShips = (coords, usedCoords, index, restartGrid) => {
     const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
     const coordinates = flatCoords(cleanCoords);
 
@@ -1211,10 +1215,10 @@ const GameLoop = (() => {
   };
   */
 
-  const genInitialElements = (coords, sameCoords) => {
+  const genInitialElements = (coords, sameCoords, usedCoords) => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
-    rotateShips(coords, 0, genInitialElements);
+    rotateShips(coords, usedCoords, 0, genInitialElements);
     // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
@@ -1249,7 +1253,8 @@ const GameLoop = (() => {
 
   const setupDOM = () => {
     const randomCoords = genCoords().genBattleships().coords;
-    genInitialElements(randomCoords);
+    const { usedCoords } = genCoords().genBattleships();
+    genInitialElements(randomCoords, false, usedCoords);
   };
 
   return { singlePlayer, setupDOM, genCoords, genInitialElements, rotateCoords };
