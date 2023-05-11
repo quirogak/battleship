@@ -485,8 +485,30 @@ describe("rotate on click tests", () => {
       coords: [[2, 1], [2, 2]],
       firstCoord: [2, 1],
     };
-
     expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[2, 1], [3, 1]]); // because there aren't event listeners, no more clicks can be done.
+  });
+  test("can rotate a 2x1 horizontal ship", () => {
+    const shipInfo = {
+      coords: [[2, 1], [3, 1]],
+      firstCoord: [2, 1],
+    };
+    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[2, 1], [2, 2]]); // because there aren't event listeners, no more clicks can be done.
+  });
+
+  test("can rotate a 4x1 vertical ship", () => {
+    const shipInfo = {
+      coords: [[4, 2], [5, 2], [6, 2], [7, 2]],
+      firstCoord: [4, 2],
+    };
+    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[4, 2], [4, 3], [4, 4], [4, 5]]); // because there aren't event listeners, no more clicks can be done.
+  });
+
+  test("can rotate a 4x1 horizontal ship", () => {
+    const shipInfo = {
+      coords: [[4, 2], [4, 3], [4, 4], [4, 5]],
+      firstCoord: [4, 2],
+    };
+    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[4, 2], [5, 2], [6, 2], [7, 2]]); // because there aren't event listeners, no more clicks can be done.
   });
 
 
