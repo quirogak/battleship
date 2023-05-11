@@ -853,6 +853,9 @@ const DOMLogic = (() => {
 })();
 
 const GameLoop = (() => {
+
+  const genDOM = DOMLogic.genDOMElements();
+
   const gameTurns = (player1, player2) => {
     const player1Ships = player1.playerShips;
 
@@ -1086,7 +1089,17 @@ const GameLoop = (() => {
     return newArray;
   };
 
-  const rotateShips = (coords, index) => {
+  const replaceCoords = (shipInfo, coords) => {
+
+    const coordsCopy = [...coords]
+
+    coordsCopy.splice(shipInfo.coordsPosition, 1, shipInfo.coords) // replace the old coords for the rotated coords.
+
+    return coordsCopy
+
+  }
+
+  const rotateShips = (coords, index, restartGrid) => {
     const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
     const coordinates = flatCoords(cleanCoords);
 
@@ -1099,7 +1112,7 @@ const GameLoop = (() => {
 
           const coordsInfo = [coordsArr, i];
 
-          if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo;
+          if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo
         }
       };
 
@@ -1111,9 +1124,11 @@ const GameLoop = (() => {
         coordsPosition: fullArray[1],
       };
 
-      const rotatedCoords = rotateCoords(shipInfo);
+      shipInfo.coords = rotateCoords(shipInfo);
 
-      return rotatedCoords;
+      genDOM.deleteElements(0) // delete old grid
+
+      return restartGrid(replaceCoords(shipInfo, coords)) // gen new grid with the rotated coord.
     };
 
     for (let i = 0; i < coordinates.length; i++) {
@@ -1126,9 +1141,8 @@ const GameLoop = (() => {
     return { rotateCoords }
   };
 
-  const genDOM = DOMLogic.genDOMElements();
 
-  const singlePlayer = (coords, sameCoords, useModal) => {
+  const singlePlayer = (coords, sameCoords) => {
     genDOM.deleteElements(0); // clear previous elements
 
     let newGame;
@@ -1200,7 +1214,7 @@ const GameLoop = (() => {
   const genInitialElements = (coords, sameCoords) => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
-    rotateShips(coords, 0);
+    rotateShips(coords, 0, genInitialElements);
     // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
