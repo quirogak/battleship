@@ -896,38 +896,41 @@ const GameLoop = (() => {
     }
   };
 
-  const genCoords = () => {
-    const surroundCoords = (nodeCoord) => {
-      const getSurruonds = (node) => {
-        const currentSurrounds = [
-          ...playerLogic.returnCorners(node),
-          ...playerLogic.returnSides(node),
-          node,
-        ];
+  const surroundCoords = (nodeCoord) => {
+    const getSurruonds = (node) => {
+      const currentSurrounds = [
+        ...playerLogic.returnCorners(node),
+        ...playerLogic.returnSides(node),
+        node,
+      ];
 
-        return playerLogic.validateCoords(currentSurrounds);
-      };
-
-      const coords = [];
-      if (typeof nodeCoord[0] !== "object") {
-        // one-coord ship
-        const surround = getSurruonds(nodeCoord);
-        coords.push(...surround);
-
-        return coords;
-      }
-
-      for (let i = 0; i < nodeCoord.length; i++) {
-        const currentCoord = nodeCoord[i];
-        const surround = getSurruonds(currentCoord);
-
-        coords.push(...surround);
-      }
-
-      const noRepeatCoords = [...new Set(coords)];
-
-      return noRepeatCoords;
+      return playerLogic.validateCoords(currentSurrounds);
     };
+
+    const coords = [];
+    if (typeof nodeCoord[0] !== "object") {
+      // one-coord ship
+      const surround = getSurruonds(nodeCoord);
+      coords.push(...surround);
+
+      return coords;
+    }
+
+    for (let i = 0; i < nodeCoord.length; i++) {
+      const currentCoord = nodeCoord[i];
+      const surround = getSurruonds(currentCoord);
+
+      coords.push(...surround);
+    }
+
+    const noRepeatString = new Set(coords.map(x => JSON.stringify(x)))
+
+    const noRepeatCoords = [...noRepeatString].map(x => JSON.parse(x))
+
+    return noRepeatCoords;
+  };
+
+  const genCoords = () => {
 
     const randomInt = (max) => Math.floor(Math.random() * max);
 
@@ -1103,6 +1106,12 @@ const GameLoop = (() => {
 
   }
 
+  const validateRotation = (coords, usedCoords) => {
+
+    const occupiedCoords = surroundCoords(coords)
+
+  }
+
   const rotateShips = (coords, usedCoords, index, restartGrid) => {
     const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
     const coordinates = flatCoords(cleanCoords);
@@ -1130,9 +1139,12 @@ const GameLoop = (() => {
 
       shipInfo.coords = rotateCoords(shipInfo);
 
+      validateRotation(shipInfo.coords, usedCoords)
+
       genDOM.deleteElements(0) // delete old grid
 
-      return restartGrid(replaceCoords(shipInfo, coords)) // gen new grid with the rotated coord.
+
+      return restartGrid(replaceCoords(shipInfo, coords), false, usedCoords) // gen new grid with the rotated coord.
     };
 
     for (let i = 0; i < coordinates.length; i++) {
