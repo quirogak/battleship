@@ -1117,15 +1117,18 @@ const GameLoop = (() => {
 
     const usedCoordsCopy = [...usedCoords]
 
-    usedCoordsCopy[coordsPosition] = [] // we clear the usedCoords of the current ship, so we can validate them in the loop.
+    usedCoordsCopy[coordsPosition] = [] // we clear the usedCoords of the current ship, so we can validate without them in the loop.
 
     const flatUsedCoords = flatCoords(usedCoordsCopy)
+
+    if (playerLogic.validateCoords(occupiedCoords).length !== occupiedCoords.length) return usedCoords // check if these coords aren't out of the grid.
 
     for (let i = 0; i < occupiedCoords.length; i++) {
       if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords[i])) {
         isValid = false
       }
     }
+
     const coordsSurround = surroundCoords(occupiedCoords)
 
     if (isValid === true) {
@@ -1142,12 +1145,10 @@ const GameLoop = (() => {
     const rotate = (e) => {
       const clickedCoord = e.target.className;
 
-      const getShipCoords = (coord) => {
+      const getShipCoords = (coord) => { // this function searches for the argument coordinate inside of the full coords array, all of this, in order to return the full coords of the clicked coord.
         for (let i = 0; i < cleanCoords.length; i++) {
           const coordsArr = cleanCoords[i];
-
           const coordsInfo = [coordsArr, i];
-
           if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo
         }
       };
@@ -1161,8 +1162,6 @@ const GameLoop = (() => {
       };
 
       shipInfo.coords = rotateCoords(shipInfo);
-
-
 
       if (validateRotation(shipInfo, usedCoords) !== usedCoords) { // this means that the used coords were changed, so it was a valid rotation.
         genDOM.deleteElements(0) // delete old grid
