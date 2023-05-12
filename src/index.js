@@ -317,14 +317,14 @@ const playerLogic = (() => {
       aroundCoords.push(returnSides(nodeCoords)); // when the ship has only one coord.
     }
 
-    const flatCoords = validateCoords(aroundCoords.flat());
+    const flatAroundCoords = validateCoords(aroundCoords.flat());
 
-    for (let i = 0; i < flatCoords.length; i++) {
-      if (!globalLogic.isTargetInArray(successAttacks, flatCoords[i])) {
+    for (let i = 0; i < flatAroundCoords.length; i++) {
+      if (!globalLogic.isTargetInArray(successAttacks, flatAroundCoords[i])) {
         // avoid modifying successful attacks.
-        visualIndicators(flatCoords[i], false, target);
-        removeNodeListeners(flatCoords[i], target);
-        attackFunction(flatCoords[i], ships);
+        visualIndicators(flatAroundCoords[i], false, target);
+        removeNodeListeners(flatAroundCoords[i], target);
+        attackFunction(flatAroundCoords[i], ships);
       }
     }
   };
@@ -914,7 +914,10 @@ const GameLoop = (() => {
       const surround = getSurruonds(nodeCoord);
       coords.push(...surround);
 
-      return coords
+      const noRepeatString = new Set(coords.map(x => JSON.stringify(x)))
+
+      const noRepeatCoords = [...noRepeatString].map(x => JSON.parse(x))
+      return noRepeatCoords
     }
 
     for (let i = 0; i < nodeCoord.length; i++) {
@@ -923,7 +926,6 @@ const GameLoop = (() => {
 
       coords.push(...surround);
     }
-
     const noRepeatString = new Set(coords.map(x => JSON.stringify(x)))
 
     const noRepeatCoords = [...noRepeatString].map(x => JSON.parse(x))
@@ -1167,7 +1169,7 @@ const GameLoop = (() => {
         genDOM.deleteElements(0) // delete old grid
         return restartGrid(replaceCoords(shipInfo, coords), false, validateRotation(shipInfo, usedCoords)) // gen new grid with the rotated coord.
       }
-      return null
+      return null // add DOM when it is a invalid rotation
 
     };
 
@@ -1260,7 +1262,10 @@ const GameLoop = (() => {
 
     const randomizeGrid = (index) => {
       genDOM.deleteElements(index);
-      genInitialElements(genCoords().genBattleships().coords);
+      const genRandomCoords = genCoords().genBattleships()
+      const newRandomCoords = genRandomCoords.coords
+      const newUsedCoords = genRandomCoords.usedCoords
+      genInitialElements(newRandomCoords, false, newUsedCoords);
     };
 
     const startButton = document.getElementsByClassName("start-button")[0];
