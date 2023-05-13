@@ -714,61 +714,91 @@ const DOMLogic = (() => {
     };
 
     const genCoordInputs = () => {
-      const coordInputsContainer = document.createElement("div");
-      coordInputsContainer.className = "inputs-container";
 
       const mainContainer =
         document.getElementsByClassName("main-container")[0];
 
-      mainContainer.appendChild(coordInputsContainer);
+      const inputTitle = document.createElement("label");
+      inputTitle.classList.add(`inputs-container`);
+      inputTitle.htmlFor = "select-ships"
+      inputTitle.textContent = "Set Initial Coord"
+      mainContainer.appendChild(inputTitle);
 
-      for (let i = 0; i <= 9; i++) {
-        const inputElement = document.createElement("div");
-        inputElement.classList.add(`input-element`, i);
-        coordInputsContainer.appendChild(inputElement);
+      const selectElement = document.createElement("select");
+      selectElement.classList.add(`select-ships`);
+      inputTitle.appendChild(selectElement);
 
-        const inputTitle = document.createElement("h3");
-        inputTitle.classList.add(`input-title`, i);
-        inputElement.appendChild(inputTitle);
+      const inputWrapper = document.createElement("div");
+      inputWrapper.classList.add(`input-wrapper`);
+      inputTitle.appendChild(inputWrapper);
 
-        const inputWrapper = document.createElement("div");
-        inputWrapper.classList.add(`input-wrapper`, i);
-        inputElement.appendChild(inputWrapper);
+      const input1 = document.createElement("input");
+      input1.classList.add(`coords-input`);
+      inputWrapper.appendChild(input1);
 
-        const input1 = document.createElement("input");
-        input1.classList.add(`start-input`, i);
-        inputWrapper.appendChild(input1);
-      }
+      const inputText = document.createElement("p");
+      inputText.classList.add(`input-text`);
+      inputText.textContent = ","
+      inputWrapper.appendChild(inputText);
 
-      const shipTitle = document.getElementsByClassName("input-title")[0];
-      shipTitle.textContent = "Carrier";
+      const input2 = document.createElement("input");
+      input2.classList.add(`coords-input`);
+      inputWrapper.appendChild(input2);
 
-      const ship1Title = document.getElementsByClassName("input-title")[1];
-      ship1Title.textContent = "Battleship 1";
+      const submitButton = document.createElement("button");
+      submitButton.classList.add(`apply-coords`);
+      submitButton.textContent = "Apply"
+      inputTitle.appendChild(submitButton);
 
-      const ship2Title = document.getElementsByClassName("input-title")[2];
-      ship2Title.textContent = "Battleship 2";
+      const option1 = document.createElement("option")
+      option1.value = "carrier"
+      option1.textContent = "Carrier";
+      selectElement.appendChild(option1)
 
-      const ship3Title = document.getElementsByClassName("input-title")[3];
-      ship3Title.textContent = "Cruiser 1";
+      const option2 = document.createElement("option")
+      option2.value = "battleship1"
+      option2.textContent = "Battleship 1";
+      selectElement.appendChild(option2)
 
-      const ship4Title = document.getElementsByClassName("input-title")[4];
-      ship4Title.textContent = "Cruiser 2";
+      const option3 = document.createElement("option")
+      option3.value = "battleship2"
+      option3.textContent = "Battleship 2";
+      selectElement.appendChild(option3)
 
-      const ship5Title = document.getElementsByClassName("input-title")[5];
-      ship5Title.textContent = "Cruiser 3";
+      const option4 = document.createElement("option")
+      option4.value = "cruiser1"
+      option4.textContent = "Cruiser 1";
+      selectElement.appendChild(option4)
 
-      const ship6Title = document.getElementsByClassName("input-title")[6];
-      ship6Title.textContent = "Destroyer 1";
+      const option5 = document.createElement("option")
+      option5.value = "cruiser2"
+      option5.textContent = "Cruiser 2";
+      selectElement.appendChild(option5)
 
-      const ship7Title = document.getElementsByClassName("input-title")[7];
-      ship7Title.textContent = "Destroyer 2";
+      const option6 = document.createElement("option")
+      option6.value = "cruiser3"
+      option6.textContent = "Cruiser 3";
+      selectElement.appendChild(option6)
 
-      const ship8Title = document.getElementsByClassName("input-title")[8];
-      ship8Title.textContent = "Destroyer 3";
+      const option7 = document.createElement("option")
+      option7.value = "destroyer1"
+      option7.textContent = "Destroyer 1";
+      selectElement.appendChild(option7)
 
-      const ship9Title = document.getElementsByClassName("input-title")[9];
-      ship9Title.textContent = "Destroyer 4";
+      const option8 = document.createElement("option")
+      option8.value = "destroyer2"
+      option8.textContent = "Destroyer 2";
+      selectElement.appendChild(option8)
+
+      const option9 = document.createElement("option")
+      option9.value = "destroyer3"
+      option9.textContent = "Destroyer 3";
+      selectElement.appendChild(option9)
+
+      const option10 = document.createElement("option")
+      option10.value = "destroyer4"
+      option10.textContent = "Destroyer 4";
+      selectElement.appendChild(option10)
     };
 
     const genButtonWrapper = () => {
@@ -1181,7 +1211,8 @@ const GameLoop = (() => {
         return restartGrid(
           replaceCoords(shipInfo, coords),
           false,
-          validateRotation(shipInfo, usedCoords)
+          validateRotation(shipInfo, usedCoords),
+          true
         ); // gen new grid with the rotated coord.
       }
       return triggerInvalid(fullArray[0]);
@@ -1266,7 +1297,7 @@ const GameLoop = (() => {
   };
   */
 
-  const genInitialElements = (coords, sameCoords, usedCoords) => {
+  const genInitialElements = (coords, sameCoords, usedCoords, customizeOpen) => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
     rotateShips(coords, usedCoords, 0, genInitialElements);
@@ -1290,7 +1321,7 @@ const GameLoop = (() => {
         randomizeGrid(0);
       });
 
-    if (customizeButton)
+    if (customizeButton) {
       customizeButton.addEventListener(
         "click",
         () => {
@@ -1298,6 +1329,8 @@ const GameLoop = (() => {
         },
         { once: true }
       );
+      if (customizeOpen) customizeButton.click()
+    }
 
     if (startButton)
       startButton.addEventListener("click", () => {
