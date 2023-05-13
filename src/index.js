@@ -633,7 +633,6 @@ const DOMLogic = (() => {
   };
 
   const genDOMElements = () => {
-
     const flatCoords = (coordsArr) => {
       const oneDimensionCoords = [];
 
@@ -715,14 +714,13 @@ const DOMLogic = (() => {
     };
 
     const genCoordInputs = () => {
-
       const mainContainer =
         document.getElementsByClassName("main-container")[0];
 
       const inputTitle = document.createElement("label");
       inputTitle.classList.add(`inputs-container`);
-      inputTitle.htmlFor = "select-ships"
-      inputTitle.textContent = "Set Initial Coord"
+      inputTitle.htmlFor = "select-ships";
+      inputTitle.textContent = "Set Initial Coord";
       mainContainer.appendChild(inputTitle);
 
       const selectElement = document.createElement("select");
@@ -739,7 +737,7 @@ const DOMLogic = (() => {
 
       const inputText = document.createElement("p");
       inputText.classList.add(`input-text`);
-      inputText.textContent = ","
+      inputText.textContent = ",";
       inputWrapper.appendChild(inputText);
 
       const input2 = document.createElement("input");
@@ -748,58 +746,58 @@ const DOMLogic = (() => {
 
       const submitButton = document.createElement("button");
       submitButton.classList.add(`apply-coords`);
-      submitButton.textContent = "Apply"
+      submitButton.textContent = "Apply";
       inputTitle.appendChild(submitButton);
 
-      const option1 = document.createElement("option")
-      option1.value = "carrier"
+      const option1 = document.createElement("option");
+      option1.value = "carrier";
       option1.textContent = "Carrier";
-      selectElement.appendChild(option1)
+      selectElement.appendChild(option1);
 
-      const option2 = document.createElement("option")
-      option2.value = "battleship1"
+      const option2 = document.createElement("option");
+      option2.value = "battleship1";
       option2.textContent = "Battleship 1";
-      selectElement.appendChild(option2)
+      selectElement.appendChild(option2);
 
-      const option3 = document.createElement("option")
-      option3.value = "battleship2"
+      const option3 = document.createElement("option");
+      option3.value = "battleship2";
       option3.textContent = "Battleship 2";
-      selectElement.appendChild(option3)
+      selectElement.appendChild(option3);
 
-      const option4 = document.createElement("option")
-      option4.value = "cruiser1"
+      const option4 = document.createElement("option");
+      option4.value = "cruiser1";
       option4.textContent = "Cruiser 1";
-      selectElement.appendChild(option4)
+      selectElement.appendChild(option4);
 
-      const option5 = document.createElement("option")
-      option5.value = "cruiser2"
+      const option5 = document.createElement("option");
+      option5.value = "cruiser2";
       option5.textContent = "Cruiser 2";
-      selectElement.appendChild(option5)
+      selectElement.appendChild(option5);
 
-      const option6 = document.createElement("option")
-      option6.value = "cruiser3"
+      const option6 = document.createElement("option");
+      option6.value = "cruiser3";
       option6.textContent = "Cruiser 3";
-      selectElement.appendChild(option6)
+      selectElement.appendChild(option6);
 
-      const option7 = document.createElement("option")
-      option7.value = "destroyer1"
+      const option7 = document.createElement("option");
+      option7.value = "destroyer1";
       option7.textContent = "Destroyer 1";
-      selectElement.appendChild(option7)
+      selectElement.appendChild(option7);
 
-      const option8 = document.createElement("option")
-      option8.value = "destroyer2"
+      const option8 = document.createElement("option");
+      option8.value = "destroyer2";
       option8.textContent = "Destroyer 2";
-      selectElement.appendChild(option8)
+      selectElement.appendChild(option8);
 
-      const option9 = document.createElement("option")
-      option9.value = "destroyer3"
+      const option9 = document.createElement("option");
+      option9.value = "destroyer3";
       option9.textContent = "Destroyer 3";
-      selectElement.appendChild(option9)
+      selectElement.appendChild(option9);
 
-      const option10 = document.createElement("option")
-      option10.value = "destroyer4"
+      const option10 = document.createElement("option");
+      option10.value = "destroyer4";
       option10.textContent = "Destroyer 4";
-      selectElement.appendChild(option10)
+      selectElement.appendChild(option10);
     };
 
     const genButtonWrapper = () => {
@@ -1220,11 +1218,18 @@ const DOMLogic = (() => {
   };
   */
 
-  return { startGame, displayGrid, genDOMElements, endGame, createModal, genCoords, rotateShips };
+  return {
+    startGame,
+    displayGrid,
+    genDOMElements,
+    endGame,
+    createModal,
+    genCoords,
+    rotateShips,
+  };
 })();
 
 const GameLoop = (() => {
-
   const genDOM = DOMLogic.genDOMElements();
 
   const gameTurns = (player1, player2) => {
@@ -1250,9 +1255,24 @@ const GameLoop = (() => {
 
       return isGameOver;
     };
-    return { turnsLogic };
-  };
 
+    // receive coords, grid containers and start the game.
+
+    const turnLoop = (gameTurn, toAttackGrid) => {
+      for (let i = 0; i < toAttackGrid.childNodes.length; i++) {
+        const node = toAttackGrid.childNodes[i];
+        node.addEventListener(
+          "click",
+          () => {
+            turnsLogic();
+          },
+          { once: true }
+        );
+      }
+    };
+
+    return { turnLoop };
+  };
 
   const singlePlayer = (coords, sameCoords) => {
     genDOM.deleteElements(0); // clear previous elements
@@ -1281,26 +1301,18 @@ const GameLoop = (() => {
     const currentTurn = gameTurns(playerObj, cpuObj, 0);
     const cpuGrid = newGame.gridContainer2;
 
-    // receive coords, grid containers and start the game.
-
-    const turnLoop = (gameTurn, toAttackGrid) => {
-      for (let i = 0; i < toAttackGrid.childNodes.length; i++) {
-        const node = toAttackGrid.childNodes[i];
-        node.addEventListener(
-          "click",
-          () => {
-            gameTurn.turnsLogic();
-          },
-          { once: true }
-        );
-      }
-    };
-    turnLoop(currentTurn, cpuGrid);
+    // trigger turns logic.
+    gameTurns(playerObj, cpuObj).turnLoop(currentTurn, cpuGrid);
 
     return { playerObj, cpuObj, currentTurn };
   };
 
-  const genInitialElements = (coords, sameCoords, usedCoords, customizeOpen) => {
+  const genInitialElements = (
+    coords,
+    sameCoords,
+    usedCoords,
+    customizeOpen
+  ) => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
     DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, genDOM);
@@ -1332,7 +1344,7 @@ const GameLoop = (() => {
         },
         { once: true }
       );
-      if (customizeOpen) customizeButton.click()
+      if (customizeOpen) customizeButton.click();
     }
 
     if (startButton)
