@@ -508,19 +508,6 @@ const DOMLogic = (() => {
     createGrid(10);
   };
 
-  const flatCoords = (coordsArr) => {
-    const oneDimensionCoords = [];
-
-    for (let i = 0; i < coordsArr.length; i++) {
-      const coords = coordsArr[i];
-
-      if (typeof coords[0] === "object") oneDimensionCoords.push(...coords);
-      // if the ships have more than one coordinate.
-      else oneDimensionCoords.push(coords);
-    }
-    return oneDimensionCoords;
-  };
-
   const genIndicators = (xContainer, yContainer) => {
     const gridIndicatorsX = document.createElement("section");
     const gridIndicatorsY = document.createElement("section");
@@ -646,6 +633,20 @@ const DOMLogic = (() => {
   };
 
   const genDOMElements = () => {
+
+    const flatCoords = (coordsArr) => {
+      const oneDimensionCoords = [];
+
+      for (let i = 0; i < coordsArr.length; i++) {
+        const coords = coordsArr[i];
+
+        if (typeof coords[0] === "object") oneDimensionCoords.push(...coords);
+        // if the ships have more than one coordinate.
+        else oneDimensionCoords.push(coords);
+      }
+      return oneDimensionCoords;
+    };
+
     const showShips = (currentCoords, gridNumber) => {
       const coords = flatCoords(currentCoords);
 
@@ -875,38 +876,6 @@ const DOMLogic = (() => {
     if (player1Grid) player1Grid.replaceWith(player1Grid.cloneNode(true));
 
     if (player2Grid) player2Grid.replaceWith(player2Grid.cloneNode(true));
-  };
-
-  return { startGame, displayGrid, genDOMElements, endGame, createModal };
-})();
-
-const GameLoop = (() => {
-  const genDOM = DOMLogic.genDOMElements();
-
-  const gameTurns = (player1, player2) => {
-    const player1Ships = player1.playerShips;
-
-    const player2Ships = player2.cpuShips;
-
-    const turnsLogic = () => {
-      let isGameOver = false;
-      player2.attackPlayer();
-
-      if (player1.playerBoard.checkSunk(player1Ships)) {
-        DOMLogic.endGame();
-        DOMLogic.createModal("Player2", true);
-        isGameOver = true;
-      }
-
-      if (player2.cpuBoard.checkSunk(player2Ships)) {
-        DOMLogic.endGame();
-        DOMLogic.createModal("Player1");
-        isGameOver = true;
-      }
-
-      return isGameOver;
-    };
-    return { turnsLogic };
   };
 
   const flatCoords = (elements) => {
@@ -1179,7 +1148,7 @@ const GameLoop = (() => {
     return usedCoords;
   };
 
-  const rotateShips = (coords, usedCoords, index, restartGrid) => {
+  const rotateShips = (coords, usedCoords, index, restartGrid, currentDOM) => {
     const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
     const coordinates = flatCoords(cleanCoords);
 
@@ -1207,7 +1176,7 @@ const GameLoop = (() => {
 
       if (validateRotation(shipInfo, usedCoords) !== usedCoords) {
         // this means that the used coords were changed, so it was a valid rotation.
-        genDOM.deleteElements(0); // delete old grid
+        currentDOM.deleteElements(0); // delete old grid
         return restartGrid(
           replaceCoords(shipInfo, coords),
           false,
@@ -1228,13 +1197,70 @@ const GameLoop = (() => {
     return { rotateCoords };
   };
 
+  /*
+  const dragAndDrop = (elements) => {
+    const coordList = flatCoords(elements);
+
+    const dragStart = (e) => {};
+
+    const dragDrop = (e) => {};
+
+    // add event listeners to each element.
+
+    for (let i = 0; i < coordList.length; i++) {
+      const elementName = globalLogic.coordToClass(coordList[i]);
+      const element = document.getElementsByClassName(elementName)[0];
+
+      if (element) {
+        element.draggable = true;
+        element.addEventListener("dragstart", dragStart);
+        element.addEventListener("drop", dragDrop);
+      }
+    }
+  };
+  */
+
+  return { startGame, displayGrid, genDOMElements, endGame, createModal, genCoords, rotateShips };
+})();
+
+const GameLoop = (() => {
+
+  const genDOM = DOMLogic.genDOMElements();
+
+  const gameTurns = (player1, player2) => {
+    const player1Ships = player1.playerShips;
+
+    const player2Ships = player2.cpuShips;
+
+    const turnsLogic = () => {
+      let isGameOver = false;
+      player2.attackPlayer();
+
+      if (player1.playerBoard.checkSunk(player1Ships)) {
+        DOMLogic.endGame();
+        DOMLogic.createModal("Player2", true);
+        isGameOver = true;
+      }
+
+      if (player2.cpuBoard.checkSunk(player2Ships)) {
+        DOMLogic.endGame();
+        DOMLogic.createModal("Player1");
+        isGameOver = true;
+      }
+
+      return isGameOver;
+    };
+    return { turnsLogic };
+  };
+
+
   const singlePlayer = (coords, sameCoords) => {
     genDOM.deleteElements(0); // clear previous elements
 
     let newGame;
 
     if (sameCoords !== true) {
-      const cpuCoords = genCoords().genBattleships().coords; // gen random coords.
+      const cpuCoords = DOMLogic.genCoords().genBattleships().coords; // gen random coords.
       newGame = DOMLogic.startGame(
         genDOM.genGrid(1, coords),
         genDOM.genGrid(2),
@@ -1274,38 +1300,15 @@ const GameLoop = (() => {
     return { playerObj, cpuObj, currentTurn };
   };
 
-  /*
-  const dragAndDrop = (elements) => {
-    const coordList = flatCoords(elements);
-
-    const dragStart = (e) => {};
-
-    const dragDrop = (e) => {};
-
-    // add event listeners to each element.
-
-    for (let i = 0; i < coordList.length; i++) {
-      const elementName = globalLogic.coordToClass(coordList[i]);
-      const element = document.getElementsByClassName(elementName)[0];
-
-      if (element) {
-        element.draggable = true;
-        element.addEventListener("dragstart", dragStart);
-        element.addEventListener("drop", dragDrop);
-      }
-    }
-  };
-  */
-
   const genInitialElements = (coords, sameCoords, usedCoords, customizeOpen) => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
-    rotateShips(coords, usedCoords, 0, genInitialElements);
+    DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, genDOM);
     // dragAndDrop(coords);
 
     const randomizeGrid = (index) => {
       genDOM.deleteElements(index);
-      const genRandomCoords = genCoords().genBattleships();
+      const genRandomCoords = DOMLogic.genCoords().genBattleships();
       const newRandomCoords = genRandomCoords.coords;
       const newUsedCoords = genRandomCoords.usedCoords;
       genInitialElements(newRandomCoords, false, newUsedCoords);
@@ -1339,7 +1342,7 @@ const GameLoop = (() => {
   };
 
   const setupDOM = () => {
-    const genRandomCoords = genCoords().genBattleships();
+    const genRandomCoords = DOMLogic.genCoords().genBattleships();
     const randomCoords = genRandomCoords.coords;
     const { usedCoords } = genRandomCoords;
 
@@ -1349,9 +1352,7 @@ const GameLoop = (() => {
   return {
     singlePlayer,
     setupDOM,
-    genCoords,
     genInitialElements,
-    rotateCoords,
   };
 })();
 
