@@ -9,6 +9,10 @@ body {
   flex-direction: column;
 }
 
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 header {
   height: 10vh;
   width: 100%;
@@ -21,10 +25,8 @@ header {
 h1 {
   margin: 0;
   margin-left: 50px;
-  font-family: Arial, Helvetica, sans-serif;
   color: white;
   font-size: 6vh;
-
 }
 
 main {
@@ -41,10 +43,18 @@ main {
   flex-direction: column;
   width: max-content;
   height: max-content;
-  border: 1px solid #616161;
-  border-radius: 10px;
   padding: 50px;
+  padding-bottom: 20px;
   position: relative;
+}
+
+.main-container {
+  border: 1px solid #616161;
+  display: flex;
+  border-radius: 10px;
+  width: min-content;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .grid-1,
@@ -64,7 +74,6 @@ main {
 .shown-grid>* {
   border: 1px solid blue;
   font-size: 2vh;
-  font-family: Arial, Helvetica, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -88,7 +97,6 @@ footer {
 }
 
 footer>a {
-  font-family: Arial, Helvetica, sans-serif;
   color: white;
   text-decoration: none;
 }
@@ -142,10 +150,9 @@ input:focus {
   outline: none;
 }
 
-
 .X,
 .Y {
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   color: white;
   font-size: 1.7vh;
   display: flex;
@@ -178,5 +185,144 @@ dialog {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+}
 
+.random-button,
+.customize-button {
+  margin: 10px;
+}
+
+.button-wrapper {
+  margin-top: 10px;
+}
+
+.inputs-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  left: -25px;
+  width: 140px;
+  height: 20vh;
+  background-color: #292929;
+  color: white;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: center;
+  border: 1px solid green;
+  border-radius: 5px;
+  width: min-content;
+  height: min-content;
+  gap: 5px;
+  padding: 10px;
+}
+
+.input-text {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.coords-input {
+  font-size: 1.2rem;
+  text-align: center;
+  width: 13px;
+  height: min-content;
+  background-color: #3d3d3d;
+  color: white;
+}
+
+.apply-coords {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+h3 {
+  margin: 10px;
+  font-size: 1rem;
+}
+
+.input-element:last-child {
+  margin-bottom: 10px;
+}
+
+.invalid-rotation {
+  animation: invalid-rotation 0.5s 1;
+  -webkit-animation: invalid-rotation 0.5s 1;
+}
+
+select {
+  background-color: #282829;
+  color: white;
+  border-radius: 5px;
+  width: 10vh;
+  height: 2.5vh;
+  font-size: 0.9rem;
+}
+
+@keyframes invalid-rotation {
+  0% {
+    border: 1px solid green;
+  }
+
+  25% {
+    transform: translateX(2px);
+  }
+
+  50% {
+    transform: translateX(-2px);
+  }
+
+  50% {
+    border: 1px solid red;
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+
+  100% {
+    border: 1px solid green;
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@-webkit-keyframes invalid-rotation {
+  0% {
+    border: 1px solid green;
+  }
+
+  25% {
+    transform: translateX(2px);
+  }
+
+  50% {
+    transform: translateX(-2px);
+  }
+
+  50% {
+    border: 1px solid red;
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+
+  100% {
+    border: 1px solid green;
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
