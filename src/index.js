@@ -1063,33 +1063,26 @@ const DOMLogic = (() => {
       return "h";
     };
 
-    if (checkOrientation() === "v") {
-      let newArray = [ship.firstCoord];
-
-      for (let i = 0; i < ship.coords.length - 1; i++) {
-        const yPos = newArray[i][0];
-        const xPos = newArray[i][1] + 1;
-
-        const newCoord = [yPos, xPos];
-
-        newArray = newArray.concat([newCoord]);
-      }
-
-      return newArray;
-    }
-
     let newArray = [ship.firstCoord];
 
-    for (let i = 0; i < ship.coords.length - 1; i++) {
-      const yPos = newArray[i][0] + 1;
-      const xPos = newArray[i][1];
+    let yPos;
+    let xPos;
 
+    for (let i = 0; i < ship.coords.length - 1; i++) {
+      if (checkOrientation() === "v") {
+        yPos = newArray[i][0];
+        xPos = newArray[i][1] + 1;
+      }
+      else {
+        yPos = newArray[i][0] + 1;
+        xPos = newArray[i][1];
+      }
       const newCoord = [yPos, xPos];
 
       newArray = newArray.concat([newCoord]);
     }
-
     return newArray;
+
   };
 
   const replaceCoords = (shipInfo, coords) => {
@@ -1258,7 +1251,7 @@ const GameLoop = (() => {
 
     // receive coords, grid containers and start the game.
 
-    const turnLoop = (gameTurn, toAttackGrid) => {
+    const turnLoop = (toAttackGrid) => {
       for (let i = 0; i < toAttackGrid.childNodes.length; i++) {
         const node = toAttackGrid.childNodes[i];
         node.addEventListener(
@@ -1301,8 +1294,8 @@ const GameLoop = (() => {
     const currentTurn = gameTurns(playerObj, cpuObj, 0);
     const cpuGrid = newGame.gridContainer2;
 
-    // trigger turns logic.
-    gameTurns(playerObj, cpuObj).turnLoop(currentTurn, cpuGrid);
+    // trigger turns logic
+    gameTurns(playerObj, cpuObj).turnLoop(cpuGrid);
 
     return { playerObj, cpuObj, currentTurn };
   };
