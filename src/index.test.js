@@ -307,9 +307,8 @@ describe("GameLoop tests", () => {
   });
 
   test("when a ship is sunk, there should be a visual indicator", () => {
-
-    mockGrid2.childNodes[33].click()
-    mockGrid2.childNodes[34].click()
+    mockGrid2.childNodes[33].click();
+    mockGrid2.childNodes[34].click();
     expect(
       mockGrid2.childNodes[33].style.borderColor &&
       mockGrid2.childNodes[34].style.borderColor
@@ -317,14 +316,13 @@ describe("GameLoop tests", () => {
   });
 
   test("when the game ends, the grid event listeners are removed.", () => {
-    DOMLogic.endGame()
+    DOMLogic.endGame();
     const updatedGrid2 = document.getElementsByClassName("grid-2")[0];
 
     updatedGrid2.childNodes[38].click();
 
     expect(updatedGrid2.childNodes[38].textContent).toBe(""); // because there aren't event listeners, no more clicks can be done.
   });
-
 });
 
 describe("Game mechanics tests", () => {
@@ -359,9 +357,8 @@ describe("Game mechanics tests", () => {
     mockGrid2.childNodes[86].click(); // if clicking the corner makes an attack, the cpu should attack us here again.
 
     if (startGame.playerObj.playerBoard.successAttacks.length === 0)
-      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(
-        1
-      ); // when the random cpu attack is a missed attack
+      expect(startGame.playerObj.playerBoard.receivedAttacks).toHaveLength(1);
+    // when the random cpu attack is a missed attack
     else expect(startGame.playerObj.playerBoard.successAttacks).toHaveLength(1);
   });
 
@@ -377,19 +374,19 @@ describe("Game mechanics tests", () => {
 
 describe("Game setup tests", () => {
   test("can create a random-coords 1x1 ship", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(1);
+    const randomCoord = DOMLogic.genCoords().genShipCoord(1);
     expect(typeof randomCoord[0]).toBe("number");
     expect(typeof randomCoord[1]).toBe("number");
   });
 
   test("can create a random-coords 2x1 ship", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(2);
+    const randomCoord = DOMLogic.genCoords().genShipCoord(2);
     expect(typeof randomCoord[0]).toBe("object");
     expect(typeof randomCoord[1]).toBe("object");
   });
 
   test("can create a random-coords battleship", () => {
-    const battleShip = GameLoop.genCoords().genBattleships().coords;
+    const battleShip = DOMLogic.genCoords().genBattleships().coords;
 
     expect(battleShip[0].length).toBe(4);
     expect(battleShip[2].length).toBe(3);
@@ -398,7 +395,7 @@ describe("Game setup tests", () => {
   });
 
   test("a multiple coordinate ship should have adjacent coordinates.", () => {
-    const randomCoord = GameLoop.genCoords().genShipCoord(2);
+    const randomCoord = DOMLogic.genCoords().genShipCoord(2);
 
     expect(
       ((randomCoord[0][0] === randomCoord[1][0]) + 1 &&
@@ -409,7 +406,7 @@ describe("Game setup tests", () => {
   });
 
   test("the generated ships don't have repeated coordinates.", () => {
-    const battleShip = GameLoop.genCoords().genBattleships().usedCoords;
+    const battleShip = DOMLogic.genCoords().genBattleships().usedCoords;
     const noRepeatBattleShip = battleShip.filter(
       (element, index) => battleShip.indexOf(element) === index
     );
@@ -418,7 +415,7 @@ describe("Game setup tests", () => {
   });
 
   test("the generated ships can't get out of the grid.", () => {
-    const battleShip = GameLoop.genCoords().genBattleships().usedCoords;
+    const battleShip = DOMLogic.genCoords().genBattleships().usedCoords;
 
     const checkGetOut = (shipsCoords) => {
       for (let i = 0; i < shipsCoords.length; i++) {
@@ -431,7 +428,7 @@ describe("Game setup tests", () => {
   });
 
   test("can return the surrounding coords of a 1x1 ship.", () => {
-    const coords = GameLoop.genCoords().surroundCoords([5, 5]);
+    const coords = DOMLogic.genCoords().surroundCoords([5, 5]);
     const expectedCoords = [
       [6, 6],
       [6, 4],
@@ -452,7 +449,7 @@ describe("Game setup tests", () => {
       [5, 5],
       [5, 6],
     ];
-    const coords = GameLoop.genCoords().surroundCoords(exampleCoords);
+    const coords = DOMLogic.genCoords().surroundCoords(exampleCoords);
 
     const expectedCoords = [
       [6, 6],
@@ -465,65 +462,84 @@ describe("Game setup tests", () => {
       [5, 4],
       [5, 5],
       [6, 7],
-      [6, 5],
       [4, 7],
-      [4, 5],
-      [4, 6],
-      [6, 6],
       [5, 7],
-      [5, 5],
-      [5, 6],
     ];
     expect(coords).toStrictEqual(expectedCoords);
   });
 });
 
 describe("rotate on click tests", () => {
-
   test("can rotate a 2x1 vertical ship", () => {
     const shipInfo = {
-      coords: [[2, 1], [2, 2]],
+      coords: [
+        [2, 1],
+        [2, 2],
+      ],
       firstCoord: [2, 1],
     };
-    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[2, 1], [3, 1]]); // because there aren't event listeners, no more clicks can be done.
+    expect(DOMLogic.rotateCoords(shipInfo)).toStrictEqual([
+      [2, 1],
+      [3, 1],
+    ]); // because there aren't event listeners, no more clicks can be done.
   });
   test("can rotate a 2x1 horizontal ship", () => {
     const shipInfo = {
-      coords: [[2, 1], [3, 1]],
+      coords: [
+        [2, 1],
+        [3, 1],
+      ],
       firstCoord: [2, 1],
     };
-    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[2, 1], [2, 2]]); // because there aren't event listeners, no more clicks can be done.
+    expect(DOMLogic.rotateCoords(shipInfo)).toStrictEqual([
+      [2, 1],
+      [2, 2],
+    ]); // because there aren't event listeners, no more clicks can be done.
   });
 
   test("can rotate a 4x1 vertical ship", () => {
     const shipInfo = {
-      coords: [[4, 2], [5, 2], [6, 2], [7, 2]],
+      coords: [
+        [4, 2],
+        [5, 2],
+        [6, 2],
+        [7, 2],
+      ],
       firstCoord: [4, 2],
     };
-    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[4, 2], [4, 3], [4, 4], [4, 5]]); // because there aren't event listeners, no more clicks can be done.
+    expect(DOMLogic.rotateCoords(shipInfo)).toStrictEqual([
+      [4, 2],
+      [4, 3],
+      [4, 4],
+      [4, 5],
+    ]); // because there aren't event listeners, no more clicks can be done.
   });
 
   test("can rotate a 4x1 horizontal ship", () => {
     const shipInfo = {
-      coords: [[4, 2], [4, 3], [4, 4], [4, 5]],
+      coords: [
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [4, 5],
+      ],
       firstCoord: [4, 2],
     };
-    expect(GameLoop.rotateCoords(shipInfo)).toStrictEqual([[4, 2], [5, 2], [6, 2], [7, 2]]); // because there aren't event listeners, no more clicks can be done.
+    expect(DOMLogic.rotateCoords(shipInfo)).toStrictEqual([
+      [4, 2],
+      [5, 2],
+      [6, 2],
+      [7, 2],
+    ]); // because there aren't event listeners, no more clicks can be done.
   });
-
-
 });
 
 describe("input battleship coords tests", () => {
-
   const setupGame = () => {
-    document.body.innerHTML =
-      "<main>" +
-      "</main>";
-    const randomCoords = GameLoop.genCoords().genBattleships().coords;
-    GameLoop.genInitialElements(randomCoords)
-  }
+    document.body.innerHTML = "<main>" + "</main>";
+    const randomCoords = DOMLogic.genCoords().genBattleships().coords;
+    DOMLogic.genInitialElements(randomCoords);
+  };
 
   // test("can input the coords of a 1x1 ship.", () => {});
-
 });

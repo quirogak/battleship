@@ -1184,8 +1184,6 @@ const DOMLogic = (() => {
       const element = document.getElementsByClassName(elementClass)[index];
       if (element) element.addEventListener("click", rotate);
     }
-
-    return { rotateCoords };
   };
 
   /*
@@ -1219,6 +1217,7 @@ const DOMLogic = (() => {
     createModal,
     genCoords,
     rotateShips,
+    rotateCoords
   };
 })();
 
