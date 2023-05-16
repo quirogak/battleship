@@ -1146,16 +1146,16 @@ const DOMLogic = (() => {
     const rotate = (e) => {
       const clickedCoord = e.target.className;
 
-      const getShipCoords = (coord) => {
+      const getShipCoords = (coord, shipsCoords) => {
         // this function searches for the argument coordinate inside of the full coords array, all of this, in order to return the full coords of the clicked coord.
-        for (let i = 0; i < cleanCoords.length; i++) {
-          const coordsArr = cleanCoords[i];
+        for (let i = 0; i < shipsCoords.length; i++) {
+          const coordsArr = shipsCoords[i];
           const coordsInfo = [coordsArr, i];
           if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo;
         }
       };
 
-      const fullArray = getShipCoords(globalLogic.classToArray(clickedCoord));
+      const fullArray = getShipCoords(globalLogic.classToArray(clickedCoord), cleanCoords);
 
       const shipInfo = {
         coords: fullArray[0],
@@ -1165,14 +1165,16 @@ const DOMLogic = (() => {
 
       shipInfo.coords = rotateCoords(shipInfo);
 
-      if (validateRotation(shipInfo, usedCoords) !== usedCoords) {
-        // this means that the used coords were changed, so it was a valid rotation.
+      if (validateRotation(shipInfo, usedCoords) !== usedCoords) { // this means that the used coords were changed, so it was a valid rotation.
+
+        const customizeSection = document.getElementsByClassName("inputs-container")[0] // if customize section is true, send it to restartGrid to keep it open.
         currentDOM.deleteElements(0); // delete old grid
+
         return restartGrid(
           replaceCoords(shipInfo, coords),
           false,
           validateRotation(shipInfo, usedCoords),
-          true
+          customizeSection
         ); // gen new grid with the rotated coord.
       }
       return triggerInvalid(fullArray[0]);
@@ -1209,6 +1211,51 @@ const DOMLogic = (() => {
   };
   */
 
+  const randomizeGrid = (index, genInitialElements, currentDOM) => {
+    currentDOM.deleteElements(index);
+    const genRandomCoords = DOMLogic.genCoords().genBattleships();
+    const newRandomCoords = genRandomCoords.coords;
+    const newUsedCoords = genRandomCoords.usedCoords;
+    genInitialElements(newRandomCoords, false, newUsedCoords);
+  };
+
+  const changeInitialCoord = (ship, coords) => {
+    console.log(ship)
+    console.log(coords)
+  }
+
+  const setupEventListeners = (coords, sameCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
+
+    const startButton = document.getElementsByClassName("start-button")[0];
+    const randomizeButton = document.getElementsByClassName("random-button")[0];
+    const customizeButton =
+      document.getElementsByClassName("customize-button")[0];
+
+    if (randomizeButton)
+      randomizeButton.addEventListener("click", () => {
+        randomizeGrid(0, genInitialElements, currentDOM);
+      });
+
+    if (customizeButton) {
+      customizeButton.addEventListener(
+        "click",
+        () => {
+          currentDOM.genCoordInputs();
+        },
+        { once: true }
+      );
+      if (customizeOpen) customizeButton.click();
+      const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
+      if (changeCoordButton)
+        changeCoordButton.addEventListener("click", () => { })
+    }
+
+    if (startButton)
+      startButton.addEventListener("click", () => {
+        gameMode(coords, sameCoords);
+      });
+  };
+
   return {
     startGame,
     displayGrid,
@@ -1217,7 +1264,9 @@ const DOMLogic = (() => {
     createModal,
     genCoords,
     rotateShips,
-    rotateCoords
+    rotateCoords,
+    changeInitialCoord,
+    setupEventListeners
   };
 })();
 
@@ -1308,42 +1357,10 @@ const GameLoop = (() => {
     genDOM.genGrid(1, coords);
     genDOM.genButtons();
     DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, genDOM);
+    DOMLogic.setupEventListeners(coords, sameCoords, genDOM, customizeOpen, genInitialElements, singlePlayer)
     // dragAndDrop(coords);
+  }
 
-    const randomizeGrid = (index) => {
-      genDOM.deleteElements(index);
-      const genRandomCoords = DOMLogic.genCoords().genBattleships();
-      const newRandomCoords = genRandomCoords.coords;
-      const newUsedCoords = genRandomCoords.usedCoords;
-      genInitialElements(newRandomCoords, false, newUsedCoords);
-    };
-
-    const startButton = document.getElementsByClassName("start-button")[0];
-    const randomizeButton = document.getElementsByClassName("random-button")[0];
-    const customizeButton =
-      document.getElementsByClassName("customize-button")[0];
-
-    if (randomizeButton)
-      randomizeButton.addEventListener("click", () => {
-        randomizeGrid(0);
-      });
-
-    if (customizeButton) {
-      customizeButton.addEventListener(
-        "click",
-        () => {
-          genDOM.genCoordInputs();
-        },
-        { once: true }
-      );
-      if (customizeOpen) customizeButton.click();
-    }
-
-    if (startButton)
-      startButton.addEventListener("click", () => {
-        singlePlayer(coords, sameCoords);
-      });
-  };
 
   const setupDOM = () => {
     const genRandomCoords = DOMLogic.genCoords().genBattleships();
