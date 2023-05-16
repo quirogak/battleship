@@ -1219,9 +1219,19 @@ const DOMLogic = (() => {
     genInitialElements(newRandomCoords, false, newUsedCoords);
   };
 
-  const changeInitialCoord = (ship, coords) => {
-    console.log(ship)
-    console.log(coords)
+  const changeInitialCoord = (ship, coord) => {
+
+  }
+
+  const customizeButtonSetup = () => {
+    const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
+    if (changeCoordButton)
+      changeCoordButton.addEventListener("click", () => {
+        const currentShip = document.getElementsByClassName("select-ships")[0].value
+        const initialCoord = document.getElementsByClassName("coords-input")
+        const fullCoord = [initialCoord[0].value, initialCoord[1].value]
+        changeInitialCoord(currentShip, fullCoord)
+      })
   }
 
   const setupEventListeners = (coords, sameCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
@@ -1241,13 +1251,11 @@ const DOMLogic = (() => {
         "click",
         () => {
           currentDOM.genCoordInputs();
+          customizeButtonSetup()
         },
         { once: true }
       );
       if (customizeOpen) customizeButton.click();
-      const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
-      if (changeCoordButton)
-        changeCoordButton.addEventListener("click", () => { })
     }
 
     if (startButton)
