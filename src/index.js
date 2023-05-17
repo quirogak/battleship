@@ -1127,11 +1127,16 @@ const DOMLogic = (() => {
     )
       return usedCoords; // check if these coords aren't out of the grid.
 
-    for (let i = 0; i < occupiedCoords.length; i++) {
-      if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords[i])) {
+    if (typeof (occupiedCoords[0]) === "number") {
+      if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords))
         isValid = false;
-      }
     }
+    else
+      for (let i = 0; i < occupiedCoords.length; i++) {
+        if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords[i])) {
+          isValid = false;
+        }
+      }
 
     const coordsSurround = surroundCoords(occupiedCoords);
 
