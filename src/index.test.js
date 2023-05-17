@@ -534,7 +534,7 @@ describe("rotate on click tests", () => {
   });
 });
 
-describe("input battleship coords tests", () => {
+describe("inputCoords tests", () => {
   const setupGame = () => {
     document.body.innerHTML = "<main>" + "</main>";
     const game = GameLoop.genInitialElements(ExampleCoords);
@@ -560,4 +560,32 @@ describe("input battleship coords tests", () => {
 
     expect(currentGrid.childNodes[65].style.border).not.toBe("1px solid green");
   });
+
+  test("can change the coords of a multiple-coordinate ship.", () => {
+    const newGame = setupGame()
+    const usedCoords = []
+    DOMLogic.changeInitialCoord(0, [2, 6], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
+    const currentGrid = document.querySelector(".shown-grid")
+
+    expect(
+      currentGrid.childNodes[26].style.border &&
+      currentGrid.childNodes[27].style.border &&
+      currentGrid.childNodes[28].style.border &&
+      currentGrid.childNodes[29].style.border
+
+    ).toBe("1px solid green");
+  });
+
+
+  test("don't change the coords of a multiple-coordinate ship if it occupies an used space.", () => {
+    const newGame = setupGame()
+    const usedCoords = [[4, 7], [4, 8]]
+    DOMLogic.changeInitialCoord(0, [4, 6], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
+    const currentGrid = document.querySelector(".shown-grid")
+
+    expect(currentGrid.childNodes[46].style.border).not.toBe("1px solid green");
+  });
+
+
+
 });
