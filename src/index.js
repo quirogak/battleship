@@ -1227,11 +1227,8 @@ const DOMLogic = (() => {
     genInitialElements(newRandomCoords, false, newUsedCoords);
   };
 
-  const highlightCurrentShip = (shipIndex, shipsCoords) => {
-
-    const currentShip = shipsCoords[shipIndex]
+  const changeShipColor = (currentShip, color) => {
     let currentCoord;
-
     for (let i = 0; i < currentShip.length; i++) {
       if (typeof (currentShip[i]) === "number") // one-coordinate ship.
         currentCoord = globalLogic.coordToClass(currentShip);
@@ -1239,9 +1236,30 @@ const DOMLogic = (() => {
         currentCoord = globalLogic.coordToClass(currentShip[i]);
 
       const currentElement = document.getElementsByClassName(currentCoord)[0]
-      currentElement.style.borderColor = "red"
-
+      currentElement.style.borderColor = color
     }
+  }
+
+  const changeEveryShipColor = (shipsCoords, color) => {
+
+    const currentShips = shipsCoords
+
+    for (let i = 0; i < currentShips.length; i++) {
+      const currentShip = currentShips[i];
+      changeShipColor(currentShip, color)
+    }
+
+  }
+
+  const highlightCurrentShip = (shipIndex, shipsCoords) => {
+
+    const currentShip = shipsCoords[shipIndex]
+
+    changeEveryShipColor(shipsCoords, "green") // restart previously highlighted ships.
+    changeShipColor(currentShip, "rgb(37, 214, 199)")
+
+    return currentShip
+
   }
 
   const triggerInvalidCC = () => { }
@@ -1299,11 +1317,12 @@ const DOMLogic = (() => {
         changeInitialCoord(currentShipIndex, fullCoord, coords, usedCoords, genInitialElements, currentDOM)
       })
     const selectShips = document.getElementsByClassName("select-ships")[0]
-    if (selectShips)
+    if (selectShips) {
       selectShips.addEventListener("click", () => {
         const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
         highlightCurrentShip(currentShipIndex, coords)
       })
+    }
   }
 
   const setupEventListeners = (coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
