@@ -1095,7 +1095,7 @@ const DOMLogic = (() => {
     return coordsCopy;
   };
 
-  const triggerInvalid = (coords) => {
+  const triggerInvalidRT = (coords) => {
     for (let i = 0; i < coords.length; i++) {
       const classCoord = globalLogic.coordToClass(coords[i]);
       const coordElement = document.getElementsByClassName(classCoord)[0];
@@ -1185,7 +1185,7 @@ const DOMLogic = (() => {
           customizeSection
         ); // gen new grid with the rotated coord.
       }
-      return triggerInvalid(fullArray[0]);
+      return triggerInvalidRT(fullArray[0]);
     };
 
     for (let i = 0; i < coordinates.length; i++) {
@@ -1226,6 +1226,25 @@ const DOMLogic = (() => {
     const newUsedCoords = genRandomCoords.usedCoords;
     genInitialElements(newRandomCoords, false, newUsedCoords);
   };
+
+  const highlightCurrentShip = (shipIndex, shipsCoords) => {
+
+    const currentShip = shipsCoords[shipIndex]
+    let currentCoord;
+
+    for (let i = 0; i < currentShip.length; i++) {
+      if (typeof (currentShip[i]) === "number") // one-coordinate ship.
+        currentCoord = globalLogic.coordToClass(currentShip);
+      else
+        currentCoord = globalLogic.coordToClass(currentShip[i]);
+
+      const currentElement = document.getElementsByClassName(currentCoord)[0]
+      currentElement.style.borderColor = "red"
+
+    }
+  }
+
+  const triggerInvalidCC = () => { }
 
   const changeInitialCoord = (shipIndex, coord, shipsCoords, usedCoords, restartGrid, currentDOM) => {
 
@@ -1270,7 +1289,7 @@ const DOMLogic = (() => {
 
   }
 
-  const customizeButtonSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
+  const customizeSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
     const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
     if (changeCoordButton)
       changeCoordButton.addEventListener("click", () => {
@@ -1278,6 +1297,12 @@ const DOMLogic = (() => {
         const initialCoord = document.getElementsByClassName("coords-input")
         const fullCoord = [Number(initialCoord[0].value), Number(initialCoord[1].value)]
         changeInitialCoord(currentShipIndex, fullCoord, coords, usedCoords, genInitialElements, currentDOM)
+      })
+    const selectShips = document.getElementsByClassName("select-ships")[0]
+    if (selectShips)
+      selectShips.addEventListener("click", () => {
+        const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
+        highlightCurrentShip(currentShipIndex, coords)
       })
   }
 
@@ -1298,7 +1323,7 @@ const DOMLogic = (() => {
         "click",
         () => {
           currentDOM.genCoordInputs();
-          customizeButtonSetup(coords, usedCoords, genInitialElements, currentDOM)
+          customizeSetup(coords, usedCoords, genInitialElements, currentDOM)
         },
         { once: true }
       );
