@@ -281,7 +281,7 @@ describe("DOMLogic tests", () => {
 describe("GameLoop tests", () => {
   document.body.innerHTML = "<main>" + "</main>";
 
-  const startGame = GameLoop.singlePlayer(ExampleCoords, true);
+  const startGame = GameLoop.singlePlayer(ExampleCoords, true, DOMLogic.genDOMElements());
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
     const repeatedGrid = document.getElementsByClassName("grid-1")[1]; // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
@@ -348,7 +348,7 @@ describe("Game mechanics tests", () => {
     document.body.innerHTML = "<main>" + "</main>";
 
     GameLoop.genInitialElements(ExampleCoords, true);
-    const startGame = GameLoop.singlePlayer(ExampleCoords, true);
+    const startGame = GameLoop.singlePlayer(ExampleCoords, true, DOMLogic.genDOMElements());
     const mockGrid2 = document.getElementsByClassName("grid-2")[0];
 
     mockGrid2.childNodes[75].click(); // make an attack, the cpu takes his turn and attacks us.
@@ -537,9 +537,27 @@ describe("rotate on click tests", () => {
 describe("input battleship coords tests", () => {
   const setupGame = () => {
     document.body.innerHTML = "<main>" + "</main>";
-    const randomCoords = DOMLogic.genCoords().genBattleships().coords;
-    DOMLogic.genInitialElements(randomCoords);
+    const game = GameLoop.genInitialElements(ExampleCoords);
+    const { currentDOM } = game
+    return { game, currentDOM }
   };
 
-  // test("can input the coords of a 1x1 ship.", () => {});
+
+  test("can change the coords of a 1x1 ship.", () => {
+    const newGame = setupGame()
+    const usedCoords = []
+    DOMLogic.changeInitialCoord(8, [6, 5], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
+    const currentGrid = document.querySelector(".shown-grid")
+
+    expect(currentGrid.childNodes[65].style.border).toBe("1px solid green");
+  });
+
+  test("don't change the coords of a 1x1 ship if it occupies an used space.", () => {
+    const newGame = setupGame()
+    const usedCoords = [[6, 5]]
+    DOMLogic.changeInitialCoord(8, [6, 5], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
+    const currentGrid = document.querySelector(".shown-grid")
+
+    expect(currentGrid.childNodes[65].style.border).not.toBe("1px solid green");
+  });
 });

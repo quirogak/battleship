@@ -515,15 +515,13 @@ const DOMLogic = (() => {
     gridIndicatorsX.classList.add("X");
     gridIndicatorsY.classList.add("Y");
 
-    const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 0; i <= 9; i++) {
       const element = document.createElement("div");
       element.textContent = i;
       gridIndicatorsY.appendChild(element);
 
       const element2 = document.createElement("div");
-      element2.textContent = alphabet[i - 1];
+      element2.textContent = i;
       gridIndicatorsX.appendChild(element2);
     }
 
@@ -1057,8 +1055,12 @@ const DOMLogic = (() => {
     return { genBattleships, genShipCoord, surroundCoords };
   };
 
-  const rotateCoords = (ship) => {
+  const rotateCoords = (ship, swapOrientation) => {
     const checkOrientation = () => {
+      if (swapOrientation) {
+        if (ship.coords[0][0] + 1 === ship.coords[1][0]) return "h";
+        return "v";
+      }
       if (ship.coords[0][0] + 1 === ship.coords[1][0]) return "v";
       return "h";
     };
@@ -1106,6 +1108,7 @@ const DOMLogic = (() => {
   };
 
   const validateRotation = (shipInfo, usedCoords) => {
+
     let isValid = true;
 
     const occupiedCoords = shipInfo.coords;
@@ -1139,21 +1142,21 @@ const DOMLogic = (() => {
     return usedCoords;
   };
 
+  const getShipCoords = (coord, shipsCoords) => {
+    // this function searches for the argument coordinate inside of the full coords array, all of this, in order to return the full coords of the clicked coord.
+    for (let i = 0; i < shipsCoords.length; i++) {
+      const coordsArr = shipsCoords[i];
+      const coordsInfo = [coordsArr, i];
+      if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo;
+    }
+  };
+
   const rotateShips = (coords, usedCoords, index, restartGrid, currentDOM) => {
     const cleanCoords = coords.filter((el) => typeof el[0] === "object"); // we filter the one-coordinate ships, because they don't need rotation
     const coordinates = flatCoords(cleanCoords);
 
     const rotate = (e) => {
       const clickedCoord = e.target.className;
-
-      const getShipCoords = (coord, shipsCoords) => {
-        // this function searches for the argument coordinate inside of the full coords array, all of this, in order to return the full coords of the clicked coord.
-        for (let i = 0; i < shipsCoords.length; i++) {
-          const coordsArr = shipsCoords[i];
-          const coordsInfo = [coordsArr, i];
-          if (globalLogic.isTargetInArray(coordsArr, coord)) return coordsInfo;
-        }
-      };
 
       const fullArray = getShipCoords(globalLogic.classToArray(clickedCoord), cleanCoords);
 
@@ -1219,22 +1222,61 @@ const DOMLogic = (() => {
     genInitialElements(newRandomCoords, false, newUsedCoords);
   };
 
-  const changeInitialCoord = (ship, coord) => {
+  const changeInitialCoord = (shipIndex, coord, shipsCoords, usedCoords, restartGrid, currentDOM) => {
+
+    const shipInfo = {
+      coords: shipsCoords[shipIndex],
+      firstCoord: coord,
+      coordsPosition: shipIndex,
+    };
+
+    const generateCoords = rotateCoords(shipInfo, true) // generate the coords, with the same orientation, different initialCoord.
+
+    // update shipInfo with the new ship coords.
+
+    const updatedShipInfo = {
+      coords: generateCoords,
+      firstCoord: generateCoords[0],
+      coordsPosition: shipIndex,
+    }
+
+    const updateGrid = (shipObj, usedCoordsArr, coordsArr, usedDOM) => {
+
+      if (validateRotation(shipObj, usedCoordsArr) !== usedCoordsArr) {
+        usedDOM.deleteElements(0); // delete old grid
+        return restartGrid(// gen new grid with the changed coord.
+          replaceCoords(shipObj, coordsArr),
+          false,
+          validateRotation(shipObj, usedCoordsArr),
+          true
+        );
+      }
+    }
+
+    if (typeof (shipsCoords[shipIndex][0]) === "number") { // when it is a one-coordinate ship.
+      shipInfo.coords = shipInfo.firstCoord // change the coord to be equal to the wanted coord.
+      updateGrid(shipInfo, usedCoords, shipsCoords, currentDOM)
+    }
+    else {
+      updateGrid(updatedShipInfo, usedCoords, shipsCoords, currentDOM)
+    }
+
+    return { updateGrid }
 
   }
 
-  const customizeButtonSetup = () => {
+  const customizeButtonSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
     const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
     if (changeCoordButton)
       changeCoordButton.addEventListener("click", () => {
-        const currentShip = document.getElementsByClassName("select-ships")[0].value
+        const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
         const initialCoord = document.getElementsByClassName("coords-input")
-        const fullCoord = [initialCoord[0].value, initialCoord[1].value]
-        changeInitialCoord(currentShip, fullCoord)
+        const fullCoord = [Number(initialCoord[0].value), Number(initialCoord[1].value)]
+        changeInitialCoord(currentShipIndex, fullCoord, coords, usedCoords, genInitialElements, currentDOM)
       })
   }
 
-  const setupEventListeners = (coords, sameCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
+  const setupEventListeners = (coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
 
     const startButton = document.getElementsByClassName("start-button")[0];
     const randomizeButton = document.getElementsByClassName("random-button")[0];
@@ -1251,7 +1293,7 @@ const DOMLogic = (() => {
         "click",
         () => {
           currentDOM.genCoordInputs();
-          customizeButtonSetup()
+          customizeButtonSetup(coords, usedCoords, genInitialElements, currentDOM)
         },
         { once: true }
       );
@@ -1260,7 +1302,7 @@ const DOMLogic = (() => {
 
     if (startButton)
       startButton.addEventListener("click", () => {
-        gameMode(coords, sameCoords);
+        gameMode(coords, sameCoords, currentDOM);
       });
   };
 
@@ -1279,7 +1321,6 @@ const DOMLogic = (() => {
 })();
 
 const GameLoop = (() => {
-  const genDOM = DOMLogic.genDOMElements();
 
   const gameTurns = (player1, player2) => {
     const player1Ships = player1.playerShips;
@@ -1323,37 +1364,40 @@ const GameLoop = (() => {
     return { turnLoop };
   };
 
-  const singlePlayer = (coords, sameCoords) => {
-    genDOM.deleteElements(0); // clear previous elements
-
+  const singlePlayer = (coords, sameCoords, currentDOM) => {
     let newGame;
 
-    if (sameCoords !== true) {
-      const cpuCoords = DOMLogic.genCoords().genBattleships().coords; // gen random coords.
-      newGame = DOMLogic.startGame(
-        genDOM.genGrid(1, coords),
-        genDOM.genGrid(2),
-        coords,
-        cpuCoords
-      );
-    } else {
-      newGame = DOMLogic.startGame(
-        genDOM.genGrid(1, coords),
-        genDOM.genGrid(2),
-        coords,
-        coords
-      );
+    if (currentDOM) {
+      currentDOM.deleteElements(0); // clear previous elements
+
+      if (sameCoords !== true) {
+        const cpuCoords = DOMLogic.genCoords().genBattleships().coords; // gen random coords.
+        if (currentDOM)
+          newGame = DOMLogic.startGame(
+            currentDOM.genGrid(1, coords),
+            currentDOM.genGrid(2),
+            coords,
+            cpuCoords
+          );
+      } else {
+        newGame = DOMLogic.startGame(
+          currentDOM.genGrid(1, coords),
+          currentDOM.genGrid(2),
+          coords,
+          coords
+        );
+      }
+
+      const playerObj = newGame.currentGame.Player;
+      const cpuObj = newGame.currentGame.cpuPlayer;
+      const currentTurn = gameTurns(playerObj, cpuObj, 0);
+      const cpuGrid = newGame.gridContainer2;
+
+      // trigger turns logic
+      gameTurns(playerObj, cpuObj).turnLoop(cpuGrid);
+
+      return { playerObj, cpuObj, currentTurn };
     }
-
-    const playerObj = newGame.currentGame.Player;
-    const cpuObj = newGame.currentGame.cpuPlayer;
-    const currentTurn = gameTurns(playerObj, cpuObj, 0);
-    const cpuGrid = newGame.gridContainer2;
-
-    // trigger turns logic
-    gameTurns(playerObj, cpuObj).turnLoop(cpuGrid);
-
-    return { playerObj, cpuObj, currentTurn };
   };
 
   const genInitialElements = (
@@ -1362,11 +1406,15 @@ const GameLoop = (() => {
     usedCoords,
     customizeOpen
   ) => {
-    genDOM.genGrid(1, coords);
-    genDOM.genButtons();
-    DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, genDOM);
-    DOMLogic.setupEventListeners(coords, sameCoords, genDOM, customizeOpen, genInitialElements, singlePlayer)
+    const currentDOM = DOMLogic.genDOMElements();
+
+    currentDOM.genGrid(1, coords);
+    currentDOM.genButtons();
+    DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, currentDOM);
+    DOMLogic.setupEventListeners(coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, singlePlayer)
     // dragAndDrop(coords);
+
+    return { currentDOM }
   }
 
 
@@ -1376,6 +1424,8 @@ const GameLoop = (() => {
     const { usedCoords } = genRandomCoords;
 
     genInitialElements(randomCoords, false, usedCoords);
+
+    return { usedCoords }
   };
 
   return {
