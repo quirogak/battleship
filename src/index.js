@@ -662,6 +662,30 @@ const DOMLogic = (() => {
       if (mainContainer) mainContainer.remove();
     };
 
+    const deleteShownGrid = (index) => {
+      const shownGrid =
+        document.getElementsByClassName("shown-grid")[index];
+      if (shownGrid) shownGrid.remove();
+    };
+
+    const genGridOnly = (playerIndex, container, coords) => {
+      const grid = document.createElement("div");
+      grid.className = `grid-${playerIndex}`;
+      container.appendChild(grid);
+
+      if (playerIndex === 1) DOMLogic.displayGrid(grid, null);
+      else {
+        DOMLogic.displayGrid(null, grid);
+      }
+
+      if (coords) {
+        grid.className = `shown-grid`;
+        showShips(coords, playerIndex);
+      }
+
+      return grid
+    }
+
     const genGrid = (playerIndex, coords) => {
       const mainContainer = document.createElement("section");
       mainContainer.className = "main-container";
@@ -685,19 +709,7 @@ const DOMLogic = (() => {
 
       gridsContainer.appendChild(gridWrapper);
 
-      const grid = document.createElement("div");
-      grid.className = `grid-${playerIndex}`;
-      gridWrapper.appendChild(grid);
-
-      if (playerIndex === 1) DOMLogic.displayGrid(grid, null);
-      else {
-        DOMLogic.displayGrid(null, grid);
-      }
-
-      if (coords) {
-        grid.className = `shown-grid`;
-        showShips(coords, playerIndex);
-      }
+      const grid = genGridOnly(playerIndex, gridWrapper, coords)
 
       return grid;
     };
@@ -833,7 +845,7 @@ const DOMLogic = (() => {
       genCustomizeButton();
     };
 
-    return { genGrid, deleteElements, genButtons, genCoordInputs };
+    return { genGrid, deleteElements, genButtons, genCoordInputs, genGridOnly, deleteShownGrid };
   };
 
   const createModal = (winner, cpuWin) => {
@@ -1251,6 +1263,8 @@ const DOMLogic = (() => {
 
   }
 
+  const getSelectShipIndex = () => document.getElementsByClassName("select-ships")[0].selectedIndex
+
   const highlightCurrentShip = (shipIndex, shipsCoords) => {
 
     const currentShip = shipsCoords[shipIndex]
@@ -1262,11 +1276,19 @@ const DOMLogic = (() => {
 
   }
 
-  const triggerInvalidCC = (xPos, yPos) => {
+  const triggerCurrentCoord = (xPos, yPos, coords, currentDOM) => {
 
     const coordClass = [Number(xPos), Number(yPos)]
+    const gridContainer = document.getElementsByClassName("grid-wrapper")[0]
+
+    // restart previous triggered coords, by restarting the grid.
+    currentDOM.deleteShownGrid(0)
+    currentDOM.genGridOnly(1, gridContainer, coords)
+    highlightCurrentShip(getSelectShipIndex(), coords)
 
     changeShipColor(coordClass, "orange")
+
+    return coordClass
 
   }
 
@@ -1308,9 +1330,7 @@ const DOMLogic = (() => {
     else {
       updateGrid(updatedShipInfo, usedCoords, shipsCoords, currentDOM)
     }
-
     return { updateGrid }
-
   }
 
   const customizeSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
@@ -1318,10 +1338,10 @@ const DOMLogic = (() => {
     const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
     if (changeCoordButton)
       changeCoordButton.addEventListener("click", () => {
-        const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
+
         const initialCoord = document.getElementsByClassName("coords-input")
         const fullCoord = [Number(initialCoord[0].value), Number(initialCoord[1].value)]
-        changeInitialCoord(currentShipIndex, fullCoord, coords, usedCoords, genInitialElements, currentDOM)
+        changeInitialCoord(getSelectShipIndex(), fullCoord, coords, usedCoords, genInitialElements, currentDOM)
       })
 
     const selectShips = document.getElementsByClassName("select-ships")[0]
@@ -1338,15 +1358,12 @@ const DOMLogic = (() => {
 
     coordInput.addEventListener("input", () => {
       if (coordInput.value && coordInput1.value)
-        triggerInvalidCC(coordInput.value, coordInput1.value, coords)
+        triggerCurrentCoord(coordInput.value, coordInput1.value, coords, currentDOM)
     })
     coordInput1.addEventListener("input", () => {
       if (coordInput.value && coordInput1.value)
-        triggerInvalidCC(coordInput.value, coordInput1.value, coords)
+        triggerCurrentCoord(coordInput.value, coordInput1.value, coords, currentDOM)
     })
-
-
-
   }
 
   const setupEventListeners = (coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
