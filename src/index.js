@@ -1262,7 +1262,13 @@ const DOMLogic = (() => {
 
   }
 
-  const triggerInvalidCC = () => { }
+  const triggerInvalidCC = (xPos, yPos) => {
+
+    const coordClass = [Number(xPos), Number(yPos)]
+
+    changeShipColor(coordClass, "orange")
+
+  }
 
   const changeInitialCoord = (shipIndex, coord, shipsCoords, usedCoords, restartGrid, currentDOM) => {
 
@@ -1308,6 +1314,7 @@ const DOMLogic = (() => {
   }
 
   const customizeSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
+
     const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
     if (changeCoordButton)
       changeCoordButton.addEventListener("click", () => {
@@ -1316,13 +1323,30 @@ const DOMLogic = (() => {
         const fullCoord = [Number(initialCoord[0].value), Number(initialCoord[1].value)]
         changeInitialCoord(currentShipIndex, fullCoord, coords, usedCoords, genInitialElements, currentDOM)
       })
+
     const selectShips = document.getElementsByClassName("select-ships")[0]
-    if (selectShips) {
+    changeShipColor(coords[0], "rgb(37, 214, 199)") // highlight default selected ship.
+    if (selectShips)
       selectShips.addEventListener("click", () => {
         const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
         highlightCurrentShip(currentShipIndex, coords)
       })
-    }
+
+    const coordInput = document.getElementsByClassName("coords-input")[0]
+    const coordInput1 = document.getElementsByClassName("coords-input")[1]
+
+
+    coordInput.addEventListener("input", () => {
+      if (coordInput.value && coordInput1.value)
+        triggerInvalidCC(coordInput.value, coordInput1.value, coords)
+    })
+    coordInput1.addEventListener("input", () => {
+      if (coordInput.value && coordInput1.value)
+        triggerInvalidCC(coordInput.value, coordInput1.value, coords)
+    })
+
+
+
   }
 
   const setupEventListeners = (coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
