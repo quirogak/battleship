@@ -9,7 +9,7 @@ Main features:
 
 -Can select the initial coord of every ship. (in combination of ship rotation, you can organize your ships as you want, in any direction/position)
 
--Fast-paced game, includes surrounding ships on successful hits and sunk ships.
+-Fast-paced game, includes corner hits on successful hits and surrounding hits on sunk ships.
 
 -Randomize positions button.
 
