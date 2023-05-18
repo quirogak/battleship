@@ -214,7 +214,7 @@ dialog {
 .input-wrapper {
   display: flex;
   justify-content: center;
-  border: 1px solid green;
+  border: 1px solid orange;
   border-radius: 5px;
   width: min-content;
   height: min-content;
