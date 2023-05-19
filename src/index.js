@@ -414,38 +414,66 @@ const playerLogic = (() => {
     };
 
     const usedCoords = [];
+    const cpuSuccessHits = [];
+    const cpuHits = []; // this array do not contains cornerHits.
+
+    const tryCloseAttack = (currentCoord, attackFunction) => {
+
+      const randomInt = (max) => Math.floor(Math.random() * max);
+      // get the 4 possible sides
+      const up = [currentCoord[0] - 1, currentCoord[1]];
+      const down = [currentCoord[0] + 1, currentCoord[1]];
+      const right = [currentCoord[0], currentCoord[1] + 1];
+      const left = [currentCoord[0], currentCoord[1] - 1];
+
+      const possibleAttacks = [up, down, right, left]
+
+      // select a random side
+      const randomChoice = possibleAttacks[randomInt(possibleAttacks.length)];
+
+      return attackFunction(randomChoice)
+
+    }
 
     const attackPlayer = (coords, ignoreCoords) => {
+
       const randomInt = (max) => Math.floor(Math.random() * max);
-
       const randomCoords = [randomInt(10), randomInt(10)];
-
-      if (
-        globalLogic.isTargetInArray(usedCoords, randomCoords) &&
-        ignoreCoords !== true
-      )
-        return attackPlayer(); // call the function again and generate new random coords if the attack has already be done in that coordinate.
 
       const attackLogic = (coordinates) => {
         rivalPlayer.receiveAttack(coordinates);
         usedCoords.push(coordinates);
         const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks;
 
-        if (globalLogic.isTargetInArray(rivalPlayerHits, coordinates)) {
-          // check if it was a successful attack or not.
+        if (globalLogic.isTargetInArray(rivalPlayerHits, coordinates)) { // successful attack
           visualIndicators(coordinates, true, "player");
           attackCorners(coordinates, attackPlayer, "player");
-          return coordinates;
+          cpuHits.push(coordinates)
+          cpuSuccessHits.push(coordinates)
+          return true
         }
-        return visualIndicators(coordinates, false, "player");
+        // failed attack
+        cpuHits.push(coordinates)
+        visualIndicators(coordinates, false, "player");
+        return false
       };
 
-      if (coords) {
-        // when the coords are indicated manually.
+      if ( // call the function recursively and generate new random coords if the attack has already be done in that coordinate.
+        globalLogic.isTargetInArray(usedCoords, randomCoords) &&
+        ignoreCoords !== true
+      )
+        return attackPlayer();
+
+      if (cpuHits[0] && cpuSuccessHits[0])
+        if ((cpuHits[cpuHits.length - 1] === cpuSuccessHits[cpuSuccessHits.length - 1]))  // if the last hit was a successful attack.
+          tryCloseAttack(cpuSuccessHits[cpuSuccessHits.length - 1], attackLogic)
+
+      if (coords) // when the coords are indicated manually.
         return attackLogic(coords);
-      }
+
       return attackLogic(randomCoords); // when the coords are generated randomly.
     };
+
 
     return {
       attackPlayer,
@@ -1473,13 +1501,15 @@ const GameLoop = (() => {
 
     const turnsLogic = () => {
       let isGameOver = false;
-      player2.attackPlayer();
+      const cpuAttack = player2.attackPlayer();
 
-      if (player1.playerBoard.checkSunk(player1Ships)) {
-        DOMLogic.endGame();
-        DOMLogic.createModal("Player2", true);
-        isGameOver = true;
-      }
+      if (cpuAttack)
+
+        if (player1.playerBoard.checkSunk(player1Ships)) {
+          DOMLogic.endGame();
+          DOMLogic.createModal("Player2", true);
+          isGameOver = true;
+        }
 
       if (player2.cpuBoard.checkSunk(player2Ships)) {
         DOMLogic.endGame();
