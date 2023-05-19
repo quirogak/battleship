@@ -420,13 +420,11 @@ const playerLogic = (() => {
 
       const randomCoords = [randomInt(10), randomInt(10)];
 
-      // call the function again and generate new random coords if the attack has already be done in that coordinate.
-
       if (
         globalLogic.isTargetInArray(usedCoords, randomCoords) &&
         ignoreCoords !== true
       )
-        return attackPlayer();
+        return attackPlayer(); // call the function again and generate new random coords if the attack has already be done in that coordinate.
 
       const attackLogic = (coordinates) => {
         rivalPlayer.receiveAttack(coordinates);
@@ -663,8 +661,7 @@ const DOMLogic = (() => {
     };
 
     const deleteShownGrid = (index) => {
-      const shownGrid =
-        document.getElementsByClassName("shown-grid")[index];
+      const shownGrid = document.getElementsByClassName("shown-grid")[index];
       if (shownGrid) shownGrid.remove();
     };
 
@@ -683,8 +680,8 @@ const DOMLogic = (() => {
         showShips(coords, playerIndex);
       }
 
-      return grid
-    }
+      return grid;
+    };
 
     const genGrid = (playerIndex, coords) => {
       const mainContainer = document.createElement("section");
@@ -709,7 +706,7 @@ const DOMLogic = (() => {
 
       gridsContainer.appendChild(gridWrapper);
 
-      const grid = genGridOnly(playerIndex, gridWrapper, coords)
+      const grid = genGridOnly(playerIndex, gridWrapper, coords);
 
       return grid;
     };
@@ -808,6 +805,24 @@ const DOMLogic = (() => {
       option10.value = "destroyer4";
       option10.textContent = "Destroyer 4";
       selectElement.appendChild(option10);
+
+      // inputs validation
+      const regExp = /^\d+$/;
+      const validateInput = (event) => {
+        if (!`${event.target.value}${event.key}`.match(regExp)) {
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
+        }
+        return true
+
+      }
+
+      input2.setAttribute("maxlength", "1")
+      input1.setAttribute("maxlength", "1")
+      input1.addEventListener('keypress', validateInput)
+      input2.addEventListener('keypress', validateInput)
+
     };
 
     const genButtonWrapper = () => {
@@ -845,7 +860,14 @@ const DOMLogic = (() => {
       genCustomizeButton();
     };
 
-    return { genGrid, deleteElements, genButtons, genCoordInputs, genGridOnly, deleteShownGrid };
+    return {
+      genGrid,
+      deleteElements,
+      genButtons,
+      genCoordInputs,
+      genGridOnly,
+      deleteShownGrid,
+    };
   };
 
   const createModal = (winner, cpuWin) => {
@@ -1086,8 +1108,7 @@ const DOMLogic = (() => {
       if (checkOrientation() === "v") {
         yPos = newArray[i][0];
         xPos = newArray[i][1] + 1;
-      }
-      else {
+      } else {
         yPos = newArray[i][0] + 1;
         xPos = newArray[i][1];
       }
@@ -1096,7 +1117,6 @@ const DOMLogic = (() => {
       newArray = newArray.concat([newCoord]);
     }
     return newArray;
-
   };
 
   const replaceCoords = (shipInfo, coords) => {
@@ -1120,7 +1140,6 @@ const DOMLogic = (() => {
   };
 
   const validateRotation = (shipInfo, usedCoords) => {
-
     let isValid = true;
 
     const occupiedCoords = shipInfo.coords;
@@ -1139,11 +1158,10 @@ const DOMLogic = (() => {
     )
       return usedCoords; // check if these coords aren't out of the grid.
 
-    if (typeof (occupiedCoords[0]) === "number") {
+    if (typeof occupiedCoords[0] === "number") {
       if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords))
         isValid = false;
-    }
-    else
+    } else
       for (let i = 0; i < occupiedCoords.length; i++) {
         if (globalLogic.isTargetInArray(flatUsedCoords, occupiedCoords[i])) {
           isValid = false;
@@ -1175,7 +1193,10 @@ const DOMLogic = (() => {
     const rotate = (e) => {
       const clickedCoord = e.target.className;
 
-      const fullArray = getShipCoords(globalLogic.classToArray(clickedCoord), cleanCoords);
+      const fullArray = getShipCoords(
+        globalLogic.classToArray(clickedCoord),
+        cleanCoords
+      );
 
       const shipInfo = {
         coords: fullArray[0],
@@ -1185,9 +1206,11 @@ const DOMLogic = (() => {
 
       shipInfo.coords = rotateCoords(shipInfo);
 
-      if (validateRotation(shipInfo, usedCoords) !== usedCoords) { // this means that the used coords were changed, so it was a valid rotation.
+      if (validateRotation(shipInfo, usedCoords) !== usedCoords) {
+        // this means that the used coords were changed, so it was a valid rotation.
 
-        const customizeSection = document.getElementsByClassName("inputs-container")[0] // if customize section is true, send it to restartGrid to keep it open.
+        const customizeSection =
+          document.getElementsByClassName("inputs-container")[0]; // if customize section is true, send it to restartGrid to keep it open.
         currentDOM.deleteElements(0); // delete old grid
 
         return restartGrid(
@@ -1242,65 +1265,66 @@ const DOMLogic = (() => {
   const changeShipColor = (currentShip, color) => {
     let currentCoord;
     for (let i = 0; i < currentShip.length; i++) {
-      if (typeof (currentShip[i]) === "number") // one-coordinate ship.
+      if (typeof currentShip[i] === "number")
+        // one-coordinate ship.
         currentCoord = globalLogic.coordToClass(currentShip);
-      else
-        currentCoord = globalLogic.coordToClass(currentShip[i]);
+      else currentCoord = globalLogic.coordToClass(currentShip[i]);
 
-      const currentElement = document.getElementsByClassName(currentCoord)[0]
-      currentElement.style.borderColor = color
+      const currentElement = document.getElementsByClassName(currentCoord)[0];
+      currentElement.style.borderColor = color;
     }
-  }
+  };
 
   const changeEveryShipColor = (shipsCoords, color) => {
-
-    const currentShips = shipsCoords
+    const currentShips = shipsCoords;
 
     for (let i = 0; i < currentShips.length; i++) {
       const currentShip = currentShips[i];
-      changeShipColor(currentShip, color)
+      changeShipColor(currentShip, color);
     }
+  };
 
-  }
-
-  const getSelectShipIndex = () => document.getElementsByClassName("select-ships")[0].selectedIndex
+  const getSelectShipIndex = () =>
+    document.getElementsByClassName("select-ships")[0].selectedIndex;
 
   const highlightCurrentShip = (shipIndex, shipsCoords) => {
+    const currentShip = shipsCoords[shipIndex];
 
-    const currentShip = shipsCoords[shipIndex]
+    changeEveryShipColor(shipsCoords, "green"); // restart previously highlighted ships.
+    changeShipColor(currentShip, "rgb(37, 214, 199)");
 
-    changeEveryShipColor(shipsCoords, "green") // restart previously highlighted ships.
-    changeShipColor(currentShip, "rgb(37, 214, 199)")
-
-    return currentShip
-
-  }
+    return currentShip;
+  };
 
   const triggerCurrentCoord = (xPos, yPos, coords, currentDOM) => {
-
-    const coordClass = [Number(xPos), Number(yPos)]
-    const gridContainer = document.getElementsByClassName("grid-wrapper")[0]
+    const coordClass = [Number(xPos), Number(yPos)];
+    const gridContainer = document.getElementsByClassName("grid-wrapper")[0];
 
     // restart previous triggered coords, by restarting the grid.
-    currentDOM.deleteShownGrid(0)
-    currentDOM.genGridOnly(1, gridContainer, coords)
-    highlightCurrentShip(getSelectShipIndex(), coords)
+    currentDOM.deleteShownGrid(0);
+    currentDOM.genGridOnly(1, gridContainer, coords);
+    highlightCurrentShip(getSelectShipIndex(), coords);
 
-    changeShipColor(coordClass, "orange")
+    changeShipColor(coordClass, "orange");
 
-    return coordClass
+    return coordClass;
+  };
 
-  }
-
-  const changeInitialCoord = (shipIndex, coord, shipsCoords, usedCoords, restartGrid, currentDOM) => {
-
+  const changeInitialCoord = (
+    shipIndex,
+    coord,
+    shipsCoords,
+    usedCoords,
+    restartGrid,
+    currentDOM
+  ) => {
     const shipInfo = {
       coords: shipsCoords[shipIndex],
       firstCoord: coord,
       coordsPosition: shipIndex,
     };
 
-    const generateCoords = rotateCoords(shipInfo, true) // generate the coords, with the same orientation, different initialCoord.
+    const generateCoords = rotateCoords(shipInfo, true); // generate the coords, with the same orientation, different initialCoord.
 
     // update shipInfo with the new ship coords.
 
@@ -1308,66 +1332,97 @@ const DOMLogic = (() => {
       coords: generateCoords,
       firstCoord: generateCoords[0],
       coordsPosition: shipIndex,
-    }
+    };
 
     const updateGrid = (shipObj, usedCoordsArr, coordsArr, usedDOM) => {
-
       if (validateRotation(shipObj, usedCoordsArr) !== usedCoordsArr) {
         usedDOM.deleteElements(0); // delete old grid
-        return restartGrid(// gen new grid with the changed coord.
+        return restartGrid(
+          // gen new grid with the changed coord.
           replaceCoords(shipObj, coordsArr),
           false,
           validateRotation(shipObj, usedCoordsArr),
           true
         );
       }
-    }
+    };
 
-    if (typeof (shipsCoords[shipIndex][0]) === "number") { // when it is a one-coordinate ship.
-      shipInfo.coords = shipInfo.firstCoord // change the coord to be equal to the wanted coord.
-      updateGrid(shipInfo, usedCoords, shipsCoords, currentDOM)
+    if (typeof shipsCoords[shipIndex][0] === "number") {
+      // when it is a one-coordinate ship.
+      shipInfo.coords = shipInfo.firstCoord; // change the coord to be equal to the wanted coord.
+      updateGrid(shipInfo, usedCoords, shipsCoords, currentDOM);
+    } else {
+      updateGrid(updatedShipInfo, usedCoords, shipsCoords, currentDOM);
     }
-    else {
-      updateGrid(updatedShipInfo, usedCoords, shipsCoords, currentDOM)
-    }
-    return { updateGrid }
-  }
+    return { updateGrid };
+  };
 
-  const customizeSetup = (coords, usedCoords, genInitialElements, currentDOM) => {
-
-    const changeCoordButton = document.getElementsByClassName("apply-coords")[0]
+  const customizeSetup = (
+    coords,
+    usedCoords,
+    genInitialElements,
+    currentDOM
+  ) => {
+    const changeCoordButton =
+      document.getElementsByClassName("apply-coords")[0];
     if (changeCoordButton)
       changeCoordButton.addEventListener("click", () => {
+        const initialCoord = document.getElementsByClassName("coords-input");
+        const fullCoord = [
+          Number(initialCoord[0].value),
+          Number(initialCoord[1].value),
+        ];
+        changeInitialCoord(
+          getSelectShipIndex(),
+          fullCoord,
+          coords,
+          usedCoords,
+          genInitialElements,
+          currentDOM
+        );
+      });
 
-        const initialCoord = document.getElementsByClassName("coords-input")
-        const fullCoord = [Number(initialCoord[0].value), Number(initialCoord[1].value)]
-        changeInitialCoord(getSelectShipIndex(), fullCoord, coords, usedCoords, genInitialElements, currentDOM)
-      })
-
-    const selectShips = document.getElementsByClassName("select-ships")[0]
-    changeShipColor(coords[0], "rgb(37, 214, 199)") // highlight default selected ship.
+    const selectShips = document.getElementsByClassName("select-ships")[0];
+    changeShipColor(coords[0], "rgb(37, 214, 199)"); // highlight default selected ship.
     if (selectShips)
       selectShips.addEventListener("click", () => {
-        const currentShipIndex = document.getElementsByClassName("select-ships")[0].selectedIndex
-        highlightCurrentShip(currentShipIndex, coords)
-      })
+        const currentShipIndex =
+          document.getElementsByClassName("select-ships")[0].selectedIndex;
+        highlightCurrentShip(currentShipIndex, coords);
+      });
 
-    const coordInput = document.getElementsByClassName("coords-input")[0]
-    const coordInput1 = document.getElementsByClassName("coords-input")[1]
-
+    const coordInput = document.getElementsByClassName("coords-input")[0];
+    const coordInput1 = document.getElementsByClassName("coords-input")[1];
 
     coordInput.addEventListener("input", () => {
       if (coordInput.value && coordInput1.value)
-        triggerCurrentCoord(coordInput.value, coordInput1.value, coords, currentDOM)
-    })
+        triggerCurrentCoord(
+          coordInput.value,
+          coordInput1.value,
+          coords,
+          currentDOM
+        );
+    });
     coordInput1.addEventListener("input", () => {
       if (coordInput.value && coordInput1.value)
-        triggerCurrentCoord(coordInput.value, coordInput1.value, coords, currentDOM)
-    })
-  }
+        triggerCurrentCoord(
+          coordInput.value,
+          coordInput1.value,
+          coords,
+          currentDOM
+        );
+    });
+  };
 
-  const setupEventListeners = (coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, gameMode) => {
-
+  const setupEventListeners = (
+    coords,
+    sameCoords,
+    usedCoords,
+    currentDOM,
+    customizeOpen,
+    genInitialElements,
+    gameMode
+  ) => {
     const startButton = document.getElementsByClassName("start-button")[0];
     const randomizeButton = document.getElementsByClassName("random-button")[0];
     const customizeButton =
@@ -1383,7 +1438,7 @@ const DOMLogic = (() => {
         "click",
         () => {
           currentDOM.genCoordInputs();
-          customizeSetup(coords, usedCoords, genInitialElements, currentDOM)
+          customizeSetup(coords, usedCoords, genInitialElements, currentDOM);
         },
         { once: true }
       );
@@ -1406,12 +1461,11 @@ const DOMLogic = (() => {
     rotateShips,
     rotateCoords,
     changeInitialCoord,
-    setupEventListeners
+    setupEventListeners,
   };
 })();
 
 const GameLoop = (() => {
-
   const gameTurns = (player1, player2) => {
     const player1Ships = player1.playerShips;
 
@@ -1501,12 +1555,19 @@ const GameLoop = (() => {
     currentDOM.genGrid(1, coords);
     currentDOM.genButtons();
     DOMLogic.rotateShips(coords, usedCoords, 0, genInitialElements, currentDOM);
-    DOMLogic.setupEventListeners(coords, sameCoords, usedCoords, currentDOM, customizeOpen, genInitialElements, singlePlayer)
+    DOMLogic.setupEventListeners(
+      coords,
+      sameCoords,
+      usedCoords,
+      currentDOM,
+      customizeOpen,
+      genInitialElements,
+      singlePlayer
+    );
     // dragAndDrop(coords);
 
-    return { currentDOM }
-  }
-
+    return { currentDOM };
+  };
 
   const setupDOM = () => {
     const genRandomCoords = DOMLogic.genCoords().genBattleships();
@@ -1515,7 +1576,7 @@ const GameLoop = (() => {
 
     genInitialElements(randomCoords, false, usedCoords);
 
-    return { usedCoords }
+    return { usedCoords };
   };
 
   return {
