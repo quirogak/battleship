@@ -354,6 +354,21 @@ const playerLogic = (() => {
     }
   };
 
+
+  const notRepeatedCoords = (coords, fullCoords) => {
+
+    const noRepeat = []
+
+    const usedCoords = fullCoords.filter(element => element !== undefined)
+
+    for (let i = 0; i < coords.length; i++) {
+      const currentCoord = coords[i];
+      if (!globalLogic.isTargetInArray(usedCoords, currentCoord)) noRepeat.push(currentCoord)
+    }
+
+    return noRepeat
+  }
+
   const Player = (name, shipsCoords) => {
     const playerName = name;
 
@@ -388,6 +403,7 @@ const playerLogic = (() => {
     };
   };
 
+
   const cpuPlayer = (humanPlayer, shipsCords) => {
     const rivalPlayer = humanPlayer;
 
@@ -412,10 +428,9 @@ const playerLogic = (() => {
         );
       }
     };
-
-    const usedCoords = [];
-    const cpuSuccessHits = [];
     const cpuHits = []; // this array do not contains cornerHits.
+    const rivalHits = rivalPlayer.playerBoard.receivedAttacks
+    const rivalSuccessHits = rivalPlayer.playerBoard.successAttacks;
 
     const tryCloseAttack = (currentCoord, attackFunction) => {
 
@@ -426,7 +441,13 @@ const playerLogic = (() => {
       const right = [currentCoord[0], currentCoord[1] + 1];
       const left = [currentCoord[0], currentCoord[1] - 1];
 
-      const possibleAttacks = [up, down, right, left]
+      const attacks = [up, down, right, left]
+
+      const removeOutMoves = validateCoords(attacks)
+
+      const possibleAttacks = notRepeatedCoords(removeOutMoves, rivalHits)
+
+      if (possibleAttacks.length === 0) return null // if possibleAttacks is zero, it means that we can't make a close attack.
 
       // select a random side
       const randomChoice = possibleAttacks[randomInt(possibleAttacks.length)];
@@ -442,34 +463,33 @@ const playerLogic = (() => {
 
       const attackLogic = (coordinates) => {
         rivalPlayer.receiveAttack(coordinates);
-        usedCoords.push(coordinates);
-        const rivalPlayerHits = rivalPlayer.playerBoard.successAttacks;
 
-        if (globalLogic.isTargetInArray(rivalPlayerHits, coordinates)) { // successful attack
+        if (globalLogic.isTargetInArray(rivalSuccessHits, coordinates)) { // successful attack
           visualIndicators(coordinates, true, "player");
           attackCorners(coordinates, attackPlayer, "player");
           cpuHits.push(coordinates)
-          cpuSuccessHits.push(coordinates)
+
           return true
         }
         // failed attack
         cpuHits.push(coordinates)
         visualIndicators(coordinates, false, "player");
+
         return false
       };
 
       if ( // call the function recursively and generate new random coords if the attack has already be done in that coordinate.
-        globalLogic.isTargetInArray(usedCoords, randomCoords) &&
+        globalLogic.isTargetInArray(rivalHits, randomCoords) &&
         ignoreCoords !== true
       )
         return attackPlayer();
 
-      if (cpuHits[0] && cpuSuccessHits[0])
-        if ((cpuHits[cpuHits.length - 1] === cpuSuccessHits[cpuSuccessHits.length - 1]))  // if the last hit was a successful attack.
-          tryCloseAttack(cpuSuccessHits[cpuSuccessHits.length - 1], attackLogic)
-
       if (coords) // when the coords are indicated manually.
         return attackLogic(coords);
+
+      if (cpuHits[0] && rivalSuccessHits[0])
+        if ((cpuHits[cpuHits.length - 1] === rivalSuccessHits[rivalSuccessHits.length - 1]))  // if the last hit was a successful attack.
+          return tryCloseAttack(rivalSuccessHits[rivalSuccessHits.length - 1], attackPlayer)
 
       return attackLogic(randomCoords); // when the coords are generated randomly.
     };
@@ -480,7 +500,6 @@ const playerLogic = (() => {
       cpuBoard,
       cpuShips,
       cpuCoords,
-      usedCoords,
       receiveAttack,
     };
   };
