@@ -432,7 +432,7 @@ const playerLogic = (() => {
     const rivalHits = rivalPlayer.playerBoard.receivedAttacks
     const rivalSuccessHits = rivalPlayer.playerBoard.successAttacks;
 
-    const tryCloseAttack = (currentCoord, attackFunction) => {
+    const tryCloseAttack = (currentCoord, attackFunction, randomCoord) => {
 
       const randomInt = (max) => Math.floor(Math.random() * max);
       // get the 4 possible sides
@@ -447,7 +447,8 @@ const playerLogic = (() => {
 
       const possibleAttacks = notRepeatedCoords(removeOutMoves, rivalHits)
 
-      if (possibleAttacks.length === 0) return null // if possibleAttacks is zero, it means that we can't make a close attack.
+      if (possibleAttacks.length === 0)// if possibleAttacks is zero, it means that we can't make a close attack.
+        return attackFunction(randomCoord)
 
       // select a random side
       const randomChoice = possibleAttacks[randomInt(possibleAttacks.length)];
@@ -474,7 +475,6 @@ const playerLogic = (() => {
         // failed attack
         cpuHits.push(coordinates)
         visualIndicators(coordinates, false, "player");
-
         return false
       };
 
@@ -489,7 +489,7 @@ const playerLogic = (() => {
 
       if (cpuHits[0] && rivalSuccessHits[0])
         if ((cpuHits[cpuHits.length - 1] === rivalSuccessHits[rivalSuccessHits.length - 1]))  // if the last hit was a successful attack.
-          return tryCloseAttack(rivalSuccessHits[rivalSuccessHits.length - 1], attackPlayer)
+          return tryCloseAttack(rivalSuccessHits[rivalSuccessHits.length - 1], attackPlayer, randomCoords)
 
       return attackLogic(randomCoords); // when the coords are generated randomly.
     };
