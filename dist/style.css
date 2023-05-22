@@ -44,7 +44,6 @@ main {
   width: max-content;
   height: max-content;
   padding: 50px;
-  padding-bottom: 20px;
   position: relative;
 }
 
@@ -116,19 +115,22 @@ ul {
 }
 
 button {
-  margin-top: 30px;
-  background-color: #e7e7e7;
-  border: none;
-  border: solid 2px white;
-  border-radius: 10px;
-  padding: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: 500;
-  font-size: 15px;
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 13px 23px;
+  border: 1px solid green;
+  background: #242424;
 }
 
 button:hover {
-  background-color: #d3d3d3;
+  background-color: #252525;
+  border-color: #77ff00;
 }
 
 h3 {
@@ -193,7 +195,7 @@ dialog {
 }
 
 .button-wrapper {
-  margin-top: 10px;
+  margin-top: 40px;
 }
 
 .inputs-container {
