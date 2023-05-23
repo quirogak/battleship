@@ -281,7 +281,11 @@ describe("DOMLogic tests", () => {
 describe("GameLoop tests", () => {
   document.body.innerHTML = "<main>" + "</main>";
 
-  const startGame = GameLoop.singlePlayer(ExampleCoords, true, DOMLogic.genDOMElements());
+  const startGame = GameLoop.singlePlayer(
+    ExampleCoords,
+    true,
+    DOMLogic.genDOMElements()
+  );
 
   test("after initializing the game, the previous grid, input and start button should be deleted, so the new grid with event listeners can be generated.", () => {
     const repeatedGrid = document.getElementsByClassName("grid-1")[1]; // if there isn't a method that deletes unnecesary elements, there will be two "grid-1".
@@ -311,7 +315,7 @@ describe("GameLoop tests", () => {
     mockGrid2.childNodes[34].click();
     expect(
       mockGrid2.childNodes[33].style.borderColor &&
-      mockGrid2.childNodes[34].style.borderColor
+        mockGrid2.childNodes[34].style.borderColor
     ).toBe("red"); // 3,3 and 3,4 make an entire ship.
   });
 
@@ -348,7 +352,11 @@ describe("Game mechanics tests", () => {
     document.body.innerHTML = "<main>" + "</main>";
 
     GameLoop.genInitialElements(ExampleCoords, true);
-    const startGame = GameLoop.singlePlayer(ExampleCoords, true, DOMLogic.genDOMElements());
+    const startGame = GameLoop.singlePlayer(
+      ExampleCoords,
+      true,
+      DOMLogic.genDOMElements()
+    );
     const mockGrid2 = document.getElementsByClassName("grid-2")[0];
 
     mockGrid2.childNodes[75].click(); // make an attack, the cpu takes his turn and attacks us.
@@ -400,8 +408,8 @@ describe("Game setup tests", () => {
     expect(
       ((randomCoord[0][0] === randomCoord[1][0]) + 1 &&
         randomCoord[0][1] === randomCoord[1][1]) ||
-      ((randomCoord[0][1] === randomCoord[1][1]) + 1 &&
-        randomCoord[0][0] === randomCoord[1][0])
+        ((randomCoord[0][1] === randomCoord[1][1]) + 1 &&
+          randomCoord[0][0] === randomCoord[1][0])
     ).toBe(true);
   });
 
@@ -538,54 +546,79 @@ describe("inputCoords tests", () => {
   const setupGame = () => {
     document.body.innerHTML = "<main>" + "</main>";
     const game = GameLoop.genInitialElements(ExampleCoords);
-    const { currentDOM } = game
-    return { game, currentDOM }
+    const { currentDOM } = game;
+    return { game, currentDOM };
   };
 
-
   test("can change the coords of a 1x1 ship.", () => {
-    const newGame = setupGame()
-    const usedCoords = []
-    DOMLogic.changeInitialCoord(8, [6, 5], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
-    const currentGrid = document.querySelector(".shown-grid")
+    const newGame = setupGame();
+    const usedCoords = [];
+    DOMLogic.changeInitialCoord(
+      8,
+      [6, 5],
+      ExampleCoords,
+      usedCoords,
+      GameLoop.genInitialElements,
+      newGame.currentDOM
+    );
+    const currentGrid = document.querySelector(".shown-grid");
 
     expect(currentGrid.childNodes[65].style.border).toBe("1px solid green");
   });
 
   test("don't change the coords of a 1x1 ship if it occupies an used space.", () => {
-    const newGame = setupGame()
-    const usedCoords = [[6, 5]]
-    DOMLogic.changeInitialCoord(8, [6, 5], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
-    const currentGrid = document.querySelector(".shown-grid")
+    const newGame = setupGame();
+    const usedCoords = [[6, 5]];
+    DOMLogic.changeInitialCoord(
+      8,
+      [6, 5],
+      ExampleCoords,
+      usedCoords,
+      GameLoop.genInitialElements,
+      newGame.currentDOM
+    );
+    const currentGrid = document.querySelector(".shown-grid");
 
     expect(currentGrid.childNodes[65].style.border).not.toBe("1px solid green");
   });
 
   test("can change the coords of a multiple-coordinate ship.", () => {
-    const newGame = setupGame()
-    const usedCoords = []
-    DOMLogic.changeInitialCoord(0, [2, 6], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
-    const currentGrid = document.querySelector(".shown-grid")
+    const newGame = setupGame();
+    const usedCoords = [];
+    DOMLogic.changeInitialCoord(
+      0,
+      [2, 6],
+      ExampleCoords,
+      usedCoords,
+      GameLoop.genInitialElements,
+      newGame.currentDOM
+    );
+    const currentGrid = document.querySelector(".shown-grid");
 
     expect(
       currentGrid.childNodes[26].style.border &&
-      currentGrid.childNodes[27].style.border &&
-      currentGrid.childNodes[28].style.border &&
-      currentGrid.childNodes[29].style.border
-
+        currentGrid.childNodes[27].style.border &&
+        currentGrid.childNodes[28].style.border &&
+        currentGrid.childNodes[29].style.border
     ).toBe("1px solid green");
   });
 
-
   test("don't change the coords of a multiple-coordinate ship if it occupies an used space.", () => {
-    const newGame = setupGame()
-    const usedCoords = [[4, 7], [4, 8]]
-    DOMLogic.changeInitialCoord(0, [4, 6], ExampleCoords, usedCoords, GameLoop.genInitialElements, newGame.currentDOM)
-    const currentGrid = document.querySelector(".shown-grid")
+    const newGame = setupGame();
+    const usedCoords = [
+      [4, 7],
+      [4, 8],
+    ];
+    DOMLogic.changeInitialCoord(
+      0,
+      [4, 6],
+      ExampleCoords,
+      usedCoords,
+      GameLoop.genInitialElements,
+      newGame.currentDOM
+    );
+    const currentGrid = document.querySelector(".shown-grid");
 
     expect(currentGrid.childNodes[46].style.border).not.toBe("1px solid green");
   });
-
-
-
 });
