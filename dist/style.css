@@ -24,7 +24,7 @@ header {
 
 h1 {
   margin: 0;
-  margin-left: 50px;
+  margin-left: 0px;
   color: white;
   font-size: 6vh;
 }
@@ -134,7 +134,7 @@ button:hover {
 }
 
 h3 {
-  margin: 0;
+  margin-top: 0;
   margin-bottom: 30px;
   font-weight: 100;
   color: white;
@@ -183,9 +183,12 @@ input:focus {
 
 dialog {
   border-radius: 10px;
-  border: 1px solid rgb(255, 255, 255);
+  border: 1px solid rgb(131, 131, 131);
+  background-color: #292929;
+  color: white;
   display: flex;
   flex-direction: column;
+  gap: 20px;
   flex-shrink: 0;
 }
 
@@ -247,7 +250,6 @@ dialog {
 }
 
 h3 {
-  margin: 10px;
   font-size: 1rem;
 }
 
